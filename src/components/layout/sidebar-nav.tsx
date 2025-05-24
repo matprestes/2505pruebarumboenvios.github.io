@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import React, { useState, useEffect } from 'react'; // Added useState and useEffect
 import { LayoutDashboard, Users, Package, Truck, ListChecks, PackagePlus, Settings } from 'lucide-react';
 import {
   SidebarMenu,
@@ -39,28 +40,34 @@ export function SidebarNav() {
   const { state: sidebarState, isMobile } = useSidebar();
   const isConfigActive = configNavItems.some(item => pathname.startsWith(item.href));
 
+  const [openAccordionValue, setOpenAccordionValue] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    // This effect ensures the accordion opens if a config item is active,
+    // and closes if no config item is active.
+    setOpenAccordionValue(isConfigActive ? "config-item" : undefined);
+  }, [isConfigActive, pathname]); // Depend on pathname as isConfigActive derives from it.
+
   const accordionTriggerClasses = cn(
-    // Base styles mimicking SidebarMenuButton behavior and AccordionTrigger defaults
     "flex w-full items-center gap-2 overflow-hidden rounded-md px-2 py-2 text-left text-sm font-medium outline-none ring-sidebar-ring transition-colors",
-    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", // Hover state
-    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", // Focus state
-    "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground", // Open state
-    isConfigActive && "bg-sidebar-accent text-sidebar-accent-foreground", // Active state based on path
-    "h-8", // Specific height
-    // Icon-only mode styles
+    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+    isConfigActive && "bg-sidebar-accent text-sidebar-accent-foreground",
+    "h-8",
     "group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2",
-    "hover:no-underline", // Remove underline from default AccordionTrigger
-    "group-data-[collapsible=icon]:[&>svg:last-child]:hidden" // Hide chevron in icon mode
+    "hover:no-underline",
+    "group-data-[collapsible=icon]:[&>svg:last-child]:hidden"
   );
 
   const accordionTriggerTextSpanClasses = cn(
-    "flex-1", // Take available space to push chevron to the end
-    "group-data-[collapsible=icon]:hidden" // Hide text in icon mode
+    "flex-1",
+    "group-data-[collapsible=icon]:hidden"
   );
   
   const accordionContentClasses = cn(
     "pt-1 pb-0 overflow-hidden",
-    "group-data-[collapsible=icon]:hidden" // Hide content entirely in icon mode
+    "group-data-[collapsible=icon]:hidden"
   );
 
   return (
@@ -81,7 +88,13 @@ export function SidebarNav() {
 
       {/* Configuración Submenu */}
       <SidebarMenuItem>
-        <Accordion type="single" collapsible defaultValue={isConfigActive ? "config-item" : undefined} className="w-full">
+        <Accordion 
+          type="single" 
+          collapsible 
+          value={openAccordionValue}
+          onValueChange={setOpenAccordionValue}
+          className="w-full"
+        >
           <AccordionItem value="config-item" className="border-none">
             <TooltipProvider delayDuration={0}>
               <Tooltip>
