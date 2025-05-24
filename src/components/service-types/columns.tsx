@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
@@ -5,10 +6,10 @@ import type { ServiceType } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 
-const formatCurrency = (amount?: number) => {
-  if (typeof amount !== 'number') return <span className="text-muted-foreground italic">N/A</span>;
-  return amount.toLocaleString('es-ES', { style: 'currency', currency: 'USD' }); // Adjust currency as needed
-};
+// const formatCurrency = (amount?: number) => {
+//   if (typeof amount !== 'number') return <span className="text-muted-foreground italic">N/A</span>;
+//   return amount.toLocaleString('es-ES', { style: 'currency', currency: 'USD' }); // Adjust currency as needed
+// };
 
 export const getServiceTypeColumns = (
   onEdit: (item: ServiceType) => void,
@@ -49,27 +50,14 @@ export const getServiceTypeColumns = (
     cell: ({ row }) => {
       const description = row.getValue("description") as string | undefined;
       return description ? (
-        <span className="truncate max-w-[250px] inline-block">{description}</span>
+        <span className="truncate max-w-[400px] inline-block">{description}</span>
       ) : (
         <span className="text-muted-foreground italic">N/A</span>
       );
     },
   },
-  {
-    accessorKey: "baseRate",
-    header: "Tarifa Base",
-    cell: ({ row }) => formatCurrency(row.getValue("baseRate")),
-  },
-  {
-    accessorKey: "ratePerKm",
-    header: "Tarifa/Km",
-    cell: ({ row }) => formatCurrency(row.getValue("ratePerKm")),
-  },
-  {
-    accessorKey: "ratePerKg",
-    header: "Tarifa/Kg",
-    cell: ({ row }) => formatCurrency(row.getValue("ratePerKg")),
-  },
+  // Removed baseRate, ratePerKm, ratePerKg columns as pricing is now complex
+  // These details will be available in the edit form.
   {
     id: "actions",
     cell: ({ row }) => (

@@ -1,9 +1,9 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import type * as z from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,8 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { serviceTypeSchema } from "@/lib/schemas";
-import type { ServiceType, EntityType } from "@/types";
+import type { ServiceType, EntityType, DistanceRate } from "@/types";
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
+import { generateId } from "@/lib/utils";
+import { Trash2, PlusCircle } from "lucide-react";
 
 interface ServiceTypeFormProps {
   onSubmit: (values: z.infer<typeof serviceTypeSchema>) => void;
@@ -32,13 +34,20 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
     defaultValues: initialData || {
       name: "",
       description: "",
-      baseRate: 0,
-      ratePerKm: undefined,
-      ratePerKg: undefined,
+      distanceRates: [],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "distanceRates",
+  });
+
   const entityType: EntityType = 'service';
+
+  const handleAddDistanceRate = () => {
+    append({ id: generateId(), distancia_hasta_km: 0, precio: 0, fecha_vigencia_desde: new Date().toISOString().split('T')[0] });
+  };
 
   return (
     <Form {...form}>
@@ -82,62 +91,83 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="baseRate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tarifa Base</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="0.00" {...field} step="0.01" />
-              </FormControl>
-              <FormDescription>
-                La tarifa mínima para este servicio.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="ratePerKm"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tarifa por Km (Opcional)</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0.00" {...field} step="0.01" />
-                </FormControl>
-                <FormDescription>
-                  Costo adicional por kilómetro recorrido.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="ratePerKg"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tarifa por Kg (Opcional)</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="0.00" {...field} step="0.01" />
-                </FormControl>
-                <FormDescription>
-                  Costo adicional por kilogramo de peso.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+        <div>
+          <FormLabel>Tarifas por Distancia</FormLabel>
+          <FormDescription>Define los precios según la distancia y fecha de vigencia.</FormDescription>
+          <div className="space-y-4 mt-2">
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
+                <FormField
+                  control={form.control}
+                  name={`distanceRates.${index}.distancia_hasta_km`}
+                  render={({ field: itemField }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel className="text-xs">Hasta KM</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="KM" {...itemField} step="0.1" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`distanceRates.${index}.precio`}
+                  render={({ field: itemField }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel className="text-xs">Precio</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="0.00" {...itemField} step="0.01" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`distanceRates.${index}.fecha_vigencia_desde`}
+                  render={({ field: itemField }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel className="text-xs">Vigencia Desde</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...itemField} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => remove(index)}
+                  className="text-destructive hover:text-destructive"
+                  title="Eliminar tarifa"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddDistanceRate}
+            className="mt-2"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Agregar Tarifa de Distancia
+          </Button>
         </div>
-        <div className="flex justify-end space-x-2">
+
+        <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
           <Button type="submit">
-            {initialData ? "Guardar Cambios" : "Crear Tipo de Servicio"}
+            {initialData?.id ? "Guardar Cambios" : "Crear Tipo de Servicio"}
           </Button>
         </div>
       </form>
