@@ -42,7 +42,8 @@ export type SuggestNamingConventionsOutput = z.infer<
 
 export async function suggestNamingConventions(
   input: SuggestNamingConventionsInput
-): Promise suggestNamingConventionsFlow(input);
+): Promise<SuggestNamingConventionsOutput> {
+  return suggestNamingConventionsFlow(input);
 }
 
 const prompt = ai.definePrompt({
@@ -79,5 +80,3 @@ const suggestNamingConventionsFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
