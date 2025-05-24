@@ -1,11 +1,10 @@
 
-// use server'
 'use server';
 
 /**
  * @fileOverview Provides AI-powered suggestions for naming conventions for
- * client, package, service, delivery or shipment types, ensuring configurations adhere to
- * industry best practices.
+ * various entity types, ensuring configurations adhere to
+ * industry best practices. Updated for Spanish entity types.
  *
  * - suggestNamingConventions - A function that suggests naming conventions.
  * - SuggestNamingConventionsInput - The input type for the suggestNamingConventions function.
@@ -14,15 +13,19 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { EntityType } from '@/types'; // Import EntityType
+
+const updatedEntityTypes: [EntityType, ...EntityType[]] = ['cliente', 'paquete', 'servicio', 'reparto', 'envio', 'empresa', 'repartidor'];
+
 
 const SuggestNamingConventionsInputSchema = z.object({
   entityType: z
-    .enum(['client', 'package', 'service', 'delivery', 'shipment'])
-    .describe('The type of entity to suggest naming conventions for.'),
+    .enum(updatedEntityTypes) // Updated with Spanish entity types
+    .describe('El tipo de entidad para el cual sugerir convenciones de nombres.'),
   exampleNames: z
     .array(z.string())
     .optional()
-    .describe('Example names to use as inspiration.'),
+    .describe('Nombres de ejemplo para usar como inspiración.'),
 });
 export type SuggestNamingConventionsInput = z.infer<
   typeof SuggestNamingConventionsInputSchema
@@ -31,7 +34,7 @@ export type SuggestNamingConventionsInput = z.infer<
 const SuggestNamingConventionsOutputSchema = z.object({
   suggestions: z
     .array(z.string())
-    .describe('Suggested naming conventions for the entity type.'),
+    .describe('Sugerencias de convenciones de nombres para el tipo de entidad.'),
 });
 export type SuggestNamingConventionsOutput = z.infer<
   typeof SuggestNamingConventionsOutputSchema
@@ -47,22 +50,22 @@ const prompt = ai.definePrompt({
   name: 'suggestNamingConventionsPrompt',
   input: {schema: SuggestNamingConventionsInputSchema},
   output: {schema: SuggestNamingConventionsOutputSchema},
-  prompt: `You are an expert in naming conventions for various business entities.
+  prompt: `Eres un experto en convenciones de nombres para diversas entidades de negocio en español.
 
-  Based on the entity type provided, suggest several naming conventions that adhere to industry best practices.
+  Basado en el tipo de entidad proporcionado ({{{entityType}}}), sugiere varias convenciones de nombres que sigan las mejores prácticas de la industria.
 
-  Entity Type: {{{entityType}}}
+  Tipo de Entidad: {{{entityType}}}
 
   {% if exampleNames %}
-  Consider these example names as inspiration:
+  Considera estos nombres de ejemplo como inspiración:
   {{#each exampleNames}}
   - {{{this}}}
   {{/each}}
   {% endif %}
 
-  Provide at least 3 suggestions.
-  Do not return any introductory or concluding remarks, only the list of suggestions.
-  Response should be a JSON array of strings.
+  Proporciona al menos 3 sugerencias.
+  No devuelvas ningún comentario introductorio o final, solo la lista de sugerencias.
+  La respuesta debe ser un array JSON de strings.
   `,
 });
 
@@ -77,3 +80,5 @@ const suggestNamingConventionsFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

@@ -2,15 +2,15 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ShipmentType } from "@/types";
+import type { TipoEnvio } from "@/types"; // Renamed
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { Badge } from "@/components/ui/badge";
 
-export const getShipmentTypeColumns = (
-  onEdit: (item: ShipmentType) => void,
-  onDelete: (item: ShipmentType) => void
-): ColumnDef<ShipmentType>[] => [
+export const getTipoEnvioColumns = ( // Renamed
+  onEdit: (item: TipoEnvio) => void, // Renamed
+  onDelete: (item: TipoEnvio) => void // Renamed
+): ColumnDef<TipoEnvio>[] => [ // Renamed
   {
     id: "select",
     header: ({ table }) => (
@@ -36,15 +36,15 @@ export const getShipmentTypeColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "nombre",
     header: "Nombre",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-medium">{row.getValue("nombre")}</div>,
   },
   {
-    accessorKey: "description",
+    accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("description") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined;
       return description ? (
         <span className="truncate max-w-[300px] inline-block">{description}</span>
       ) : (
@@ -53,19 +53,22 @@ export const getShipmentTypeColumns = (
     },
   },
   {
-    accessorKey: "estado",
-    header: "Estado",
+    accessorKey: "activo",
+    header: "Activo",
     cell: ({ row }) => {
-      const estado = row.getValue("estado") as string;
-      let variant: "default" | "secondary" | "destructive" | "outline" = "default";
-      // "en transito" | "entregado" | "asignado" | "pendiente"
-      if (estado === "entregado") variant = "default"; 
-      if (estado === "pendiente") variant = "secondary";
-      if (estado === "en transito") variant = "outline"; 
-      if (estado === "asignado") variant = "outline";
-      return <Badge variant={variant} className="capitalize">{estado}</Badge>;
+      const isActive = row.getValue("activo") as boolean;
+      return <Badge variant={isActive ? "default" : "outline"}>{isActive ? "Sí" : "No"}</Badge>;
     },
   },
+  {
+    accessorKey: "created_at",
+    header: "Fecha de Creación",
+    cell: ({ row }) => {
+      const date = row.getValue("created_at") as string;
+      return <span>{new Date(date).toLocaleDateString()}</span>;
+    },
+  },
+  // 'estado' removed from TipoEnvio entity
   {
     id: "actions",
     cell: ({ row }) => (
@@ -77,3 +80,5 @@ export const getShipmentTypeColumns = (
     ),
   },
 ];
+
+    

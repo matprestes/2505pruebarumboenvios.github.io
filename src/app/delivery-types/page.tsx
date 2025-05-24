@@ -4,77 +4,77 @@
 import React, { useState, useEffect } from "react";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getDeliveryTypeColumns } from "@/components/delivery-types/columns";
-import { DeliveryTypeForm } from "@/components/delivery-types/delivery-type-form";
+import { getTipoRepartoColumns } from "@/components/delivery-types/columns"; // Renamed
+import { TipoRepartoForm } from "@/components/delivery-types/delivery-type-form"; // Renamed
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { DeliveryType } from "@/types";
-import { deliveryTypeSchema } from "@/lib/schemas";
+import type { TipoReparto } from "@/types"; // Renamed
+import { tipoRepartoSchema } from "@/lib/schemas"; // Renamed
 import { generateId } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
-// Mock data
-const initialDeliveryTypes: DeliveryType[] = [
-  { id: generateId(), name: "Reparto Matutino Estándar", description: "Entregas programadas por la mañana.", estado: "pendiente", tipo_reparto: "viaje de empresa" },
-  { id: generateId(), name: "Reparto Urgente Individual", description: "Entrega prioritaria para un solo cliente.", estado: "asignado", tipo_reparto: "viaje individual" },
-  { id: generateId(), name: "Recogida Vespertina", description: "Recogidas por la tarde.", estado: "encurso", tipo_reparto: "viaje de empresa" },
+// Mock data - updated to new structure for tipos_reparto
+const initialTiposReparto: TipoReparto[] = [ // Renamed
+  { id_tipo_reparto: generateId(), nombre: "Reparto Matutino Estándar", descripcion: "Entregas programadas por la mañana.", activo: true, created_at: new Date().toISOString() },
+  { id_tipo_reparto: generateId(), nombre: "Reparto Urgente Individual", descripcion: "Entrega prioritaria para un solo cliente.", activo: true, created_at: new Date().toISOString() },
+  { id_tipo_reparto: generateId(), nombre: "Recogida Vespertina", descripcion: "Recogidas por la tarde.", activo: false, created_at: new Date().toISOString() },
 ];
 
-export default function DeliveryTypesPage() {
-  const [deliveryTypes, setDeliveryTypes] = useState<DeliveryType[]>([]);
+export default function TiposRepartoPage() { // Renamed
+  const [tiposReparto, setTiposReparto] = useState<TipoReparto[]>([]); // Renamed
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingDeliveryType, setEditingDeliveryType] = useState<DeliveryType | null>(null);
+  const [editingTipoReparto, setEditingTipoReparto] = useState<TipoReparto | null>(null); // Renamed
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
-  const [deliveryTypeToDelete, setDeliveryTypeToDelete] = useState<DeliveryType | null>(null);
+  const [tipoRepartoToDelete, setTipoRepartoToDelete] = useState<TipoReparto | null>(null); // Renamed
   const { toast } = useToast();
 
   useEffect(() => {
-    setDeliveryTypes(initialDeliveryTypes);
+    setTiposReparto(initialTiposReparto); // Renamed
   }, []);
 
-  const handleNewDeliveryType = () => {
-    setEditingDeliveryType(null);
+  const handleNewTipoReparto = () => { // Renamed
+    setEditingTipoReparto(null);
     setIsFormOpen(true);
   };
 
-  const handleEditDeliveryType = (deliveryType: DeliveryType) => {
-    setEditingDeliveryType(deliveryType);
+  const handleEditTipoReparto = (tipoReparto: TipoReparto) => { // Renamed
+    setEditingTipoReparto(tipoReparto);
     setIsFormOpen(true);
   };
 
-  const handleDeleteDeliveryType = (deliveryType: DeliveryType) => {
-    setDeliveryTypeToDelete(deliveryType);
+  const handleDeleteTipoReparto = (tipoReparto: TipoReparto) => { // Renamed
+    setTipoRepartoToDelete(tipoReparto);
     setIsConfirmDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    if (deliveryTypeToDelete) {
-      setDeliveryTypes((prev) => prev.filter((dt) => dt.id !== deliveryTypeToDelete.id));
+    if (tipoRepartoToDelete) {
+      setTiposReparto((prev) => prev.filter((dt) => dt.id_tipo_reparto !== tipoRepartoToDelete.id_tipo_reparto)); // Renamed
       toast({ title: "Éxito", description: "Tipo de reparto eliminado correctamente." });
-      setDeliveryTypeToDelete(null);
+      setTipoRepartoToDelete(null);
     }
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = (values: z.infer<typeof deliveryTypeSchema>) => {
-    if (editingDeliveryType) {
-      setDeliveryTypes((prev) =>
+  const handleFormSubmit = (values: z.infer<typeof tipoRepartoSchema>) => { // Renamed schema
+    if (editingTipoReparto) {
+      setTiposReparto((prev) => // Renamed
         prev.map((dt) =>
-          dt.id === editingDeliveryType.id ? { ...editingDeliveryType, ...values } : dt
+          dt.id_tipo_reparto === editingTipoReparto.id_tipo_reparto ? { ...editingTipoReparto, ...values, created_at: editingTipoReparto.created_at } : dt // Preserve created_at
         )
       );
       toast({ title: "Éxito", description: "Tipo de reparto actualizado." });
     } else {
-      const newDeliveryType = { ...values, id: generateId() };
-      setDeliveryTypes((prev) => [...prev, newDeliveryType]);
+      const newTipoReparto = { ...values, id_tipo_reparto: generateId(), created_at: new Date().toISOString(), activo: values.activo ?? true }; // Renamed
+      setTiposReparto((prev) => [...prev, newTipoReparto]); // Renamed
       toast({ title: "Éxito", description: "Nuevo tipo de reparto creado." });
     }
     setIsFormOpen(false);
-    setEditingDeliveryType(null);
+    setEditingTipoReparto(null);
   };
   
   const columns = React.useMemo(
-    () => getDeliveryTypeColumns(handleEditDeliveryType, handleDeleteDeliveryType),
+    () => getTipoRepartoColumns(handleEditTipoReparto, handleDeleteTipoReparto), // Renamed
     []
   );
 
@@ -82,30 +82,30 @@ export default function DeliveryTypesPage() {
     <div className="container mx-auto py-2">
       <DataTable
         columns={columns}
-        data={deliveryTypes}
-        filterColumnId="name"
+        data={tiposReparto} // Renamed
+        filterColumnId="nombre"
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Reparto"
-        onNew={handleNewDeliveryType}
-        onEdit={handleEditDeliveryType}
-        onDelete={handleDeleteDeliveryType}
+        onNew={handleNewTipoReparto} // Renamed
+        onEdit={handleEditTipoReparto} // Renamed
+        onDelete={handleDeleteTipoReparto} // Renamed
       />
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
-        if (!isOpen) setEditingDeliveryType(null);
+        if (!isOpen) setEditingTipoReparto(null);
         setIsFormOpen(isOpen);
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingDeliveryType ? "Editar Tipo de Reparto" : "Crear Nuevo Tipo de Reparto"}
+              {editingTipoReparto ? "Editar Tipo de Reparto" : "Crear Nuevo Tipo de Reparto"}
             </DialogTitle>
           </DialogHeader>
-          <DeliveryTypeForm
+          <TipoRepartoForm // Renamed
             onSubmit={handleFormSubmit}
-            initialData={editingDeliveryType}
+            initialData={editingTipoReparto}
             onCancel={() => {
               setIsFormOpen(false);
-              setEditingDeliveryType(null);
+              setEditingTipoReparto(null);
             }}
           />
         </DialogContent>
@@ -115,8 +115,10 @@ export default function DeliveryTypesPage() {
         onClose={() => setIsConfirmDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
-        description={`¿Estás seguro de que deseas eliminar el tipo de reparto "${deliveryTypeToDelete?.name}"? Esta acción no se puede deshacer.`}
+        description={`¿Estás seguro de que deseas eliminar el tipo de reparto "${tipoRepartoToDelete?.nombre}"? Esta acción no se puede deshacer.`}
       />
     </div>
   );
 }
+
+    

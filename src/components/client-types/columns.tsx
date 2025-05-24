@@ -1,14 +1,15 @@
+
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ClientType } from "@/types";
+import type { TipoCliente } from "@/types"; // Renamed
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 
-export const getClientTypeColumns = (
-  onEdit: (item: ClientType) => void,
-  onDelete: (item: ClientType) => void
-): ColumnDef<ClientType>[] => [
+export const getTipoClienteColumns = ( // Renamed
+  onEdit: (item: TipoCliente) => void, // Renamed
+  onDelete: (item: TipoCliente) => void // Renamed
+): ColumnDef<TipoCliente>[] => [ // Renamed
   {
     id: "select",
     header: ({ table }) => (
@@ -34,20 +35,28 @@ export const getClientTypeColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "nombre", // Assuming 'nombre' is the new field name
     header: "Nombre",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-medium">{row.getValue("nombre")}</div>,
   },
   {
-    accessorKey: "description",
+    accessorKey: "descripcion", // Assuming 'descripcion' is the new field name
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("description") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined;
       return description ? (
         <span className="truncate max-w-[400px] inline-block">{description}</span>
       ) : (
         <span className="text-muted-foreground italic">N/A</span>
       );
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: "Fecha de Creación",
+    cell: ({ row }) => {
+      const date = row.getValue("created_at") as string;
+      return <span>{new Date(date).toLocaleDateString()}</span>;
     },
   },
   {
@@ -61,3 +70,5 @@ export const getClientTypeColumns = (
     ),
   },
 ];
+
+    

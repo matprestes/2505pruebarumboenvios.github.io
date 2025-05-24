@@ -1,24 +1,25 @@
 
 import { DashboardCard } from '@/components/dashboard-card';
-import { Users, Package, Truck, ListChecks, PackagePlus } from 'lucide-react';
+import { Users, Package, Truck, ListChecks, PackagePlus } from 'lucide-react'; // Use Spanish singular for EntityType
 import { createClient } from '@/lib/supabase/server';
 
 export default async function DashboardPage() {
   let entityCounts = {
-    clientTypes: 0,
-    packageTypes: 0,
-    serviceTypes: 0,
-    deliveryTypes: 0,
-    shipmentTypes: 0,
+    tipos_cliente: 0,
+    tipos_paquete: 0,
+    tipos_servicio: 0,
+    tipos_reparto: 0,
+    tipos_envio: 0,
+    // Add new entities if you want to count them on dashboard
+    // clientes: 0,
+    // empresas: 0,
+    // repartidores: 0,
   };
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    // Check if environment variables are present.
-    // createClient will also log a warning if they are missing.
-    // If they are truly empty/invalid, createServerClient within createClient will throw.
     if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http') && supabaseAnonKey.length > 10) {
       const supabase = createClient();
 
@@ -38,24 +39,21 @@ export default async function DashboardPage() {
           return 0;
         }
       };
-
+      
+      // Updated table names
       entityCounts = {
-        clientTypes: await fetchCount('client_types'),
-        packageTypes: await fetchCount('package_types'),
-        serviceTypes: await fetchCount('service_types'),
-        deliveryTypes: await fetchCount('delivery_types'),
-        shipmentTypes: await fetchCount('shipment_types'),
+        tipos_cliente: await fetchCount('tipos_cliente'),
+        tipos_paquete: await fetchCount('tipos_paquete'),
+        tipos_servicio: await fetchCount('tipos_servicio'),
+        tipos_reparto: await fetchCount('tipos_reparto'),
+        tipos_envio: await fetchCount('tipos_envio'),
       };
     } else {
-      // This console.warn will be hit if the basic check above fails.
-      // The warning from createClient() will also be logged if it's called.
       console.warn("DashboardPage: Supabase environment variables are not sufficiently set. Counts will default to 0.");
     }
 
   } catch (error: any) {
-    // This will catch errors if createClient() itself throws (e.g., due to Supabase library rejecting empty strings).
     console.error("DashboardPage: Failed to initialize Supabase client or fetch counts. This is likely due to missing or invalid Supabase environment variables on the server.", error.message);
-    // entityCounts remains at its default (all zeros)
   }
 
   return (
@@ -71,38 +69,40 @@ export default async function DashboardPage() {
           title="Tipos de Cliente"
           description="Define y gestiona los diferentes tipos de clientes (ej. Individual, Corporativo)."
           icon={Users}
-          href="/client-types"
-          count={entityCounts.clientTypes}
+          href="/client-types" // Path remains the same
+          count={entityCounts.tipos_cliente}
         />
         <DashboardCard
           title="Tipos de Paquete"
           description="Configura los tamaños y categorías de paquetes (ej. Pequeño, Mediano, Grande)."
           icon={Package}
-          href="/package-types"
-          count={entityCounts.packageTypes}
+          href="/package-types" // Path remains the same
+          count={entityCounts.tipos_paquete}
         />
         <DashboardCard
           title="Tipos de Servicio"
           description="Establece los servicios de envío ofrecidos y sus tarifas (ej. Express, Estándar)."
           icon={Truck}
-          href="/service-types"
-          count={entityCounts.serviceTypes}
+          href="/service-types" // Path remains the same
+          count={entityCounts.tipos_servicio}
         />
          <DashboardCard
           title="Tipos de Reparto"
-          description="Define y gestiona los diferentes tipos de reparto y sus estados."
+          description="Define y gestiona los diferentes tipos de reparto."
           icon={ListChecks}
-          href="/delivery-types"
-          count={entityCounts.deliveryTypes}
+          href="/delivery-types" // Path remains the same
+          count={entityCounts.tipos_reparto}
         />
         <DashboardCard
           title="Tipos de Envío"
-          description="Configura los tipos de envío y sus estados de seguimiento."
+          description="Configura los tipos de envío y sus características."
           icon={PackagePlus}
-          href="/shipment-types"
-          count={entityCounts.shipmentTypes}
+          href="/shipment-types" // Path remains the same
+          count={entityCounts.tipos_envio}
         />
       </div>
     </div>
   );
 }
+
+    

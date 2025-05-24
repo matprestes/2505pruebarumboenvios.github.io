@@ -16,37 +16,50 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { serviceTypeSchema } from "@/lib/schemas";
-import type { ServiceType, EntityType, DistanceRate } from "@/types";
+import { tipoServicioSchema } from "@/lib/schemas"; // Renamed
+import type { TipoServicio, EntityType, TarifaServicio } from "@/types"; // Renamed
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 import { generateId } from "@/lib/utils";
 import { Trash2, PlusCircle } from "lucide-react";
 
-interface ServiceTypeFormProps {
-  onSubmit: (values: z.infer<typeof serviceTypeSchema>) => void;
-  initialData?: ServiceType | null;
+interface TipoServicioFormProps { // Renamed
+  onSubmit: (values: z.infer<typeof tipoServicioSchema>) => void; // Renamed
+  initialData?: TipoServicio | null; // Renamed
   onCancel: () => void;
 }
 
-export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceTypeFormProps) {
-  const form = useForm<z.infer<typeof serviceTypeSchema>>({
-    resolver: zodResolver(serviceTypeSchema),
+export function TipoServicioForm({ onSubmit, initialData, onCancel }: TipoServicioFormProps) { // Renamed
+  const form = useForm<z.infer<typeof tipoServicioSchema>>({ // Renamed
+    resolver: zodResolver(tipoServicioSchema), // Renamed
     defaultValues: initialData || {
-      name: "",
-      description: "",
-      distanceRates: [],
+      nombre: "",
+      descripcion: "",
+      tarifas_servicio: [], // Renamed
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "distanceRates",
+    name: "tarifas_servicio", // Renamed
   });
 
-  const entityType: EntityType = 'service';
+  const entityType: EntityType = 'servicio'; // Renamed for AI
 
-  const handleAddDistanceRate = () => {
-    append({ id: generateId(), distancia_hasta_km: 0, precio: 0, fecha_vigencia_desde: new Date().toISOString().split('T')[0] });
+  const handleAddTarifaServicio = () => { // Renamed
+    // When adding, id_tipo_servicio is not known yet if it's a new TipoServicio.
+    // It will be assigned when the main form is submitted.
+    // For existing TipoServicio, it should be initialData.id_tipo_servicio.
+    const newTarifa: Partial<TarifaServicio> = { 
+        id_tarifa_servicio: generateId(), 
+        // id_tipo_servicio will be filled on submit or if initialData.id_tipo_servicio exists
+        hasta_km: 0, 
+        precio: 0,
+        created_at: new Date().toISOString() // Handled by DB in real scenario
+    };
+    if (initialData?.id_tipo_servicio) {
+        newTarifa.id_tipo_servicio = initialData.id_tipo_servicio;
+    }
+    append(newTarifa as TarifaServicio); // Cast as TarifaServicio for useFieldArray
   };
 
   return (
@@ -54,7 +67,7 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="name"
+          name="nombre"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nombre del Tipo de Servicio</FormLabel>
@@ -64,7 +77,7 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
                 </FormControl>
                 <AiNamingSuggestion
                   entityType={entityType}
-                  onSelectSuggestion={(suggestion) => form.setValue("name", suggestion)}
+                  onSelectSuggestion={(suggestion) => form.setValue("nombre", suggestion)}
                 />
               </div>
               <FormDescription>
@@ -76,7 +89,7 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
         />
         <FormField
           control={form.control}
-          name="description"
+          name="descripcion"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Descripción (Opcional)</FormLabel>
@@ -94,13 +107,13 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
 
         <div>
           <FormLabel>Tarifas por Distancia</FormLabel>
-          <FormDescription>Define los precios según la distancia y fecha de vigencia.</FormDescription>
+          <FormDescription>Define los precios según la distancia.</FormDescription>
           <div className="space-y-4 mt-2">
             {fields.map((field, index) => (
               <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
                 <FormField
                   control={form.control}
-                  name={`distanceRates.${index}.distancia_hasta_km`}
+                  name={`tarifas_servicio.${index}.hasta_km`} // Renamed
                   render={({ field: itemField }) => (
                     <FormItem className="flex-1">
                       <FormLabel className="text-xs">Hasta KM</FormLabel>
@@ -113,7 +126,7 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
                 />
                 <FormField
                   control={form.control}
-                  name={`distanceRates.${index}.precio`}
+                  name={`tarifas_servicio.${index}.precio`} // Renamed
                   render={({ field: itemField }) => (
                     <FormItem className="flex-1">
                       <FormLabel className="text-xs">Precio</FormLabel>
@@ -124,19 +137,7 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name={`distanceRates.${index}.fecha_vigencia_desde`}
-                  render={({ field: itemField }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel className="text-xs">Vigencia Desde</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...itemField} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* fecha_vigencia_desde removed */}
                 <Button
                   type="button"
                   variant="ghost"
@@ -154,7 +155,7 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleAddDistanceRate}
+            onClick={handleAddTarifaServicio} // Renamed
             className="mt-2"
           >
             <PlusCircle className="mr-2 h-4 w-4" />
@@ -167,10 +168,12 @@ export function ServiceTypeForm({ onSubmit, initialData, onCancel }: ServiceType
             Cancelar
           </Button>
           <Button type="submit">
-            {initialData?.id ? "Guardar Cambios" : "Crear Tipo de Servicio"}
+            {initialData?.id_tipo_servicio ? "Guardar Cambios" : "Crear Tipo de Servicio"}
           </Button>
         </div>
       </form>
     </Form>
   );
 }
+
+    

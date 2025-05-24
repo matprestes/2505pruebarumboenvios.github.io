@@ -1,112 +1,112 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getClientTypeColumns } from "@/components/client-types/columns";
-import { ClientTypeForm } from "@/components/client-types/client-type-form";
+import { getTipoClienteColumns } from "@/components/client-types/columns"; // Renamed
+import { TipoClienteForm } from "@/components/client-types/client-type-form"; // Renamed
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { ClientType } from "@/types";
-import { clientTypeSchema } from "@/lib/schemas";
+import type { TipoCliente } from "@/types"; // Renamed
+import { tipoClienteSchema } from "@/lib/schemas"; // Renamed
 import { generateId } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
-// Mock data - replace with API calls in a real application
-const initialClientTypes: ClientType[] = [
-  { id: generateId(), name: "Individual", description: "Cliente particular" },
-  { id: generateId(), name: "Corporativo", description: "Cliente empresarial" },
+// Mock data - updated to new structure
+const initialTiposCliente: TipoCliente[] = [
+  { id_tipo_cliente: generateId(), nombre: "Individual", descripcion: "Cliente particular", created_at: new Date().toISOString() },
+  { id_tipo_cliente: generateId(), nombre: "Corporativo", descripcion: "Cliente empresarial", created_at: new Date().toISOString() },
 ];
 
-export default function ClientTypesPage() {
-  const [clientTypes, setClientTypes] = useState<ClientType[]>([]);
+export default function TiposClientePage() { // Renamed
+  const [tiposCliente, setTiposCliente] = useState<TipoCliente[]>([]); // Renamed
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingClientType, setEditingClientType] = useState<ClientType | null>(null);
+  const [editingTipoCliente, setEditingTipoCliente] = useState<TipoCliente | null>(null); // Renamed
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
-  const [clientTypeToDelete, setClientTypeToDelete] = useState<ClientType | null>(null);
+  const [tipoClienteToDelete, setTipoClienteToDelete] = useState<TipoCliente | null>(null); // Renamed
   const { toast } = useToast();
 
-  // Load initial data on mount (client-side)
   useEffect(() => {
-    setClientTypes(initialClientTypes);
+    setTiposCliente(initialTiposCliente); // Renamed
   }, []);
 
-  const handleNewClientType = () => {
-    setEditingClientType(null);
+  const handleNewTipoCliente = () => { // Renamed
+    setEditingTipoCliente(null);
     setIsFormOpen(true);
   };
 
-  const handleEditClientType = (clientType: ClientType) => {
-    setEditingClientType(clientType);
+  const handleEditTipoCliente = (tipoCliente: TipoCliente) => { // Renamed
+    setEditingTipoCliente(tipoCliente);
     setIsFormOpen(true);
   };
 
-  const handleDeleteClientType = (clientType: ClientType) => {
-    setClientTypeToDelete(clientType);
+  const handleDeleteTipoCliente = (tipoCliente: TipoCliente) => { // Renamed
+    setTipoClienteToDelete(tipoCliente);
     setIsConfirmDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    if (clientTypeToDelete) {
-      setClientTypes((prev) => prev.filter((ct) => ct.id !== clientTypeToDelete.id));
+    if (tipoClienteToDelete) {
+      setTiposCliente((prev) => prev.filter((ct) => ct.id_tipo_cliente !== tipoClienteToDelete.id_tipo_cliente)); // Renamed
       toast({ title: "Éxito", description: "Tipo de cliente eliminado correctamente." });
-      setClientTypeToDelete(null);
+      setTipoClienteToDelete(null);
     }
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = (values: z.infer<typeof clientTypeSchema>) => {
-    if (editingClientType) {
-      setClientTypes((prev) =>
+  const handleFormSubmit = (values: z.infer<typeof tipoClienteSchema>) => { // Renamed schema
+    if (editingTipoCliente) {
+      setTiposCliente((prev) => // Renamed
         prev.map((ct) =>
-          ct.id === editingClientType.id ? { ...editingClientType, ...values } : ct
+          ct.id_tipo_cliente === editingTipoCliente.id_tipo_cliente ? { ...editingTipoCliente, ...values, created_at: editingTipoCliente.created_at } : ct // Preserve created_at
         )
       );
       toast({ title: "Éxito", description: "Tipo de cliente actualizado." });
     } else {
-      const newClientType = { ...values, id: generateId() };
-      setClientTypes((prev) => [...prev, newClientType]);
+      const newTipoCliente = { ...values, id_tipo_cliente: generateId(), created_at: new Date().toISOString() }; // Renamed
+      setTiposCliente((prev) => [...prev, newTipoCliente]); // Renamed
       toast({ title: "Éxito", description: "Nuevo tipo de cliente creado." });
     }
     setIsFormOpen(false);
-    setEditingClientType(null);
+    setEditingTipoCliente(null);
   };
 
   const columns = React.useMemo(
-    () => getClientTypeColumns(handleEditClientType, handleDeleteClientType),
-    [] // Dependencies array ensures columns are memoized. Add specific dependencies if functions change.
+    () => getTipoClienteColumns(handleEditTipoCliente, handleDeleteTipoCliente), // Renamed
+    [] 
   );
 
   return (
     <div className="container mx-auto py-2">
       <DataTable
         columns={columns}
-        data={clientTypes}
-        filterColumnId="name"
+        data={tiposCliente} // Renamed
+        filterColumnId="nombre"
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Cliente"
-        onNew={handleNewClientType}
-        onEdit={handleEditClientType} // Passed for consistency, actual edit triggered by row action
-        onDelete={handleDeleteClientType} // Passed for consistency, actual delete triggered by row action
+        onNew={handleNewTipoCliente} // Renamed
+        onEdit={handleEditTipoCliente} // Renamed
+        onDelete={handleDeleteTipoCliente} // Renamed
       />
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
         if (!isOpen) {
-          setEditingClientType(null);
+          setEditingTipoCliente(null);
         }
         setIsFormOpen(isOpen);
       }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
-              {editingClientType ? "Editar Tipo de Cliente" : "Crear Nuevo Tipo de Cliente"}
+              {editingTipoCliente ? "Editar Tipo de Cliente" : "Crear Nuevo Tipo de Cliente"}
             </DialogTitle>
           </DialogHeader>
-          <ClientTypeForm
+          <TipoClienteForm // Renamed
             onSubmit={handleFormSubmit}
-            initialData={editingClientType}
+            initialData={editingTipoCliente}
             onCancel={() => {
               setIsFormOpen(false);
-              setEditingClientType(null);
+              setEditingTipoCliente(null);
             }}
           />
         </DialogContent>
@@ -116,8 +116,10 @@ export default function ClientTypesPage() {
         onClose={() => setIsConfirmDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
-        description={`¿Estás seguro de que deseas eliminar el tipo de cliente "${clientTypeToDelete?.name}"? Esta acción no se puede deshacer.`}
+        description={`¿Estás seguro de que deseas eliminar el tipo de cliente "${tipoClienteToDelete?.nombre}"? Esta acción no se puede deshacer.`}
       />
     </div>
   );
 }
+
+    

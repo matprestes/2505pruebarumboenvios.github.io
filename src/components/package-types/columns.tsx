@@ -1,14 +1,16 @@
+
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { PackageType } from "@/types";
+import type { TipoPaquete } from "@/types"; // Renamed
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
+import { Badge } from "@/components/ui/badge";
 
-export const getPackageTypeColumns = (
-  onEdit: (item: PackageType) => void,
-  onDelete: (item: PackageType) => void
-): ColumnDef<PackageType>[] => [
+export const getTipoPaqueteColumns = ( // Renamed
+  onEdit: (item: TipoPaquete) => void, // Renamed
+  onDelete: (item: TipoPaquete) => void // Renamed
+): ColumnDef<TipoPaquete>[] => [ // Renamed
   {
     id: "select",
     header: ({ table }) => (
@@ -34,15 +36,15 @@ export const getPackageTypeColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "nombre",
     header: "Nombre",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-medium">{row.getValue("nombre")}</div>,
   },
   {
-    accessorKey: "description",
+    accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("description") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined;
       return description ? (
         <span className="truncate max-w-[300px] inline-block">{description}</span>
       ) : (
@@ -51,15 +53,31 @@ export const getPackageTypeColumns = (
     },
   },
   {
-    accessorKey: "dimensions",
+    accessorKey: "dimensiones",
     header: "Dimensiones",
     cell: ({ row }) => {
-      const dimensions = row.getValue("dimensions") as string | undefined;
+      const dimensions = row.getValue("dimensiones") as string | undefined;
       return dimensions ? (
         <span>{dimensions}</span>
       ) : (
         <span className="text-muted-foreground italic">N/A</span>
       );
+    },
+  },
+  {
+    accessorKey: "activo",
+    header: "Activo",
+    cell: ({ row }) => {
+      const isActive = row.getValue("activo") as boolean;
+      return <Badge variant={isActive ? "default" : "outline"}>{isActive ? "Sí" : "No"}</Badge>;
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: "Fecha de Creación",
+    cell: ({ row }) => {
+      const date = row.getValue("created_at") as string;
+      return <span>{new Date(date).toLocaleDateString()}</span>;
     },
   },
   {
@@ -73,3 +91,5 @@ export const getPackageTypeColumns = (
     ),
   },
 ];
+
+    

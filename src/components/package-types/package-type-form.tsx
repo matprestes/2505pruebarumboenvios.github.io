@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,34 +17,36 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { packageTypeSchema } from "@/lib/schemas";
-import type { PackageType, EntityType } from "@/types";
+import { Switch } from "@/components/ui/switch"; // Added Switch for 'activo'
+import { tipoPaqueteSchema } from "@/lib/schemas"; // Renamed
+import type { TipoPaquete, EntityType } from "@/types"; // Renamed
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 
-interface PackageTypeFormProps {
-  onSubmit: (values: z.infer<typeof packageTypeSchema>) => void;
-  initialData?: PackageType | null;
+interface TipoPaqueteFormProps { // Renamed
+  onSubmit: (values: z.infer<typeof tipoPaqueteSchema>) => void; // Renamed
+  initialData?: TipoPaquete | null; // Renamed
   onCancel: () => void;
 }
 
-export function PackageTypeForm({ onSubmit, initialData, onCancel }: PackageTypeFormProps) {
-  const form = useForm<z.infer<typeof packageTypeSchema>>({
-    resolver: zodResolver(packageTypeSchema),
+export function TipoPaqueteForm({ onSubmit, initialData, onCancel }: TipoPaqueteFormProps) { // Renamed
+  const form = useForm<z.infer<typeof tipoPaqueteSchema>>({ // Renamed
+    resolver: zodResolver(tipoPaqueteSchema), // Renamed
     defaultValues: initialData || {
-      name: "",
-      description: "",
-      dimensions: "",
+      nombre: "",
+      descripcion: "",
+      dimensiones: "",
+      activo: true, // Default to true
     },
   });
 
-  const entityType: EntityType = 'package';
+  const entityType: EntityType = 'paquete'; // Use 'paquete' for AI
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="name"
+          name="nombre"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nombre del Tipo de Paquete</FormLabel>
@@ -53,7 +56,7 @@ export function PackageTypeForm({ onSubmit, initialData, onCancel }: PackageType
                 </FormControl>
                 <AiNamingSuggestion
                   entityType={entityType}
-                  onSelectSuggestion={(suggestion) => form.setValue("name", suggestion)}
+                  onSelectSuggestion={(suggestion) => form.setValue("nombre", suggestion)}
                 />
               </div>
               <FormDescription>
@@ -65,7 +68,7 @@ export function PackageTypeForm({ onSubmit, initialData, onCancel }: PackageType
         />
         <FormField
           control={form.control}
-          name="description"
+          name="descripcion"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Descripción (Opcional)</FormLabel>
@@ -82,7 +85,7 @@ export function PackageTypeForm({ onSubmit, initialData, onCancel }: PackageType
         />
         <FormField
           control={form.control}
-          name="dimensions"
+          name="dimensiones"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Dimensiones (Opcional)</FormLabel>
@@ -93,6 +96,26 @@ export function PackageTypeForm({ onSubmit, initialData, onCancel }: PackageType
                 Dimensiones o límites de peso para este tipo de paquete.
               </FormDescription>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="activo"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Activo</FormLabel>
+                <FormDescription>
+                  Indica si este tipo de paquete está actualmente disponible.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />
@@ -108,3 +131,5 @@ export function PackageTypeForm({ onSubmit, initialData, onCancel }: PackageType
     </Form>
   );
 }
+
+    

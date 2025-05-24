@@ -17,37 +17,37 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { deliveryTypeSchema } from "@/lib/schemas";
-import type { DeliveryType, EntityType } from "@/types";
-import { deliveryStatuses, deliveryCategories } from "@/types";
+import { Switch } from "@/components/ui/switch"; // Added Switch for 'activo'
+import { tipoRepartoSchema } from "@/lib/schemas"; // Renamed
+import type { TipoReparto, EntityType } from "@/types"; // Renamed
+// Removed deliveryStatuses and deliveryCategories imports as they are no longer fields of TipoReparto
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 
-interface DeliveryTypeFormProps {
-  onSubmit: (values: z.infer<typeof deliveryTypeSchema>) => void;
-  initialData?: DeliveryType | null;
+interface TipoRepartoFormProps { // Renamed
+  onSubmit: (values: z.infer<typeof tipoRepartoSchema>) => void; // Renamed
+  initialData?: TipoReparto | null; // Renamed
   onCancel: () => void;
 }
 
-export function DeliveryTypeForm({ onSubmit, initialData, onCancel }: DeliveryTypeFormProps) {
-  const form = useForm<z.infer<typeof deliveryTypeSchema>>({
-    resolver: zodResolver(deliveryTypeSchema),
+export function TipoRepartoForm({ onSubmit, initialData, onCancel }: TipoRepartoFormProps) { // Renamed
+  const form = useForm<z.infer<typeof tipoRepartoSchema>>({ // Renamed
+    resolver: zodResolver(tipoRepartoSchema), // Renamed
     defaultValues: initialData || {
-      name: "",
-      description: "",
-      estado: "pendiente",
-      tipo_reparto: "viaje individual",
+      nombre: "",
+      descripcion: "",
+      activo: true,
+      // 'estado' and 'tipo_reparto' (category) removed from TipoReparto
     },
   });
 
-  const entityType: EntityType = 'delivery';
+  const entityType: EntityType = 'reparto'; // For AI suggestions
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="name"
+          name="nombre"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nombre del Tipo de Reparto</FormLabel>
@@ -57,7 +57,7 @@ export function DeliveryTypeForm({ onSubmit, initialData, onCancel }: DeliveryTy
                 </FormControl>
                 <AiNamingSuggestion
                   entityType={entityType}
-                  onSelectSuggestion={(suggestion) => form.setValue("name", suggestion)}
+                  onSelectSuggestion={(suggestion) => form.setValue("nombre", suggestion)}
                 />
               </div>
               <FormDescription>
@@ -69,7 +69,7 @@ export function DeliveryTypeForm({ onSubmit, initialData, onCancel }: DeliveryTy
         />
         <FormField
           control={form.control}
-          name="description"
+          name="descripcion"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Descripción (Opcional)</FormLabel>
@@ -86,52 +86,25 @@ export function DeliveryTypeForm({ onSubmit, initialData, onCancel }: DeliveryTy
         />
         <FormField
           control={form.control}
-          name="estado"
+          name="activo"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Estado</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione un estado" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {deliveryStatuses.map((status) => (
-                    <SelectItem key={status} value={status} className="capitalize">
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Activo</FormLabel>
+                <FormDescription>
+                  Indica si este tipo de reparto está actualmente disponible.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="tipo_reparto"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipo de Reparto</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione un tipo" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {deliveryCategories.map((category) => (
-                    <SelectItem key={category} value={category} className="capitalize">
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Removed FormFields for 'estado' and 'tipo_reparto' (category) */}
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
@@ -144,3 +117,5 @@ export function DeliveryTypeForm({ onSubmit, initialData, onCancel }: DeliveryTy
     </Form>
   );
 }
+
+    

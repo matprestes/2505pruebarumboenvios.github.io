@@ -1,79 +1,80 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getPackageTypeColumns } from "@/components/package-types/columns";
-import { PackageTypeForm } from "@/components/package-types/package-type-form";
+import { getTipoPaqueteColumns } from "@/components/package-types/columns"; // Renamed
+import { TipoPaqueteForm } from "@/components/package-types/package-type-form"; // Renamed
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { PackageType } from "@/types";
-import { packageTypeSchema } from "@/lib/schemas";
+import type { TipoPaquete } from "@/types"; // Renamed
+import { tipoPaqueteSchema } from "@/lib/schemas"; // Renamed
 import { generateId } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
-// Mock data
-const initialPackageTypes: PackageType[] = [
-  { id: generateId(), name: "Sobre", description: "Documentos y objetos planos", dimensions: "Max 30x40cm, 0.5kg" },
-  { id: generateId(), name: "Paquete Pequeño", description: "Cajas pequeñas", dimensions: "Max 20x20x20cm, 2kg" },
-  { id: generateId(), name: "Paquete Mediano", description: "Cajas medianas", dimensions: "Max 40x40x40cm, 10kg" },
+// Mock data - updated to new structure
+const initialTiposPaquete: TipoPaquete[] = [ // Renamed
+  { id_tipo_paquete: generateId(), nombre: "Sobre", descripcion: "Documentos y objetos planos", dimensiones: "Max 30x40cm, 0.5kg", activo: true, created_at: new Date().toISOString() },
+  { id_tipo_paquete: generateId(), nombre: "Paquete Pequeño", descripcion: "Cajas pequeñas", dimensiones: "Max 20x20x20cm, 2kg", activo: true, created_at: new Date().toISOString() },
+  { id_tipo_paquete: generateId(), nombre: "Paquete Mediano", descripcion: "Cajas medianas", dimensiones: "Max 40x40x40cm, 10kg", activo: false, created_at: new Date().toISOString() },
 ];
 
-export default function PackageTypesPage() {
-  const [packageTypes, setPackageTypes] = useState<PackageType[]>([]);
+export default function TiposPaquetePage() { // Renamed
+  const [tiposPaquete, setTiposPaquete] = useState<TipoPaquete[]>([]); // Renamed
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingPackageType, setEditingPackageType] = useState<PackageType | null>(null);
+  const [editingTipoPaquete, setEditingTipoPaquete] = useState<TipoPaquete | null>(null); // Renamed
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
-  const [packageTypeToDelete, setPackageTypeToDelete] = useState<PackageType | null>(null);
+  const [tipoPaqueteToDelete, setTipoPaqueteToDelete] = useState<TipoPaquete | null>(null); // Renamed
   const { toast } = useToast();
 
   useEffect(() => {
-    setPackageTypes(initialPackageTypes);
+    setTiposPaquete(initialTiposPaquete); // Renamed
   }, []);
 
-  const handleNewPackageType = () => {
-    setEditingPackageType(null);
+  const handleNewTipoPaquete = () => { // Renamed
+    setEditingTipoPaquete(null);
     setIsFormOpen(true);
   };
 
-  const handleEditPackageType = (packageType: PackageType) => {
-    setEditingPackageType(packageType);
+  const handleEditTipoPaquete = (tipoPaquete: TipoPaquete) => { // Renamed
+    setEditingTipoPaquete(tipoPaquete);
     setIsFormOpen(true);
   };
 
-  const handleDeletePackageType = (packageType: PackageType) => {
-    setPackageTypeToDelete(packageType);
+  const handleDeleteTipoPaquete = (tipoPaquete: TipoPaquete) => { // Renamed
+    setTipoPaqueteToDelete(tipoPaquete);
     setIsConfirmDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    if (packageTypeToDelete) {
-      setPackageTypes((prev) => prev.filter((pt) => pt.id !== packageTypeToDelete.id));
+    if (tipoPaqueteToDelete) {
+      setTiposPaquete((prev) => prev.filter((pt) => pt.id_tipo_paquete !== tipoPaqueteToDelete.id_tipo_paquete)); // Renamed
       toast({ title: "Éxito", description: "Tipo de paquete eliminado correctamente." });
-      setPackageTypeToDelete(null);
+      setTipoPaqueteToDelete(null);
     }
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = (values: z.infer<typeof packageTypeSchema>) => {
-    if (editingPackageType) {
-      setPackageTypes((prev) =>
+  const handleFormSubmit = (values: z.infer<typeof tipoPaqueteSchema>) => { // Renamed schema
+    if (editingTipoPaquete) {
+      setTiposPaquete((prev) => // Renamed
         prev.map((pt) =>
-          pt.id === editingPackageType.id ? { ...editingPackageType, ...values } : pt
+          pt.id_tipo_paquete === editingTipoPaquete.id_tipo_paquete ? { ...editingTipoPaquete, ...values, created_at: editingTipoPaquete.created_at } : pt // Preserve created_at
         )
       );
       toast({ title: "Éxito", description: "Tipo de paquete actualizado." });
     } else {
-      const newPackageType = { ...values, id: generateId() };
-      setPackageTypes((prev) => [...prev, newPackageType]);
+      const newTipoPaquete = { ...values, id_tipo_paquete: generateId(), created_at: new Date().toISOString(), activo: values.activo ?? true }; // Renamed
+      setTiposPaquete((prev) => [...prev, newTipoPaquete]); // Renamed
       toast({ title: "Éxito", description: "Nuevo tipo de paquete creado." });
     }
     setIsFormOpen(false);
-    setEditingPackageType(null);
+    setEditingTipoPaquete(null);
   };
   
   const columns = React.useMemo(
-    () => getPackageTypeColumns(handleEditPackageType, handleDeletePackageType),
+    () => getTipoPaqueteColumns(handleEditTipoPaquete, handleDeleteTipoPaquete), // Renamed
     []
   );
 
@@ -81,32 +82,32 @@ export default function PackageTypesPage() {
     <div className="container mx-auto py-2">
       <DataTable
         columns={columns}
-        data={packageTypes}
-        filterColumnId="name"
+        data={tiposPaquete} // Renamed
+        filterColumnId="nombre"
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Paquete"
-        onNew={handleNewPackageType}
-        onEdit={handleEditPackageType}
-        onDelete={handleDeletePackageType}
+        onNew={handleNewTipoPaquete} // Renamed
+        onEdit={handleEditTipoPaquete} // Renamed
+        onDelete={handleDeleteTipoPaquete} // Renamed
       />
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
         if (!isOpen) {
-          setEditingPackageType(null);
+          setEditingTipoPaquete(null);
         }
         setIsFormOpen(isOpen);
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingPackageType ? "Editar Tipo de Paquete" : "Crear Nuevo Tipo de Paquete"}
+              {editingTipoPaquete ? "Editar Tipo de Paquete" : "Crear Nuevo Tipo de Paquete"}
             </DialogTitle>
           </DialogHeader>
-          <PackageTypeForm
+          <TipoPaqueteForm // Renamed
             onSubmit={handleFormSubmit}
-            initialData={editingPackageType}
+            initialData={editingTipoPaquete}
             onCancel={() => {
               setIsFormOpen(false);
-              setEditingPackageType(null);
+              setEditingTipoPaquete(null);
             }}
           />
         </DialogContent>
@@ -116,8 +117,10 @@ export default function PackageTypesPage() {
         onClose={() => setIsConfirmDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
-        description={`¿Estás seguro de que deseas eliminar el tipo de paquete "${packageTypeToDelete?.name}"? Esta acción no se puede deshacer.`}
+        description={`¿Estás seguro de que deseas eliminar el tipo de paquete "${tipoPaqueteToDelete?.nombre}"? Esta acción no se puede deshacer.`}
       />
     </div>
   );
 }
+
+    

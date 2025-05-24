@@ -2,15 +2,15 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { DeliveryType } from "@/types";
+import type { TipoReparto } from "@/types"; // Renamed
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { Badge } from "@/components/ui/badge";
 
-export const getDeliveryTypeColumns = (
-  onEdit: (item: DeliveryType) => void,
-  onDelete: (item: DeliveryType) => void
-): ColumnDef<DeliveryType>[] => [
+export const getTipoRepartoColumns = ( // Renamed
+  onEdit: (item: TipoReparto) => void, // Renamed
+  onDelete: (item: TipoReparto) => void // Renamed
+): ColumnDef<TipoReparto>[] => [ // Renamed
   {
     id: "select",
     header: ({ table }) => (
@@ -36,15 +36,15 @@ export const getDeliveryTypeColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "nombre",
     header: "Nombre",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-medium">{row.getValue("nombre")}</div>,
   },
   {
-    accessorKey: "description",
+    accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("description") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined;
       return description ? (
         <span className="truncate max-w-[300px] inline-block">{description}</span>
       ) : (
@@ -53,23 +53,22 @@ export const getDeliveryTypeColumns = (
     },
   },
   {
-    accessorKey: "estado",
-    header: "Estado",
+    accessorKey: "activo",
+    header: "Activo",
     cell: ({ row }) => {
-      const estado = row.getValue("estado") as string;
-      let variant: "default" | "secondary" | "destructive" | "outline" = "default";
-      if (estado === "completo") variant = "default"; // Green-like (primary)
-      if (estado === "pendiente") variant = "secondary"; // Yellow-like (secondary)
-      if (estado === "encurso") variant = "outline"; // Blue-like (accent)
-      if (estado === "asignado") variant = "outline"; // another distinct color
-      return <Badge variant={variant} className="capitalize">{estado}</Badge>;
+      const isActive = row.getValue("activo") as boolean;
+      return <Badge variant={isActive ? "default" : "outline"}>{isActive ? "Sí" : "No"}</Badge>;
     },
   },
   {
-    accessorKey: "tipo_reparto",
-    header: "Tipo de Reparto",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("tipo_reparto")}</div>,
+    accessorKey: "created_at",
+    header: "Fecha de Creación",
+    cell: ({ row }) => {
+      const date = row.getValue("created_at") as string;
+      return <span>{new Date(date).toLocaleDateString()}</span>;
+    },
   },
+  // 'estado' and 'tipo_reparto' (as category) were removed from TipoReparto entity
   {
     id: "actions",
     cell: ({ row }) => (
@@ -81,3 +80,5 @@ export const getDeliveryTypeColumns = (
     ),
   },
 ];
+
+    

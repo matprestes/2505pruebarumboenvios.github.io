@@ -2,19 +2,14 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ServiceType } from "@/types";
+import type { TipoServicio } from "@/types"; // Renamed
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 
-// const formatCurrency = (amount?: number) => {
-//   if (typeof amount !== 'number') return <span className="text-muted-foreground italic">N/A</span>;
-//   return amount.toLocaleString('es-ES', { style: 'currency', currency: 'USD' }); // Adjust currency as needed
-// };
-
-export const getServiceTypeColumns = (
-  onEdit: (item: ServiceType) => void,
-  onDelete: (item: ServiceType) => void
-): ColumnDef<ServiceType>[] => [
+export const getTipoServicioColumns = ( // Renamed
+  onEdit: (item: TipoServicio) => void, // Renamed
+  onDelete: (item: TipoServicio) => void // Renamed
+): ColumnDef<TipoServicio>[] => [ // Renamed
   {
     id: "select",
     header: ({ table }) => (
@@ -40,15 +35,15 @@ export const getServiceTypeColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "nombre",
     header: "Nombre",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-medium">{row.getValue("nombre")}</div>,
   },
   {
-    accessorKey: "description",
+    accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("description") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined;
       return description ? (
         <span className="truncate max-w-[400px] inline-block">{description}</span>
       ) : (
@@ -56,8 +51,15 @@ export const getServiceTypeColumns = (
       );
     },
   },
-  // Removed baseRate, ratePerKm, ratePerKg columns as pricing is now complex
-  // These details will be available in the edit form.
+  {
+    accessorKey: "tarifas_servicio", // Displaying count of rates as an example
+    header: "Nº de Tarifas",
+    cell: ({ row }) => {
+      const tarifas = row.original.tarifas_servicio;
+      return <span>{tarifas?.length || 0}</span>;
+    }
+  },
+   // created_at can be added if needed, similar to other column files
   {
     id: "actions",
     cell: ({ row }) => (
@@ -69,3 +71,5 @@ export const getServiceTypeColumns = (
     ),
   },
 ];
+
+    

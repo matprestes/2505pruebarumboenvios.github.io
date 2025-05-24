@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,33 +17,33 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { clientTypeSchema } from "@/lib/schemas";
-import type { ClientType, EntityType } from "@/types";
+import { tipoClienteSchema } from "@/lib/schemas"; // Renamed
+import type { TipoCliente, EntityType } from "@/types"; // Renamed
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 
-interface ClientTypeFormProps {
-  onSubmit: (values: z.infer<typeof clientTypeSchema>) => void;
-  initialData?: ClientType | null;
+interface TipoClienteFormProps { // Renamed
+  onSubmit: (values: z.infer<typeof tipoClienteSchema>) => void; // Renamed
+  initialData?: TipoCliente | null; // Renamed
   onCancel: () => void;
 }
 
-export function ClientTypeForm({ onSubmit, initialData, onCancel }: ClientTypeFormProps) {
-  const form = useForm<z.infer<typeof clientTypeSchema>>({
-    resolver: zodResolver(clientTypeSchema),
+export function TipoClienteForm({ onSubmit, initialData, onCancel }: TipoClienteFormProps) { // Renamed
+  const form = useForm<z.infer<typeof tipoClienteSchema>>({ // Renamed
+    resolver: zodResolver(tipoClienteSchema), // Renamed
     defaultValues: initialData || {
-      name: "",
-      description: "",
+      nombre: "",
+      descripcion: "",
     },
   });
 
-  const entityType: EntityType = 'client';
+  const entityType: EntityType = 'cliente'; // Use 'cliente' for AI suggestions
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="name"
+          name="nombre"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nombre del Tipo de Cliente</FormLabel>
@@ -52,7 +53,7 @@ export function ClientTypeForm({ onSubmit, initialData, onCancel }: ClientTypeFo
                 </FormControl>
                 <AiNamingSuggestion
                   entityType={entityType}
-                  onSelectSuggestion={(suggestion) => form.setValue("name", suggestion)}
+                  onSelectSuggestion={(suggestion) => form.setValue("nombre", suggestion)}
                 />
               </div>
               <FormDescription>
@@ -64,7 +65,7 @@ export function ClientTypeForm({ onSubmit, initialData, onCancel }: ClientTypeFo
         />
         <FormField
           control={form.control}
-          name="description"
+          name="descripcion"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Descripción (Opcional)</FormLabel>
@@ -91,3 +92,5 @@ export function ClientTypeForm({ onSubmit, initialData, onCancel }: ClientTypeFo
     </Form>
   );
 }
+
+    

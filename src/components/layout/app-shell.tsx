@@ -14,16 +14,17 @@ import {
 import { SidebarNav } from './sidebar-nav';
 import { AppHeader } from './header';
 import { Logo } from '../icons/logo';
-import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
+// import { Button } from '@/components/ui/button'; // Not used
+// import { Settings } from 'lucide-react'; // Not used
 
+// Updated page titles to Spanish
 const pageTitles: Record<string, string> = {
   '/': 'Panel General',
-  '/client-types': 'Gestión de Tipos de Cliente',
-  '/package-types': 'Gestión de Tipos de Paquete',
-  '/service-types': 'Gestión de Tipos de Servicio',
-  '/delivery-types': 'Gestión de Tipos de Reparto',
-  '/shipment-types': 'Gestión de Tipos de Envío',
+  '/client-types': 'Tipos de Cliente',
+  '/package-types': 'Tipos de Paquete',
+  '/service-types': 'Tipos de Servicio',
+  '/delivery-types': 'Tipos de Reparto',
+  '/shipment-types': 'Tipos de Envío',
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -34,14 +35,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setCurrentPageTitle(pageTitles[pathname] || 'Rumbos Envios');
   }, [pathname]);
   
-  // Ensure this component only renders on the client after hydration
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
   if (!hasMounted) {
-    return null; // Or a loading spinner
+    return null; 
   }
 
   return (
@@ -54,7 +54,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <SidebarNav />
         </SidebarContent>
         <SidebarFooter className="p-2">
-           {/* Placeholder for potential footer items like settings or user profile */}
+           {/* Placeholder */}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
@@ -66,3 +66,5 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
+    

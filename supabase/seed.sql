@@ -1,178 +1,367 @@
 
--- Rumbos Envios - Supabase Seed SQL
+-- Rumbos Envios - Supabase Seed SQL (Nuevo Esquema)
+-- Eliminar tablas existentes en orden inverso de dependencia para evitar errores FK
+DROP TABLE IF EXISTS public.paradas_reparto CASCADE;
+DROP TABLE IF EXISTS public.envios CASCADE;
+DROP TABLE IF EXISTS public.repartos CASCADE;
+DROP TABLE IF EXISTS public.capacidad CASCADE;
+DROP TABLE IF EXISTS public.repartidores CASCADE;
+DROP TABLE IF EXISTS public.tarifas_servicio CASCADE;
+DROP TABLE IF EXISTS public.tipos_servicio CASCADE;
+DROP TABLE IF EXISTS public.tipos_paquete CASCADE;
+DROP TABLE IF EXISTS public.tipos_envio CASCADE;
+DROP TABLE IF EXISTS public.tipos_reparto CASCADE;
+DROP TABLE IF EXISTS public.clientes CASCADE;
+DROP TABLE IF EXISTS public.tipos_cliente CASCADE;
+DROP TABLE IF EXISTS public.empresas CASCADE;
+DROP TABLE IF EXISTS public.tipos_empresa CASCADE;
+DROP TABLE IF EXISTS public.tarifas_distancia_calculadora CASCADE;
 
--- Eliminar tablas existentes si es necesario para la idempotencia del script
-DROP TABLE IF EXISTS public.distance_rates CASCADE;
-DROP TABLE IF EXISTS public.service_types CASCADE;
-DROP TABLE IF EXISTS public.package_types CASCADE;
-DROP TABLE IF EXISTS public.client_types CASCADE;
-DROP TABLE IF EXISTS public.delivery_types CASCADE;
-DROP TABLE IF EXISTS public.shipment_types CASCADE;
+-- Eliminar tipos ENUM si existen
+DROP TYPE IF EXISTS public.tipoparadaenum;
 
--- Creación de Tablas
+-- Crear tipos ENUM
+CREATE TYPE public.tipoparadaenum AS ENUM ('RECOLECCION', 'ENTREGA');
 
--- Tabla: Tipos de Cliente
-CREATE TABLE public.client_types (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+-- Crear Tablas
+
+-- Tipos de Cliente
+CREATE TABLE public.tipos_cliente (
+    id_tipo_cliente uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre character varying NOT NULL,
+    descripcion text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-COMMENT ON TABLE public.client_types IS 'Almacena los diferentes tipos de clientes (ej. Individual, Corporativo).';
+ALTER TABLE public.tipos_cliente ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir lectura pública para tipos_cliente" ON public.tipos_cliente FOR SELECT USING (true);
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tipos_cliente" ON public.tipos_cliente FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Tabla: Tipos de Paquete
-CREATE TABLE public.package_types (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    dimensions TEXT, -- Ejemplo: "Max 30x40cm, 0.5kg"
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+-- Tipos de Paquete
+CREATE TABLE public.tipos_paquete (
+    id_tipo_paquete uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre character varying NOT NULL,
+    descripcion text,
+    dimensiones text,
+    activo boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-COMMENT ON TABLE public.package_types IS 'Define los tamaños y categorías de paquetes (ej. Pequeño, Mediano, Grande).';
+ALTER TABLE public.tipos_paquete ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir lectura pública para tipos_paquete" ON public.tipos_paquete FOR SELECT USING (true);
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tipos_paquete" ON public.tipos_paquete FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Tabla: Tipos de Servicio
-CREATE TABLE public.service_types (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+-- Tipos de Servicio
+CREATE TABLE public.tipos_servicio (
+    id_tipo_servicio uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre character varying NOT NULL,
+    descripcion text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-COMMENT ON TABLE public.service_types IS 'Establece los servicios de envío ofrecidos (ej. Express, Estándar).';
+ALTER TABLE public.tipos_servicio ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir lectura pública para tipos_servicio" ON public.tipos_servicio FOR SELECT USING (true);
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tipos_servicio" ON public.tipos_servicio FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Tabla: Tarifas por Distancia
-CREATE TABLE public.distance_rates (
-    id TEXT PRIMARY KEY,
-    service_type_id TEXT NOT NULL REFERENCES public.service_types(id) ON DELETE CASCADE,
-    distancia_hasta_km NUMERIC(10, 2) NOT NULL CHECK (distancia_hasta_km >= 0),
-    precio NUMERIC(10, 2) NOT NULL CHECK (precio >= 0),
-    fecha_vigencia_desde DATE NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+-- Tarifas de Servicio (asociadas a Tipos de Servicio)
+CREATE TABLE public.tarifas_servicio (
+    id_tarifa_servicio uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_tipo_servicio uuid NOT NULL REFERENCES public.tipos_servicio(id_tipo_servicio) ON DELETE CASCADE,
+    hasta_km numeric NOT NULL,
+    precio numeric NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-COMMENT ON TABLE public.distance_rates IS 'Configuración de tarifas basadas en distancia para cada tipo de servicio.';
+ALTER TABLE public.tarifas_servicio ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir lectura pública para tarifas_servicio" ON public.tarifas_servicio FOR SELECT USING (true);
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tarifas_servicio" ON public.tarifas_servicio FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Tabla: Tipos de Reparto
-CREATE TABLE public.delivery_types (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    estado TEXT NOT NULL CHECK (estado IN ('asignado', 'completo', 'pendiente', 'encurso')),
-    tipo_reparto TEXT NOT NULL CHECK (tipo_reparto IN ('viaje de empresa', 'viaje individual')),
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+-- Tipos de Reparto
+CREATE TABLE public.tipos_reparto (
+    id_tipo_reparto uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre character varying NOT NULL,
+    descripcion text,
+    activo boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-COMMENT ON TABLE public.delivery_types IS 'Define los diferentes tipos de reparto y sus estados (ej. Reparto Matutino, Urgencias).';
+ALTER TABLE public.tipos_reparto ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir lectura pública para tipos_reparto" ON public.tipos_reparto FOR SELECT USING (true);
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tipos_reparto" ON public.tipos_reparto FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Tabla: Tipos de Envío
-CREATE TABLE public.shipment_types (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    estado TEXT NOT NULL CHECK (estado IN ('en transito', 'entregado', 'asignado', 'pendiente')),
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+-- Tipos de Envío
+CREATE TABLE public.tipos_envio (
+    id_tipo_envio uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre character varying NOT NULL,
+    descripcion text,
+    activo boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-COMMENT ON TABLE public.shipment_types IS 'Configura los tipos de envío y sus estados de seguimiento (ej. Envío Estándar, Envío Frágil).';
+ALTER TABLE public.tipos_envio ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir lectura pública para tipos_envio" ON public.tipos_envio FOR SELECT USING (true);
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tipos_envio" ON public.tipos_envio FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Inserción de Datos Iniciales (Seed Data)
+-- Clientes
+CREATE TABLE public.clientes (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_tipo_cliente uuid NOT NULL REFERENCES public.tipos_cliente(id_tipo_cliente),
+    nombre character varying NOT NULL,
+    apellido character varying,
+    email character varying,
+    telefono character varying,
+    direccion_completa text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.clientes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en clientes" ON public.clientes FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Datos para client_types
-INSERT INTO public.client_types (id, name, description) VALUES
-('client-type-seed-1', 'Individual', 'Cliente particular'),
-('client-type-seed-2', 'Corporativo', 'Cliente empresarial');
+-- Tipos de Empresa
+CREATE TABLE public.tipos_empresa (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre character varying NOT NULL,
+    descripcion text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.tipos_empresa ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tipos_empresa" ON public.tipos_empresa FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Datos para package_types
-INSERT INTO public.package_types (id, name, description, dimensions) VALUES
-('package-type-seed-1', 'Sobre', 'Documentos y objetos planos', 'Max 30x40cm, 0.5kg'),
-('package-type-seed-2', 'Paquete Pequeño', 'Cajas pequeñas', 'Max 20x20x20cm, 2kg'),
-('package-type-seed-3', 'Paquete Mediano', 'Cajas medianas', 'Max 40x40x40cm, 10kg');
+-- Empresas
+CREATE TABLE public.empresas (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_tipo_empresa uuid NOT NULL REFERENCES public.tipos_empresa(id),
+    razon_social character varying NOT NULL,
+    cuit character varying,
+    email_contacto character varying,
+    telefono_contacto character varying,
+    direccion_fiscal text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.empresas ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en empresas" ON public.empresas FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Datos para service_types y distance_rates
-INSERT INTO public.service_types (id, name, description) VALUES
-('service-type-seed-1', 'Envíos Express', 'Entrega urgente en la ciudad.');
-INSERT INTO public.distance_rates (id, service_type_id, distancia_hasta_km, precio, fecha_vigencia_desde) VALUES
-('dr-seed-1-1', 'service-type-seed-1', 2.0, 1100.00, '2024-07-01'),
-('dr-seed-1-2', 'service-type-seed-1', 4.0, 1650.00, '2024-07-01'),
-('dr-seed-1-3', 'service-type-seed-1', 6.0, 4200.00, '2025-05-23'),
-('dr-seed-1-4', 'service-type-seed-1', 8.0, 5800.00, '2025-05-23');
+-- Repartidores
+CREATE TABLE public.repartidores (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre character varying NOT NULL,
+    apellido character varying NOT NULL,
+    dni character varying,
+    telefono character varying,
+    email character varying,
+    activo boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.repartidores ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en repartidores" ON public.repartidores FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
-INSERT INTO public.service_types (id, name, description) VALUES
-('service-type-seed-2', 'Envíos LowCost', 'Entrega económica programada.');
-INSERT INTO public.distance_rates (id, service_type_id, distancia_hasta_km, precio, fecha_vigencia_desde) VALUES
-('dr-seed-2-1', 'service-type-seed-2', 3.0, 550.00, '2024-06-01'),
-('dr-seed-2-2', 'service-type-seed-2', 5.0, 770.00, '2024-06-01'),
-('dr-seed-2-3', 'service-type-seed-2', 10.0, 1000.00, '2024-01-01');
+-- Capacidad (de Repartidores)
+CREATE TABLE public.capacidad (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_repartidor uuid NOT NULL REFERENCES public.repartidores(id) ON DELETE CASCADE,
+    tipo_vehiculo character varying NOT NULL, -- Ej: Moto, Auto, Bicicleta
+    carga_max_kg numeric,
+    volumen_max_m3 numeric,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.capacidad ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en capacidad" ON public.capacidad FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
-INSERT INTO public.service_types (id, name, description) VALUES
-('service-type-seed-3', 'Moto Fija', 'Servicio de mensajería con moto asignada para cliente.');
-INSERT INTO public.distance_rates (id, service_type_id, distancia_hasta_km, precio, fecha_vigencia_desde) VALUES
-('dr-seed-3-1', 'service-type-seed-3', 50.0, 50000.00, '2024-01-01');
+-- Repartos
+CREATE TABLE public.repartos (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_repartidor uuid REFERENCES public.repartidores(id) ON DELETE SET NULL,
+    id_tipo_reparto uuid NOT NULL REFERENCES public.tipos_reparto(id_tipo_reparto),
+    fecha_programada date NOT NULL,
+    estado character varying NOT NULL, -- Ej: PENDIENTE, ASIGNADO, EN_CURSO, COMPLETADO
+    tipo character varying NOT NULL, -- Ej: EMPRESA, INDIVIDUAL (Refiriéndose a la naturaleza del viaje en sí)
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.repartos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en repartos" ON public.repartos FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
-INSERT INTO public.service_types (id, name, description) VALUES
-('service-type-seed-4', 'Plan Emprendedores', 'Tarifas especiales y soluciones para emprendedores.');
-INSERT INTO public.distance_rates (id, service_type_id, distancia_hasta_km, precio, fecha_vigencia_desde) VALUES
-('dr-seed-4-1', 'service-type-seed-4', 5.0, 600.00, '2024-05-01'),
-('dr-seed-4-2', 'service-type-seed-4', 10.0, 900.00, '2024-05-01');
+-- Envíos
+CREATE TABLE public.envios (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_cliente uuid NOT NULL REFERENCES public.clientes(id),
+    id_tipo_envio uuid NOT NULL REFERENCES public.tipos_envio(id_tipo_envio),
+    id_tipo_paquete uuid NOT NULL REFERENCES public.tipos_paquete(id_tipo_paquete),
+    id_tipo_servicio uuid NOT NULL REFERENCES public.tipos_servicio(id_tipo_servicio),
+    origen_direccion text,
+    destino_direccion text NOT NULL,
+    client_location text, -- Para coordenadas o info geocodificada
+    peso_kg numeric,
+    dimensiones_cm text,
+    fecha_solicitud date DEFAULT CURRENT_DATE NOT NULL,
+    status text DEFAULT 'PENDIENTE'::text NOT NULL, -- Ej: PENDIENTE, ASIGNADO_REPARTO, EN_TRANSITO, ENTREGADO
+    precio_total numeric,
+    id_reparto_asignado uuid REFERENCES public.repartos(id) ON DELETE SET NULL,
+    suggested_options json,
+    reasoning text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.envios ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en envios" ON public.envios FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
-INSERT INTO public.service_types (id, name, description) VALUES
-('service-type-seed-5', 'Envíos Flex', 'Servicio adaptable a necesidades específicas.');
--- No hay tarifas iniciales para Envíos Flex
+-- Paradas de Reparto
+CREATE TABLE public.paradas_reparto (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_reparto uuid NOT NULL REFERENCES public.repartos(id) ON DELETE CASCADE,
+    id_envio uuid NOT NULL REFERENCES public.envios(id) ON DELETE CASCADE,
+    orden_parada integer NOT NULL,
+    direccion_parada text NOT NULL,
+    tipo_parada public.tipoparadaenum NOT NULL,
+    estado_parada text NOT NULL, -- Ej: PENDIENTE, COMPLETADA, FALLIDA
+    hora_estimada_llegada time without time zone,
+    hora_real_llegada time without time zone,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.paradas_reparto ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en paradas_reparto" ON public.paradas_reparto FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Datos para delivery_types
-INSERT INTO public.delivery_types (id, name, description, estado, tipo_reparto) VALUES
-('delivery-type-seed-1', 'Reparto Matutino Estándar', 'Entregas programadas por la mañana.', 'pendiente', 'viaje de empresa'),
-('delivery-type-seed-2', 'Reparto Urgente Individual', 'Entrega prioritaria para un solo cliente.', 'asignado', 'viaje individual'),
-('delivery-type-seed-3', 'Recogida Vespertina', 'Recogidas por la tarde.', 'encurso', 'viaje de empresa');
+-- Tarifas Distancia Calculadora (esta parece ser una tabla más general de tarifas)
+CREATE TABLE public.tarifas_distancia_calculadora (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    tipo_calculadora character varying NOT NULL, -- Ej: express, lowcost, personalizado_cliente_x
+    distancia_hasta_km numeric NOT NULL,
+    precio numeric NOT NULL,
+    fecha_vigencia_desde date DEFAULT CURRENT_DATE NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE public.tarifas_distancia_calculadora ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir lectura pública para tarifas_distancia_calculadora" ON public.tarifas_distancia_calculadora FOR SELECT USING (true);
+CREATE POLICY "Permitir todas las operaciones a usuarios autenticados en tarifas_distancia_calculadora" ON public.tarifas_distancia_calculadora FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
--- Datos para shipment_types
-INSERT INTO public.shipment_types (id, name, description, estado) VALUES
-('shipment-type-seed-1', 'Envío Estándar Nacional', 'Entrega estándar a nivel nacional.', 'pendiente'),
-('shipment-type-seed-2', 'Envío Frágil Asegurado', 'Para artículos delicados con seguro.', 'asignado'),
-('shipment-type-seed-3', 'Envío Internacional Económico', 'Opción más barata para envíos al exterior.', 'en transito');
 
+-- Insertar Datos de Ejemplo
 
--- Configuración de Row Level Security (RLS)
--- Habilitar RLS para todas las tablas
-ALTER TABLE public.client_types ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.package_types ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.service_types ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.distance_rates ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.delivery_types ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.shipment_types ENABLE ROW LEVEL SECURITY;
+-- Tipos de Cliente
+INSERT INTO public.tipos_cliente (nombre, descripcion) VALUES
+('Individual', 'Cliente particular'),
+('Corporativo', 'Cliente empresarial');
 
--- Políticas de acceso público para lectura (SELECT) - Ajustar según necesidad
-CREATE POLICY "Permitir lectura pública a client_types" ON public.client_types FOR SELECT USING (true);
-CREATE POLICY "Permitir lectura pública a package_types" ON public.package_types FOR SELECT USING (true);
-CREATE POLICY "Permitir lectura pública a service_types" ON public.service_types FOR SELECT USING (true);
-CREATE POLICY "Permitir lectura pública a distance_rates" ON public.distance_rates FOR SELECT USING (true);
-CREATE POLICY "Permitir lectura pública a delivery_types" ON public.delivery_types FOR SELECT USING (true);
-CREATE POLICY "Permitir lectura pública a shipment_types" ON public.shipment_types FOR SELECT USING (true);
+-- Tipos de Paquete
+INSERT INTO public.tipos_paquete (nombre, descripcion, dimensiones, activo) VALUES
+('Sobre', 'Documentos y objetos planos', 'Max 30x40cm, 0.5kg', true),
+('Paquete Pequeño', 'Cajas pequeñas', 'Max 20x20x20cm, 2kg', true),
+('Paquete Mediano', 'Cajas medianas', 'Max 40x40x40cm, 10kg', true),
+('Paquete Grande', 'Cajas grandes', 'Max 60x60x60cm, 20kg', false);
 
--- Políticas para usuarios autenticados (CRUD completo) - EJEMPLO, REFINAR PARA PRODUCCIÓN
-CREATE POLICY "Permitir acceso completo a usuarios autenticados en client_types"
-ON public.client_types FOR ALL
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+-- Tipos de Servicio y sus Tarifas
+DO $$
+DECLARE
+    id_express uuid;
+    id_lowcost uuid;
+    id_moto_fija uuid;
+    id_emprendedores uuid;
+    id_flex uuid;
+BEGIN
+    INSERT INTO public.tipos_servicio (nombre, descripcion) VALUES ('Envíos Express', 'Entrega urgente en la ciudad.') RETURNING id_tipo_servicio INTO id_express;
+    INSERT INTO public.tipos_servicio (nombre, descripcion) VALUES ('Envíos LowCost', 'Entrega económica programada.') RETURNING id_tipo_servicio INTO id_lowcost;
+    INSERT INTO public.tipos_servicio (nombre, descripcion) VALUES ('Moto Fija', 'Servicio de mensajería con moto asignada para cliente.') RETURNING id_tipo_servicio INTO id_moto_fija;
+    INSERT INTO public.tipos_servicio (nombre, descripcion) VALUES ('Plan Emprendedores', 'Tarifas especiales y soluciones para emprendedores.') RETURNING id_tipo_servicio INTO id_emprendedores;
+    INSERT INTO public.tipos_servicio (nombre, descripcion) VALUES ('Envíos Flex', 'Servicio adaptable a necesidades específicas.') RETURNING id_tipo_servicio INTO id_flex;
 
-CREATE POLICY "Permitir acceso completo a usuarios autenticados en package_types"
-ON public.package_types FOR ALL
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+    -- Tarifas para Envíos Express
+    INSERT INTO public.tarifas_servicio (id_tipo_servicio, hasta_km, precio) VALUES
+    (id_express, 2.0, 1100.00),
+    (id_express, 4.0, 1650.00),
+    (id_express, 6.0, 4200.00),
+    (id_express, 8.0, 5800.00);
 
-CREATE POLICY "Permitir acceso completo a usuarios autenticados en service_types"
-ON public.service_types FOR ALL
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+    -- Tarifas para Envíos LowCost
+    INSERT INTO public.tarifas_servicio (id_tipo_servicio, hasta_km, precio) VALUES
+    (id_lowcost, 3.0, 550.00),
+    (id_lowcost, 5.0, 770.00),
+    (id_lowcost, 10.0, 1000.00);
+    
+    -- Tarifa para Moto Fija (ejemplo de tarifa única)
+    INSERT INTO public.tarifas_servicio (id_tipo_servicio, hasta_km, precio) VALUES
+    (id_moto_fija, 50.0, 50000.00);
 
-CREATE POLICY "Permitir acceso completo a usuarios autenticados en distance_rates"
-ON public.distance_rates FOR ALL
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+    -- Tarifas para Plan Emprendedores
+    INSERT INTO public.tarifas_servicio (id_tipo_servicio, hasta_km, precio) VALUES
+    (id_emprendedores, 5.0, 600.00),
+    (id_emprendedores, 10.0, 900.00);
+END $$;
 
-CREATE POLICY "Permitir acceso completo a usuarios autenticados en delivery_types"
-ON public.delivery_types FOR ALL
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+-- Tipos de Reparto
+INSERT INTO public.tipos_reparto (nombre, descripcion, activo) VALUES
+('Reparto Matutino Estándar', 'Entregas programadas por la mañana.', true),
+('Reparto Urgente Individual', 'Entrega prioritaria para un solo cliente.', true),
+('Recogida Vespertina', 'Recogidas por la tarde.', true),
+('Logística Inversa', 'Devoluciones y cambios.', false);
 
-CREATE POLICY "Permitir acceso completo a usuarios autenticados en shipment_types"
-ON public.shipment_types FOR ALL
-USING (auth.role() = 'authenticated')
-WITH CHECK (auth.role() = 'authenticated');
+-- Tipos de Envío
+INSERT INTO public.tipos_envio (nombre, descripcion, activo) VALUES
+('Estándar Nacional', 'Entrega estándar a nivel nacional.', true),
+('Frágil Asegurado', 'Para artículos delicados con seguro.', true),
+('Internacional Económico', 'Opción más barata para envíos al exterior.', false),
+('Contra Reembolso', 'Pago en destino.', true);
 
+-- Tipos de Empresa
+INSERT INTO public.tipos_empresa (nombre, descripcion) VALUES
+('Pequeña Empresa', 'Menos de 50 empleados'),
+('Mediana Empresa', 'Entre 50 y 250 empleados'),
+('Gran Empresa', 'Más de 250 empleados'),
+('E-commerce', 'Tienda online');
+
+-- Clientes de Ejemplo
+DO $$
+DECLARE
+    id_tipo_individual uuid;
+    id_tipo_corporativo uuid;
+BEGIN
+    SELECT id_tipo_cliente INTO id_tipo_individual FROM public.tipos_cliente WHERE nombre = 'Individual';
+    SELECT id_tipo_cliente INTO id_tipo_corporativo FROM public.tipos_cliente WHERE nombre = 'Corporativo';
+
+    INSERT INTO public.clientes (id_tipo_cliente, nombre, apellido, email, telefono, direccion_completa) VALUES
+    (id_tipo_individual, 'Juan', 'Perez', 'juan.perez@example.com', '1122334455', 'Calle Falsa 123, Springfield'),
+    (id_tipo_corporativo, 'Empresa ABC', NULL, 'contacto@empresaabc.com', '0800-123-4567', 'Av. Siempreviva 742, Springfield');
+END $$;
+
+-- Repartidores de Ejemplo
+INSERT INTO public.repartidores (nombre, apellido, dni, telefono, email, activo) VALUES
+('Carlos', 'Gomez', '30123456', '1198765432', 'carlos.gomez@example.com', true),
+('Ana', 'Lopez', '32765432', '1112345678', 'ana.lopez@example.com', true);
+
+-- Tarifas Distancia Calculadora (Ejemplo)
+INSERT INTO public.tarifas_distancia_calculadora (tipo_calculadora, distancia_hasta_km, precio, fecha_vigencia_desde) VALUES
+('general_express', 5, 1500, '2024-01-01'),
+('general_express', 10, 2500, '2024-01-01'),
+('general_lowcost', 5, 800, '2024-01-01'),
+('general_lowcost', 10, 1200, '2024-01-01');
+
+-- Más datos de ejemplo para otras tablas (básico)
+DO $$
+DECLARE
+    id_cliente_juan uuid;
+    id_tipo_envio_estandar uuid;
+    id_tipo_paquete_pequeno uuid;
+    id_tipo_servicio_express uuid;
+    id_repartidor_carlos uuid;
+    id_tipo_reparto_matutino uuid;
+    id_reparto_1 uuid;
+BEGIN
+    SELECT id INTO id_cliente_juan FROM public.clientes WHERE nombre = 'Juan';
+    SELECT id_tipo_envio INTO id_tipo_envio_estandar FROM public.tipos_envio WHERE nombre = 'Estándar Nacional';
+    SELECT id_tipo_paquete INTO id_tipo_paquete_pequeno FROM public.tipos_paquete WHERE nombre = 'Paquete Pequeño';
+    SELECT id_tipo_servicio INTO id_tipo_servicio_express FROM public.tipos_servicio WHERE nombre = 'Envíos Express';
+    SELECT id INTO id_repartidor_carlos FROM public.repartidores WHERE nombre = 'Carlos';
+    SELECT id_tipo_reparto INTO id_tipo_reparto_matutino FROM public.tipos_reparto WHERE nombre = 'Reparto Matutino Estándar';
+
+    IF id_cliente_juan IS NOT NULL AND id_tipo_envio_estandar IS NOT NULL AND id_tipo_paquete_pequeno IS NOT NULL AND id_tipo_servicio_express IS NOT NULL THEN
+        INSERT INTO public.envios (id_cliente, id_tipo_envio, id_tipo_paquete, id_tipo_servicio, destino_direccion, status, peso_kg) VALUES
+        (id_cliente_juan, id_tipo_envio_estandar, id_tipo_paquete_pequeno, id_tipo_servicio_express, 'Calle Verdadera 456, Shelbyville', 'PENDIENTE', 1.5);
+    END IF;
+
+    IF id_repartidor_carlos IS NOT NULL AND id_tipo_reparto_matutino IS NOT NULL THEN
+        INSERT INTO public.repartos (id_repartidor, id_tipo_reparto, fecha_programada, estado, tipo) VALUES
+        (id_repartidor_carlos, id_tipo_reparto_matutino, CURRENT_DATE + interval '1 day', 'PENDIENTE', 'EMPRESA') RETURNING id INTO id_reparto_1;
+        
+        IF id_reparto_1 IS NOT NULL THEN
+          INSERT INTO public.capacidad (id_repartidor, tipo_vehiculo, carga_max_kg) VALUES
+          (id_repartidor_carlos, 'Moto', 20);
+        END IF;
+    END IF;
+END $$;
+
+-- Asegurar que las secuencias para serial/bigserial se actualicen si se usan IDs específicos en INSERT
+-- No es necesario con UUIDs generados por gen_random_uuid()
+
+SELECT pg_catalog.set_config('search_path', 'public', false);
+
+    

@@ -4,166 +4,183 @@
 import React, { useState, useEffect } from "react";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getServiceTypeColumns } from "@/components/service-types/columns";
-import { ServiceTypeForm } from "@/components/service-types/service-type-form";
+import { getTipoServicioColumns } from "@/components/service-types/columns"; // Renamed
+import { TipoServicioForm } from "@/components/service-types/service-type-form"; // Renamed
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { ServiceType } from "@/types";
-import { serviceTypeSchema } from "@/lib/schemas";
+import type { TipoServicio, TarifaServicio } from "@/types"; // Renamed
+import { tipoServicioSchema } from "@/lib/schemas"; // Renamed
 import { generateId } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
-// Mock data
-const initialServiceTypes: ServiceType[] = [
+// Mock data - updated to new structure
+const initialTiposServicio: TipoServicio[] = [ // Renamed
   {
-    id: generateId(),
-    name: "Envíos Express",
-    description: "Entrega urgente en la ciudad.",
-    distanceRates: [
-      { id: generateId(), distancia_hasta_km: 2.0, precio: 1100.00, fecha_vigencia_desde: "2024-07-01" },
-      { id: generateId(), distancia_hasta_km: 4.0, precio: 1650.00, fecha_vigencia_desde: "2024-07-01" },
-      { id: generateId(), distancia_hasta_km: 6.0, precio: 4200.00, fecha_vigencia_desde: "2025-05-23" },
-      { id: generateId(), distancia_hasta_km: 8.0, precio: 5800.00, fecha_vigencia_desde: "2025-05-23" },
+    id_tipo_servicio: generateId(),
+    nombre: "Envíos Express",
+    descripcion: "Entrega urgente en la ciudad.",
+    tarifas_servicio: [ // Renamed
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 2.0, precio: 1100.00, created_at: new Date().toISOString() }, // id_tipo_servicio will be set later
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 4.0, precio: 1650.00, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 6.0, precio: 4200.00, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 8.0, precio: 5800.00, created_at: new Date().toISOString() },
     ],
   },
   {
-    id: generateId(),
-    name: "Envíos LowCost",
-    description: "Entrega económica programada.",
-    distanceRates: [
-      { id: generateId(), distancia_hasta_km: 3.0, precio: 550.00, fecha_vigencia_desde: "2024-06-01" },
-      { id: generateId(), distancia_hasta_km: 5.0, precio: 770.00, fecha_vigencia_desde: "2024-06-01" },
-      { id: generateId(), distancia_hasta_km: 10.0, precio: 1000.00, fecha_vigencia_desde: "2024-01-01" },
+    id_tipo_servicio: generateId(),
+    nombre: "Envíos LowCost",
+    descripcion: "Entrega económica programada.",
+    tarifas_servicio: [
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 3.0, precio: 550.00, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 5.0, precio: 770.00, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 10.0, precio: 1000.00, created_at: new Date().toISOString() },
     ],
   },
   {
-    id: generateId(),
-    name: "Moto Fija",
-    description: "Servicio de mensajería con moto asignada para cliente.",
-    distanceRates: [ // Example: Could be a flat rate or tiered based on time/contract
-      { id: generateId(), distancia_hasta_km: 50, precio: 50000, fecha_vigencia_desde: "2024-01-01" } // Monthly fixed rate example
+    id_tipo_servicio: generateId(),
+    nombre: "Moto Fija",
+    descripcion: "Servicio de mensajería con moto asignada para cliente.",
+    tarifas_servicio: [ 
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 50, precio: 50000, created_at: new Date().toISOString() }
     ]
   },
   {
-    id: generateId(),
-    name: "Plan Emprendedores",
-    description: "Tarifas especiales y soluciones para emprendedores.",
-    distanceRates: [
-      { id: generateId(), distancia_hasta_km: 5, precio: 600, fecha_vigencia_desde: "2024-05-01" },
-      { id: generateId(), distancia_hasta_km: 10, precio: 900, fecha_vigencia_desde: "2024-05-01" },
+    id_tipo_servicio: generateId(),
+    nombre: "Plan Emprendedores",
+    descripcion: "Tarifas especiales y soluciones para emprendedores.",
+    tarifas_servicio: [
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 5, precio: 600, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 10, precio: 900, created_at: new Date().toISOString() },
     ]
   },
   {
-    id: generateId(),
-    name: "Envíos Flex",
-    description: "Servicio adaptable a necesidades específicas.",
-    distanceRates: [] // Starts with no specific rates, to be configured
+    id_tipo_servicio: generateId(),
+    nombre: "Envíos Flex",
+    descripcion: "Servicio adaptable a necesidades específicas.",
+    tarifas_servicio: [] 
   }
-];
+].map(ts => ({
+    ...ts, 
+    tarifas_servicio: ts.tarifas_servicio?.map(tarifa => ({...tarifa, id_tipo_servicio: ts.id_tipo_servicio!})) || [] 
+}));
 
 
-export default function ServiceTypesPage() {
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+export default function TiposServicioPage() { // Renamed
+  const [tiposServicio, setTiposServicio] = useState<TipoServicio[]>([]); // Renamed
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingServiceType, setEditingServiceType] = useState<ServiceType | null>(null);
+  const [editingTipoServicio, setEditingTipoServicio] = useState<TipoServicio | null>(null); // Renamed
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
-  const [serviceTypeToDelete, setServiceTypeToDelete] = useState<ServiceType | null>(null);
+  const [tipoServicioToDelete, setTipoServicioToDelete] = useState<TipoServicio | null>(null); // Renamed
   const { toast } = useToast();
   
   useEffect(() => {
-    // Simulate fetching data and ensuring distanceRates is always an array
-    const loadedServiceTypes = initialServiceTypes.map(st => ({
+    const loadedServiceTypes = initialTiposServicio.map(st => ({
       ...st,
-      distanceRates: st.distanceRates || [], 
+      tarifas_servicio: st.tarifas_servicio || [], 
     }));
-    setServiceTypes(loadedServiceTypes);
+    setTiposServicio(loadedServiceTypes);
   }, []);
 
-  const handleNewServiceType = () => {
-    setEditingServiceType(null);
+  const handleNewTipoServicio = () => { // Renamed
+    setEditingTipoServicio(null);
     setIsFormOpen(true);
   };
 
-  const handleEditServiceType = (serviceType: ServiceType) => {
-    setEditingServiceType({
-      ...serviceType,
-      distanceRates: serviceType.distanceRates || [], // Ensure distanceRates is an array
+  const handleEditTipoServicio = (tipoServicio: TipoServicio) => { // Renamed
+    setEditingTipoServicio({
+      ...tipoServicio,
+      tarifas_servicio: tipoServicio.tarifas_servicio || [], 
     });
     setIsFormOpen(true);
   };
 
-  const handleDeleteServiceType = (serviceType: ServiceType) => {
-    setServiceTypeToDelete(serviceType);
+  const handleDeleteTipoServicio = (tipoServicio: TipoServicio) => { // Renamed
+    setTipoServicioToDelete(tipoServicio);
     setIsConfirmDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    if (serviceTypeToDelete) {
-      setServiceTypes((prev) => prev.filter((st) => st.id !== serviceTypeToDelete.id));
+    if (tipoServicioToDelete) {
+      setTiposServicio((prev) => prev.filter((st) => st.id_tipo_servicio !== tipoServicioToDelete.id_tipo_servicio)); // Renamed
       toast({ title: "Éxito", description: "Tipo de servicio eliminado correctamente." });
-      setServiceTypeToDelete(null);
+      setTipoServicioToDelete(null);
     }
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = (values: z.infer<typeof serviceTypeSchema>) => {
-    // Ensure distanceRates have unique IDs if any are new (though generateId in form should handle it)
+  const handleFormSubmit = (values: z.infer<typeof tipoServicioSchema>) => { // Renamed schema
     const processedValues = {
       ...values,
-      distanceRates: values.distanceRates?.map(dr => ({ ...dr, id: dr.id || generateId() })) || [],
+      tarifas_servicio: values.tarifas_servicio?.map(dr => ({ 
+        ...dr, 
+        id_tarifa_servicio: dr.id_tarifa_servicio || generateId(), 
+        created_at: new Date().toISOString() // Assuming created_at is set here for mock
+      })) || [],
     };
 
-    if (editingServiceType) {
-      setServiceTypes((prev) =>
+    if (editingTipoServicio) {
+      const updatedTipoServicio = {
+        ...editingTipoServicio,
+        ...processedValues,
+        id_tipo_servicio: editingTipoServicio.id_tipo_servicio!, // Ensure ID is present
+        tarifas_servicio: processedValues.tarifas_servicio.map(t => ({...t, id_tipo_servicio: editingTipoServicio.id_tipo_servicio!}))
+      };
+      setTiposServicio((prev) =>
         prev.map((st) =>
-          st.id === editingServiceType.id ? { ...editingServiceType, ...processedValues } : st
+          st.id_tipo_servicio === editingTipoServicio.id_tipo_servicio ? updatedTipoServicio : st
         )
       );
       toast({ title: "Éxito", description: "Tipo de servicio actualizado." });
     } else {
-      const newServiceType = { ...processedValues, id: generateId() };
-      setServiceTypes((prev) => [...prev, newServiceType]);
+      const newId = generateId();
+      const newTipoServicio = { 
+        ...processedValues, 
+        id_tipo_servicio: newId, 
+        created_at: new Date().toISOString(),
+        tarifas_servicio: processedValues.tarifas_servicio.map(t => ({...t, id_tipo_servicio: newId}))
+      };
+      setTiposServicio((prev) => [...prev, newTipoServicio]); // Renamed
       toast({ title: "Éxito", description: "Nuevo tipo de servicio creado." });
     }
     setIsFormOpen(false);
-    setEditingServiceType(null);
+    setEditingTipoServicio(null);
   };
 
   const columns = React.useMemo(
-    () => getServiceTypeColumns(handleEditServiceType, handleDeleteServiceType),
-    [] // Re-memoize if handler functions change identity, though typically stable.
+    () => getTipoServicioColumns(handleEditTipoServicio, handleDeleteTipoServicio), // Renamed
+    []
   );
 
   return (
     <div className="container mx-auto py-2">
       <DataTable
         columns={columns}
-        data={serviceTypes}
-        filterColumnId="name"
+        data={tiposServicio} // Renamed
+        filterColumnId="nombre"
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Servicio"
-        onNew={handleNewServiceType}
-        onEdit={handleEditServiceType}
-        onDelete={handleDeleteServiceType}
+        onNew={handleNewTipoServicio} // Renamed
+        onEdit={handleEditTipoServicio} // Renamed
+        onDelete={handleDeleteTipoServicio} // Renamed
       />
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
         if (!isOpen) {
-          setEditingServiceType(null);
+          setEditingTipoServicio(null);
         }
         setIsFormOpen(isOpen);
       }}>
-        <DialogContent className="sm:max-w-2xl"> {/* Increased width for more complex form */}
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {editingServiceType ? "Editar Tipo de Servicio" : "Crear Nuevo Tipo de Servicio"}
+              {editingTipoServicio ? "Editar Tipo de Servicio" : "Crear Nuevo Tipo de Servicio"}
             </DialogTitle>
           </DialogHeader>
-          <ServiceTypeForm
+          <TipoServicioForm // Renamed
             onSubmit={handleFormSubmit}
-            initialData={editingServiceType}
+            initialData={editingTipoServicio}
             onCancel={() => {
               setIsFormOpen(false);
-              setEditingServiceType(null);
+              setEditingTipoServicio(null);
             }}
           />
         </DialogContent>
@@ -173,8 +190,10 @@ export default function ServiceTypesPage() {
         onClose={() => setIsConfirmDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
-        description={`¿Estás seguro de que deseas eliminar el tipo de servicio "${serviceTypeToDelete?.name}"? Esta acción no se puede deshacer.`}
+        description={`¿Estás seguro de que deseas eliminar el tipo de servicio "${tipoServicioToDelete?.nombre}"? Esta acción no se puede deshacer.`}
       />
     </div>
   );
 }
+
+    
