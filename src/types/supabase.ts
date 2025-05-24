@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -283,31 +282,8 @@ export type CompositeTypes<
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
-
-// Custom Application Types
-export type ClientType = Tables<'client_types'>;
-export type PackageType = Tables<'package_types'>;
-export type DistanceRate = Tables<'distance_rates'>;
-export type ServiceType = Omit<Tables<'service_types'>, 'created_at'> & {
-  distanceRates?: DistanceRate[];
-};
-export type DeliveryType = Tables<'delivery_types'>;
-export type ShipmentType = Tables<'shipment_types'>;
-
-export const deliveryStatuses = ["pendiente", "asignado", "encurso", "completo"] as const;
-export type DeliveryStatus = typeof deliveryStatuses[number];
-
-export const deliveryCategories = ["viaje de empresa", "viaje individual"] as const;
-export type DeliveryCategory = typeof deliveryCategories[number];
-
-export const shipmentStatuses = ["en transito", "entregado", "asignado", "pendiente"] as const;
-export type ShipmentStatus = typeof shipmentStatuses[number];
-
-export type EntityType = 'client' | 'package' | 'service' | 'delivery' | 'shipment';
-
 export const Constants = {
   public: {
     Enums: {},
   },
 } as const
-
