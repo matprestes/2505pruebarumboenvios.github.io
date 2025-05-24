@@ -1,9 +1,10 @@
+
 // use server'
 'use server';
 
 /**
  * @fileOverview Provides AI-powered suggestions for naming conventions for
- * client, package, or service types, ensuring configurations adhere to
+ * client, package, service, delivery or shipment types, ensuring configurations adhere to
  * industry best practices.
  *
  * - suggestNamingConventions - A function that suggests naming conventions.
@@ -16,7 +17,7 @@ import {z} from 'genkit';
 
 const SuggestNamingConventionsInputSchema = z.object({
   entityType: z
-    .enum(['client', 'package', 'service'])
+    .enum(['client', 'package', 'service', 'delivery', 'shipment'])
     .describe('The type of entity to suggest naming conventions for.'),
   exampleNames: z
     .array(z.string())

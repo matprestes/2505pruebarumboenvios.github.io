@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -21,6 +22,8 @@ const pageTitles: Record<string, string> = {
   '/client-types': 'Gestión de Tipos de Cliente',
   '/package-types': 'Gestión de Tipos de Paquete',
   '/service-types': 'Gestión de Tipos de Servicio',
+  '/delivery-types': 'Gestión de Tipos de Reparto',
+  '/shipment-types': 'Gestión de Tipos de Envío',
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {

@@ -26,4 +26,28 @@ export interface ServiceType {
   distanceRates: DistanceRate[];
 }
 
-export type EntityType = 'client' | 'package' | 'service';
+export type DeliveryStatus = "asignado" | "completo" | "pendiente" | "encurso";
+export const deliveryStatuses: DeliveryStatus[] = ["asignado", "completo", "pendiente", "encurso"];
+
+export type DeliveryCategory = "viaje de empresa" | "viaje individual";
+export const deliveryCategories: DeliveryCategory[] = ["viaje de empresa", "viaje individual"];
+
+export interface DeliveryType {
+  id: string;
+  name: string;
+  description?: string;
+  estado: DeliveryStatus;
+  tipo_reparto: DeliveryCategory;
+}
+
+export type ShipmentStatus = "en transito" | "entregado" | "asignado" | "pendiente";
+export const shipmentStatuses: ShipmentStatus[] = ["en transito", "entregado", "asignado", "pendiente"];
+
+export interface ShipmentType {
+  id: string;
+  name: string;
+  description?: string;
+  estado: ShipmentStatus;
+}
+
+export type EntityType = 'client' | 'package' | 'service' | 'delivery' | 'shipment';

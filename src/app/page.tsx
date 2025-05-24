@@ -1,12 +1,15 @@
+
 import { DashboardCard } from '@/components/dashboard-card';
-import { Users, Package, Truck } from 'lucide-react';
+import { Users, Package, Truck, ListChecks, PackagePlus } from 'lucide-react';
 
 export default function DashboardPage() {
   // In a real app, counts would come from a data source
   const entityCounts = {
-    clientTypes: 0, // Example: fetchClientTypes().length
+    clientTypes: 0, 
     packageTypes: 0,
     serviceTypes: 0,
+    deliveryTypes: 0,
+    shipmentTypes: 0,
   };
 
   return (
@@ -38,6 +41,20 @@ export default function DashboardPage() {
           icon={Truck}
           href="/service-types"
           count={entityCounts.serviceTypes}
+        />
+         <DashboardCard
+          title="Tipos de Reparto"
+          description="Define y gestiona los diferentes tipos de reparto y sus estados."
+          icon={ListChecks}
+          href="/delivery-types"
+          count={entityCounts.deliveryTypes}
+        />
+        <DashboardCard
+          title="Tipos de Envío"
+          description="Configura los tipos de envío y sus estados de seguimiento."
+          icon={PackagePlus}
+          href="/shipment-types"
+          count={entityCounts.shipmentTypes}
         />
       </div>
     </div>

@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Package, Truck, Settings2 } from 'lucide-react';
+import { LayoutDashboard, Users, Package, Truck, ListChecks, PackagePlus } from 'lucide-react';
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -15,6 +16,8 @@ const navItems = [
   { href: '/client-types', label: 'Tipos de Cliente', icon: Users },
   { href: '/package-types', label: 'Tipos de Paquete', icon: Package },
   { href: '/service-types', label: 'Tipos de Servicio', icon: Truck },
+  { href: '/delivery-types', label: 'Tipos de Reparto', icon: ListChecks },
+  { href: '/shipment-types', label: 'Tipos de Envío', icon: PackagePlus },
 ];
 
 export function SidebarNav() {
