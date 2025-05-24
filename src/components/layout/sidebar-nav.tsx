@@ -38,20 +38,19 @@ const configNavItems = [
 export function SidebarNav() {
   const pathname = usePathname();
   const { state: sidebarState, isMobile } = useSidebar();
-  
+
   const isConfigActive = configNavItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'));
-  
+
   const [openAccordionValue, setOpenAccordionValue] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (isConfigActive) {
       setOpenAccordionValue("config-item");
     } else {
-      // If no config item is active and the accordion was open for config, consider closing it.
-      // This can be refined based on desired UX (e.g., keep it open if user explicitly opened it).
-      if (openAccordionValue === "config-item" && !isConfigActive) {
-        // setOpenAccordionValue(undefined); // Example: close if no longer active
-      }
+      // Optionally, close accordion if no config item is active and it was previously open
+      // if (openAccordionValue === "config-item") {
+      //   setOpenAccordionValue(undefined);
+      // }
     }
   }, [pathname, isConfigActive, openAccordionValue]);
 
@@ -64,14 +63,14 @@ export function SidebarNav() {
     "h-8",
     "group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2",
     "hover:no-underline",
-    "group-data-[collapsible=icon]:[&>svg:last-child]:hidden" 
+    "[&_svg:last-child]:group-data-[collapsible=icon]:hidden" // Hide chevron when collapsed to icon
   );
 
   const accordionTriggerTextSpanClasses = cn(
     "flex-1",
     "group-data-[collapsible=icon]:hidden"
   );
-  
+
   const accordionContentClasses = cn(
     "pt-1 pb-0 overflow-hidden",
     "group-data-[collapsible=icon]:hidden"
@@ -84,18 +83,20 @@ export function SidebarNav() {
           asChild
           isActive={pathname === mainNavItem.href}
           tooltip={{ children: mainNavItem.label }}
+          size="default"
+          className="h-8"
         >
           <Link href={mainNavItem.href}>
-            <mainNavItem.icon className="h-5 w-5" />
-            <span>{mainNavItem.label}</span>
+            <mainNavItem.icon className="h-4 w-4 shrink-0" />
+            <span className="group-data-[collapsible=icon]:hidden">{mainNavItem.label}</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
 
       <SidebarMenuItem>
-        <Accordion 
-          type="single" 
-          collapsible 
+        <Accordion
+          type="single"
+          collapsible
           value={openAccordionValue}
           onValueChange={setOpenAccordionValue}
           className="w-full"
@@ -104,14 +105,20 @@ export function SidebarNav() {
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild disabled={sidebarState === "expanded" || isMobile}>
-                  <AccordionTrigger className={accordionTriggerClasses}>
-                    <Settings className="h-4 w-4 shrink-0" />
-                    <span className={accordionTriggerTextSpanClasses}>Configuración</span>
-                  </AccordionTrigger>
+                   {/* The AccordionTrigger itself will be the tooltip trigger if sidebar is icon-only */}
+                   {/* When sidebar is expanded, the AccordionTrigger doesn't need a separate tooltip for its own label */}
+                  <div className={cn( (sidebarState === "collapsed" && !isMobile) ? "" : "w-full")}>
+                    <AccordionTrigger className={accordionTriggerClasses}>
+                      <Settings className="h-4 w-4 shrink-0" />
+                      <span className={accordionTriggerTextSpanClasses}>Configuración</span>
+                    </AccordionTrigger>
+                  </div>
                 </TooltipTrigger>
-                <TooltipContent side="right" align="center">
-                  Configuración
-                </TooltipContent>
+                {(sidebarState === "collapsed" && !isMobile) && (
+                  <TooltipContent side="right" align="center">
+                    Configuración
+                  </TooltipContent>
+                )}
               </Tooltip>
             </TooltipProvider>
             <AccordionContent className={accordionContentClasses}>
@@ -121,12 +128,13 @@ export function SidebarNav() {
                     <SidebarMenuButton
                       asChild
                       isActive={pathname === item.href}
-                      tooltip={{ children: item.label }}
-                      size="sm" 
-                      className="h-7 w-full justify-start text-xs" 
+                      tooltip={{ children: item.label }} // Tooltip active when sidebar is icon-only
+                      size="sm"
+                      className="h-7 w-full justify-start text-xs"
                     >
                       <Link href={item.href}>
                         <item.icon className="h-4 w-4 shrink-0" />
+                        {/* Span hidden by parent's group-data when icon-only */}
                         <span>{item.label}</span>
                       </Link>
                     </SidebarMenuButton>
