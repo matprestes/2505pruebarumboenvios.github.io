@@ -31,14 +31,20 @@ export async function getClientesAction({
 
   if (query) {
     supabaseQuery = supabaseQuery.or(
-      `nombre.ilike.%${query}%,apellido.ilike.%${query}%,email.ilike.%${query}%,empresas(razon_social).ilike.%${query}%`
+      `nombre.ilike.%${query}%,apellido.ilike.%${query}%,email.ilike.%${query}%,empresas.razon_social.ilike.%${query}%`
     );
   }
 
   const { data, error, count } = await supabaseQuery;
 
   if (error) {
-    console.error("Error fetching clientes:", error);
+    console.error(
+      "Error fetching clientes. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { data: [], count: 0 };
   }
   return { data: data as Cliente[], count: count ?? 0 };
@@ -51,8 +57,15 @@ export async function getClienteByIdAction(id: string): Promise<Cliente | null> 
     .select("*")
     .eq("id", id)
     .single();
+
   if (error) {
-    console.error("Error fetching cliente by ID:", error);
+    console.error(
+      "Error fetching cliente by ID. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return null;
   }
   return data as Cliente;
@@ -75,7 +88,13 @@ export async function addClienteAction(
     .single();
 
   if (error) {
-    console.error("Error adding cliente:", error);
+    console.error(
+      "Error adding cliente. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al crear cliente: ${error.message}` };
   }
   revalidatePath("/clientes");
@@ -101,7 +120,13 @@ export async function updateClienteAction(
     .single();
 
   if (error) {
-    console.error("Error updating cliente:", error);
+    console.error(
+      "Error updating cliente. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al actualizar cliente: ${error.message}` };
   }
   revalidatePath("/clientes");
@@ -114,7 +139,13 @@ export async function deleteClienteAction(id: string): Promise<{ success: boolea
   const { error } = await supabase.from("clientes").delete().eq("id", id);
 
   if (error) {
-    console.error("Error deleting cliente:", error);
+    console.error(
+      "Error deleting cliente. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al eliminar cliente: ${error.message}` };
   }
   revalidatePath("/clientes");
@@ -129,7 +160,13 @@ export async function getTiposClienteForSelectAction(): Promise<SelectOption[]> 
     .order("nombre");
 
   if (error) {
-    console.error("Error fetching tipos_cliente for select:", error);
+    console.error(
+        "Error fetching tipos_cliente for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return [];
   }
   return data.map((tc) => ({ value: tc.id_tipo_cliente, label: tc.nombre }));
@@ -143,10 +180,14 @@ export async function getEmpresasForSelectAction(): Promise<SelectOption[]> {
     .order("razon_social");
 
   if (error) {
-    console.error("Error fetching empresas for select:", error);
+     console.error(
+        "Error fetching empresas for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return [];
   }
   return data.map((e) => ({ value: e.id, label: e.razon_social }));
 }
-
-    
