@@ -4,12 +4,12 @@
 import React, { useState, useEffect } from "react";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getTipoClienteColumns } from "@/components/client-types/columns"; // Renamed
-import { TipoClienteForm } from "@/components/client-types/client-type-form"; // Renamed
+import { getTipoClienteColumns } from "@/components/client-types/columns";
+import { TipoClienteForm } from "@/components/client-types/client-type-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { TipoCliente } from "@/types"; // Renamed
-import { tipoClienteSchema } from "@/lib/schemas"; // Renamed
+import type { TipoCliente } from "@/types";
+import { tipoClienteSchema } from "@/lib/schemas";
 import { generateId } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
@@ -19,53 +19,58 @@ const initialTiposCliente: TipoCliente[] = [
   { id_tipo_cliente: generateId(), nombre: "Corporativo", descripcion: "Cliente empresarial", created_at: new Date().toISOString() },
 ];
 
-export default function TiposClientePage() { // Renamed
-  const [tiposCliente, setTiposCliente] = useState<TipoCliente[]>([]); // Renamed
+export default function TiposClientePage() {
+  const [tiposCliente, setTiposCliente] = useState<TipoCliente[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTipoCliente, setEditingTipoCliente] = useState<TipoCliente | null>(null); // Renamed
+  const [editingTipoCliente, setEditingTipoCliente] = useState<TipoCliente | null>(null);
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
-  const [tipoClienteToDelete, setTipoClienteToDelete] = useState<TipoCliente | null>(null); // Renamed
+  const [tipoClienteToDelete, setTipoClienteToDelete] = useState<TipoCliente | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    setTiposCliente(initialTiposCliente); // Renamed
+    // En una aplicación real, aquí se cargarían los datos desde Supabase
+    setTiposCliente(initialTiposCliente);
   }, []);
 
-  const handleNewTipoCliente = () => { // Renamed
+  const handleNewTipoCliente = () => {
     setEditingTipoCliente(null);
     setIsFormOpen(true);
   };
 
-  const handleEditTipoCliente = (tipoCliente: TipoCliente) => { // Renamed
+  const handleEditTipoCliente = (tipoCliente: TipoCliente) => {
     setEditingTipoCliente(tipoCliente);
     setIsFormOpen(true);
   };
 
-  const handleDeleteTipoCliente = (tipoCliente: TipoCliente) => { // Renamed
+  const handleDeleteTipoCliente = (tipoCliente: TipoCliente) => {
     setTipoClienteToDelete(tipoCliente);
     setIsConfirmDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
     if (tipoClienteToDelete) {
-      setTiposCliente((prev) => prev.filter((ct) => ct.id_tipo_cliente !== tipoClienteToDelete.id_tipo_cliente)); // Renamed
+      setTiposCliente((prev) => prev.filter((ct) => ct.id_tipo_cliente !== tipoClienteToDelete.id_tipo_cliente));
       toast({ title: "Éxito", description: "Tipo de cliente eliminado correctamente." });
       setTipoClienteToDelete(null);
     }
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = (values: z.infer<typeof tipoClienteSchema>) => { // Renamed schema
+  const handleFormSubmit = (values: z.infer<typeof tipoClienteSchema>) => {
     if (editingTipoCliente) {
-      setTiposCliente((prev) => // Renamed
+      setTiposCliente((prev) =>
         prev.map((ct) =>
-          ct.id_tipo_cliente === editingTipoCliente.id_tipo_cliente ? { ...editingTipoCliente, ...values, created_at: editingTipoCliente.created_at } : ct // Preserve created_at
+          ct.id_tipo_cliente === editingTipoCliente.id_tipo_cliente ? { ...editingTipoCliente, ...values, created_at: editingTipoCliente.created_at } : ct
         )
       );
       toast({ title: "Éxito", description: "Tipo de cliente actualizado." });
     } else {
-      const newTipoCliente = { ...values, id_tipo_cliente: generateId(), created_at: new Date().toISOString() }; // Renamed
-      setTiposCliente((prev) => [...prev, newTipoCliente]); // Renamed
+      const newTipoCliente: TipoCliente = { 
+        ...values, 
+        id_tipo_cliente: generateId(), 
+        created_at: new Date().toISOString() 
+      };
+      setTiposCliente((prev) => [...prev, newTipoCliente]);
       toast({ title: "Éxito", description: "Nuevo tipo de cliente creado." });
     }
     setIsFormOpen(false);
@@ -73,7 +78,8 @@ export default function TiposClientePage() { // Renamed
   };
 
   const columns = React.useMemo(
-    () => getTipoClienteColumns(handleEditTipoCliente, handleDeleteTipoCliente), // Renamed
+    () => getTipoClienteColumns(handleEditTipoCliente, handleDeleteTipoCliente),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [] 
   );
 
@@ -81,13 +87,13 @@ export default function TiposClientePage() { // Renamed
     <div className="container mx-auto py-2">
       <DataTable
         columns={columns}
-        data={tiposCliente} // Renamed
+        data={tiposCliente}
         filterColumnId="nombre"
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Cliente"
-        onNew={handleNewTipoCliente} // Renamed
-        onEdit={handleEditTipoCliente} // Renamed
-        onDelete={handleDeleteTipoCliente} // Renamed
+        onNew={handleNewTipoCliente}
+        onEdit={handleEditTipoCliente}
+        onDelete={handleDeleteTipoCliente}
       />
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -101,7 +107,7 @@ export default function TiposClientePage() { // Renamed
               {editingTipoCliente ? "Editar Tipo de Cliente" : "Crear Nuevo Tipo de Cliente"}
             </DialogTitle>
           </DialogHeader>
-          <TipoClienteForm // Renamed
+          <TipoClienteForm
             onSubmit={handleFormSubmit}
             initialData={editingTipoCliente}
             onCancel={() => {

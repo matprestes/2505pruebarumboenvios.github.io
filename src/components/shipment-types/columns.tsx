@@ -2,15 +2,15 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { TipoEnvio } from "@/types"; // Renamed
+import type { TipoEnvio } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { Badge } from "@/components/ui/badge";
 
-export const getTipoEnvioColumns = ( // Renamed
-  onEdit: (item: TipoEnvio) => void, // Renamed
-  onDelete: (item: TipoEnvio) => void // Renamed
-): ColumnDef<TipoEnvio>[] => [ // Renamed
+export const getTipoEnvioColumns = (
+  onEdit: (item: TipoEnvio) => void,
+  onDelete: (item: TipoEnvio) => void
+): ColumnDef<TipoEnvio>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -44,7 +44,7 @@ export const getTipoEnvioColumns = ( // Renamed
     accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("descripcion") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined | null;
       return description ? (
         <span className="truncate max-w-[300px] inline-block">{description}</span>
       ) : (
@@ -68,7 +68,6 @@ export const getTipoEnvioColumns = ( // Renamed
       return <span>{new Date(date).toLocaleDateString()}</span>;
     },
   },
-  // 'estado' removed from TipoEnvio entity
   {
     id: "actions",
     cell: ({ row }) => (

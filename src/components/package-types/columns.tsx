@@ -2,15 +2,15 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { TipoPaquete } from "@/types"; // Renamed
+import type { TipoPaquete } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { Badge } from "@/components/ui/badge";
 
-export const getTipoPaqueteColumns = ( // Renamed
-  onEdit: (item: TipoPaquete) => void, // Renamed
-  onDelete: (item: TipoPaquete) => void // Renamed
-): ColumnDef<TipoPaquete>[] => [ // Renamed
+export const getTipoPaqueteColumns = (
+  onEdit: (item: TipoPaquete) => void,
+  onDelete: (item: TipoPaquete) => void
+): ColumnDef<TipoPaquete>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -44,7 +44,7 @@ export const getTipoPaqueteColumns = ( // Renamed
     accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("descripcion") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined | null;
       return description ? (
         <span className="truncate max-w-[300px] inline-block">{description}</span>
       ) : (
@@ -56,7 +56,7 @@ export const getTipoPaqueteColumns = ( // Renamed
     accessorKey: "dimensiones",
     header: "Dimensiones",
     cell: ({ row }) => {
-      const dimensions = row.getValue("dimensiones") as string | undefined;
+      const dimensions = row.getValue("dimensiones") as string | undefined | null;
       return dimensions ? (
         <span>{dimensions}</span>
       ) : (

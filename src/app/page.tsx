@@ -1,6 +1,6 @@
 
 import { DashboardCard } from '@/components/dashboard-card';
-import { Users, Package, Truck, ListChecks, PackagePlus } from 'lucide-react'; // Use Spanish singular for EntityType
+import { Users, Package, Truck, ListChecks, PackagePlus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function DashboardPage() {
@@ -10,10 +10,6 @@ export default async function DashboardPage() {
     tipos_servicio: 0,
     tipos_reparto: 0,
     tipos_envio: 0,
-    // Add new entities if you want to count them on dashboard
-    // clientes: 0,
-    // empresas: 0,
-    // repartidores: 0,
   };
 
   try {
@@ -40,7 +36,6 @@ export default async function DashboardPage() {
         }
       };
       
-      // Updated table names
       entityCounts = {
         tipos_cliente: await fetchCount('tipos_cliente'),
         tipos_paquete: await fetchCount('tipos_paquete'),
@@ -69,40 +64,38 @@ export default async function DashboardPage() {
           title="Tipos de Cliente"
           description="Define y gestiona los diferentes tipos de clientes (ej. Individual, Corporativo)."
           icon={Users}
-          href="/client-types" // Path remains the same
+          href="/tipos-cliente"
           count={entityCounts.tipos_cliente}
         />
         <DashboardCard
           title="Tipos de Paquete"
           description="Configura los tamaños y categorías de paquetes (ej. Pequeño, Mediano, Grande)."
           icon={Package}
-          href="/package-types" // Path remains the same
+          href="/tipos-paquete"
           count={entityCounts.tipos_paquete}
         />
         <DashboardCard
           title="Tipos de Servicio"
           description="Establece los servicios de envío ofrecidos y sus tarifas (ej. Express, Estándar)."
           icon={Truck}
-          href="/service-types" // Path remains the same
+          href="/tipos-servicio"
           count={entityCounts.tipos_servicio}
         />
          <DashboardCard
           title="Tipos de Reparto"
           description="Define y gestiona los diferentes tipos de reparto."
           icon={ListChecks}
-          href="/delivery-types" // Path remains the same
+          href="/tipos-reparto"
           count={entityCounts.tipos_reparto}
         />
         <DashboardCard
           title="Tipos de Envío"
           description="Configura los tipos de envío y sus características."
           icon={PackagePlus}
-          href="/shipment-types" // Path remains the same
+          href="/tipos-envio"
           count={entityCounts.tipos_envio}
         />
       </div>
     </div>
   );
 }
-
-    

@@ -7,7 +7,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-// Based on the new schema from the user's description
+// Based on the new schema
 export type Database = {
   public: {
     Tables: {
@@ -83,14 +83,14 @@ export type Database = {
       tarifas_servicio: {
         Row: {
           id_tarifa_servicio: string // uuid
-          id_tipo_servicio: string // uuid
+          id_tipo_servicio: string // uuid, FK to tipos_servicio
           hasta_km: number
           precio: number
           created_at: string // timestamptz
         }
         Insert: {
           id_tarifa_servicio?: string // uuid
-          id_tipo_servicio: string // uuid
+          id_tipo_servicio: string
           hasta_km: number
           precio: number
           created_at?: string
@@ -104,12 +104,12 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_tarifas_servicio_tipo_servicio"
+            foreignKeyName: "tarifas_servicio_id_tipo_servicio_fkey"
             columns: ["id_tipo_servicio"]
             isOneToOne: false
             referencedRelation: "tipos_servicio"
             referencedColumns: ["id_tipo_servicio"]
-          }
+          },
         ]
       }
       tipos_reparto: {
@@ -160,91 +160,6 @@ export type Database = {
         }
         Relationships: []
       }
-      clientes: {
-        Row: {
-          id: string // uuid, PK
-          id_tipo_cliente: string // uuid, FK to tipos_cliente
-          nombre: string
-          apellido: string | null
-          email: string | null
-          telefono: string | null
-          direccion_completa: string | null
-          // Assuming other fields like 'razon_social', 'cuit' might be specific to certain client types
-          // or handled via a flexible 'datos_adicionales' JSON field if needed.
-          // For now, keeping it simple as per general client info.
-          created_at: string // timestamptz
-        }
-        Insert: {
-          id?: string
-          id_tipo_cliente: string
-          nombre: string
-          apellido?: string | null
-          email?: string | null
-          telefono?: string | null
-          direccion_completa?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          id_tipo_cliente?: string
-          nombre?: string
-          apellido?: string | null
-          email?: string | null
-          telefono?: string | null
-          direccion_completa?: string | null
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_clientes_tipo_cliente"
-            columns: ["id_tipo_cliente"]
-            isOneToOne: false
-            referencedRelation: "tipos_cliente"
-            referencedColumns: ["id_tipo_cliente"]
-          }
-        ]
-      }
-      empresas: {
-        Row: {
-          id: string // uuid, PK
-          id_tipo_empresa: string // uuid, FK to tipos_empresa
-          razon_social: string
-          cuit: string | null
-          email_contacto: string | null
-          telefono_contacto: string | null
-          direccion_fiscal: string | null
-          created_at: string // timestamptz
-        }
-        Insert: {
-          id?: string
-          id_tipo_empresa: string
-          razon_social: string
-          cuit?: string | null
-          email_contacto?: string | null
-          telefono_contacto?: string | null
-          direccion_fiscal?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          id_tipo_empresa?: string
-          razon_social?: string
-          cuit?: string | null
-          email_contacto?: string | null
-          telefono_contacto?: string | null
-          direccion_fiscal?: string | null
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_empresas_tipo_empresa"
-            columns: ["id_tipo_empresa"]
-            isOneToOne: false
-            referencedRelation: "tipos_empresa"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       tipos_empresa: {
         Row: {
           id: string // uuid, PK
@@ -265,6 +180,110 @@ export type Database = {
           created_at?: string
         }
         Relationships: []
+      }
+      empresas: {
+        Row: {
+          id: string // uuid, PK
+          id_tipo_empresa: string | null // uuid, FK to tipos_empresa
+          razon_social: string
+          cuit: string | null
+          email_contacto: string | null
+          telefono_contacto: string | null
+          direccion_fiscal: string | null
+          notas: string | null
+          created_at: string // timestamptz
+        }
+        Insert: {
+          id?: string
+          id_tipo_empresa?: string | null
+          razon_social: string
+          cuit?: string | null
+          email_contacto?: string | null
+          telefono_contacto?: string | null
+          direccion_fiscal?: string | null
+          notas?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          id_tipo_empresa?: string | null
+          razon_social?: string
+          cuit?: string | null
+          email_contacto?: string | null
+          telefono_contacto?: string | null
+          direccion_fiscal?: string | null
+          notas?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresas_id_tipo_empresa_fkey"
+            columns: ["id_tipo_empresa"]
+            isOneToOne: false
+            referencedRelation: "tipos_empresa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clientes: {
+        Row: {
+          id: string // uuid, PK
+          id_tipo_cliente: string | null // uuid, FK to tipos_cliente
+          id_empresa: string | null // uuid, FK to empresas
+          nombre: string
+          apellido: string | null
+          email: string | null
+          telefono: string | null
+          direccion_completa: string | null
+          latitud: number | null
+          longitud: number | null
+          notas: string | null
+          created_at: string // timestamptz
+        }
+        Insert: {
+          id?: string
+          id_tipo_cliente?: string | null
+          id_empresa?: string | null
+          nombre: string
+          apellido?: string | null
+          email?: string | null
+          telefono?: string | null
+          direccion_completa?: string | null
+          latitud?: number | null
+          longitud?: number | null
+          notas?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          id_tipo_cliente?: string | null
+          id_empresa?: string | null
+          nombre?: string
+          apellido?: string | null
+          email?: string | null
+          telefono?: string | null
+          direccion_completa?: string | null
+          latitud?: number | null
+          longitud?: number | null
+          notas?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_id_tipo_cliente_fkey"
+            columns: ["id_tipo_cliente"]
+            isOneToOne: false
+            referencedRelation: "tipos_cliente"
+            referencedColumns: ["id_tipo_cliente"]
+          },
+          {
+            foreignKeyName: "clientes_id_empresa_fkey"
+            columns: ["id_empresa"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       repartidores: {
         Row: {
@@ -303,14 +322,16 @@ export type Database = {
         Row: {
           id: string // uuid, PK
           id_repartidor: string // uuid, FK to repartidores
-          tipo_vehiculo: string // e.g., 'moto', 'auto', 'bicicleta'
+          nombre_vehiculo: string | null
+          tipo_vehiculo: string
           carga_max_kg: number | null
-          volumen_max_m3: number | null // Assuming m3, could be cm3
+          volumen_max_m3: number | null
           created_at: string // timestamptz
         }
         Insert: {
           id?: string
           id_repartidor: string
+          nombre_vehiculo?: string | null
           tipo_vehiculo: string
           carga_max_kg?: number | null
           volumen_max_m3?: number | null
@@ -319,6 +340,7 @@ export type Database = {
         Update: {
           id?: string
           id_repartidor?: string
+          nombre_vehiculo?: string | null
           tipo_vehiculo?: string
           carga_max_kg?: number | null
           volumen_max_m3?: number | null
@@ -326,56 +348,76 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_capacidad_repartidor"
+            foreignKeyName: "capacidad_id_repartidor_fkey"
             columns: ["id_repartidor"]
-            isOneToOne: false // A repartidor could have multiple capacities over time, or one current. Assuming one current active.
+            isOneToOne: false
             referencedRelation: "repartidores"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       repartos: {
         Row: {
           id: string // uuid, PK
-          id_repartidor: string | null // uuid, FK to repartidores, nullable if unassigned
+          id_repartidor: string | null // uuid, FK to repartidores
           id_tipo_reparto: string // uuid, FK to tipos_reparto
+          id_empresa: string | null // uuid, FK to empresas (empresa para la que es el reparto)
+          id_empresa_despachante: string | null // uuid, FK to empresas (empresa que despacha)
           fecha_programada: string // date
-          estado: string // e.g., 'PENDIENTE', 'ASIGNADO', 'EN_CURSO', 'COMPLETADO', 'CANCELADO'
-          tipo: string // This was mentioned, example: 'EMPRESA', 'INDIVIDUAL'
+          estado: string // e.g., PENDIENTE, ASIGNADO, EN_CURSO, COMPLETADO, CANCELADO
+          tipo: string | null // e.g. EMPRESA, INDIVIDUAL
           created_at: string // timestamptz
         }
         Insert: {
           id?: string
           id_repartidor?: string | null
           id_tipo_reparto: string
+          id_empresa?: string | null
+          id_empresa_despachante?: string | null
           fecha_programada: string
-          estado: string
-          tipo: string
+          estado?: string
+          tipo?: string | null
           created_at?: string
         }
         Update: {
           id?: string
           id_repartidor?: string | null
           id_tipo_reparto?: string
+          id_empresa?: string | null
+          id_empresa_despachante?: string | null
           fecha_programada?: string
           estado?: string
-          tipo?: string
+          tipo?: string | null
           created_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "fk_repartos_repartidor"
+            foreignKeyName: "repartos_id_repartidor_fkey"
             columns: ["id_repartidor"]
             isOneToOne: false
             referencedRelation: "repartidores"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_repartos_tipo_reparto"
+            foreignKeyName: "repartos_id_tipo_reparto_fkey"
             columns: ["id_tipo_reparto"]
             isOneToOne: false
             referencedRelation: "tipos_reparto"
             referencedColumns: ["id_tipo_reparto"]
+          },
+          {
+            foreignKeyName: "repartos_id_empresa_fkey" // Empresa para la que es el reparto
+            columns: ["id_empresa"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repartos_id_empresa_despachante_fkey" // Empresa que despacha
+            columns: ["id_empresa_despachante"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
           }
         ]
       }
@@ -386,17 +428,27 @@ export type Database = {
           id_tipo_envio: string // uuid, FK to tipos_envio
           id_tipo_paquete: string // uuid, FK to tipos_paquete
           id_tipo_servicio: string // uuid, FK to tipos_servicio
-          origen_direccion: string | null
-          destino_direccion: string
-          client_location: string | null // text for geocoded info or coordinates
-          peso_kg: number | null
-          dimensiones_cm: string | null // e.g., "30x20x10"
+          id_reparto: string | null // uuid, FK to repartos
+          id_repartidor_preferido: string | null // uuid, FK to repartidores
+          id_empresa_cliente: string | null // uuid, FK to empresas
+          direccion_origen: string | null
+          latitud_origen: number | null
+          longitud_origen: number | null
+          direccion_destino: string
+          latitud_destino: number | null
+          longitud_destino: number | null
+          client_location: string | null
+          peso: number | null
+          dimensiones_cm: string | null
           fecha_solicitud: string // date
-          status: string // text, e.g., 'PENDIENTE', 'ASIGNADO_REPARTO', 'EN_TRANSITO', 'ENTREGADO', 'CANCELADO'. Default 'pending'
+          estado: string
           precio_total: number | null
-          id_reparto_asignado: string | null // uuid, FK to repartos, nullable
-          suggested_options: Json | null // json
-          reasoning: string | null // text
+          precio_calculado: number | null
+          distancia_km: number | null
+          notas: string | null
+          suggested_options: Json | null
+          reasoning: string | null
+          precio_servicio_final: number | null
           created_at: string // timestamptz
         }
         Insert: {
@@ -405,17 +457,27 @@ export type Database = {
           id_tipo_envio: string
           id_tipo_paquete: string
           id_tipo_servicio: string
-          origen_direccion?: string | null
-          destino_direccion: string
+          id_reparto?: string | null
+          id_repartidor_preferido?: string | null
+          id_empresa_cliente?: string | null
+          direccion_origen?: string | null
+          latitud_origen?: number | null
+          longitud_origen?: number | null
+          direccion_destino: string
+          latitud_destino?: number | null
+          longitud_destino?: number | null
           client_location?: string | null
-          peso_kg?: number | null
+          peso?: number | null
           dimensiones_cm?: string | null
-          fecha_solicitud?: string // default to NOW() in DB is better
-          status?: string
+          fecha_solicitud?: string
+          estado?: string
           precio_total?: number | null
-          id_reparto_asignado?: string | null
+          precio_calculado?: number | null
+          distancia_km?: number | null
+          notas?: string | null
           suggested_options?: Json | null
           reasoning?: string | null
+          precio_servicio_final?: number | null
           created_at?: string
         }
         Update: {
@@ -424,53 +486,77 @@ export type Database = {
           id_tipo_envio?: string
           id_tipo_paquete?: string
           id_tipo_servicio?: string
-          origen_direccion?: string | null
-          destino_direccion?: string
+          id_reparto?: string | null
+          id_repartidor_preferido?: string | null
+          id_empresa_cliente?: string | null
+          direccion_origen?: string | null
+          latitud_origen?: number | null
+          longitud_origen?: number | null
+          direccion_destino?: string
+          latitud_destino?: number | null
+          longitud_destino?: number | null
           client_location?: string | null
-          peso_kg?: number | null
+          peso?: number | null
           dimensiones_cm?: string | null
           fecha_solicitud?: string
-          status?: string
+          estado?: string
           precio_total?: number | null
-          id_reparto_asignado?: string | null
+          precio_calculado?: number | null
+          distancia_km?: number | null
+          notas?: string | null
           suggested_options?: Json | null
           reasoning?: string | null
+          precio_servicio_final?: number | null
           created_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "fk_envios_cliente"
+            foreignKeyName: "envios_id_cliente_fkey"
             columns: ["id_cliente"]
             isOneToOne: false
             referencedRelation: "clientes"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_envios_tipo_envio"
+            foreignKeyName: "envios_id_tipo_envio_fkey"
             columns: ["id_tipo_envio"]
             isOneToOne: false
             referencedRelation: "tipos_envio"
             referencedColumns: ["id_tipo_envio"]
           },
           {
-            foreignKeyName: "fk_envios_tipo_paquete"
+            foreignKeyName: "envios_id_tipo_paquete_fkey"
             columns: ["id_tipo_paquete"]
             isOneToOne: false
             referencedRelation: "tipos_paquete"
             referencedColumns: ["id_tipo_paquete"]
           },
           {
-            foreignKeyName: "fk_envios_tipo_servicio"
+            foreignKeyName: "envios_id_tipo_servicio_fkey"
             columns: ["id_tipo_servicio"]
             isOneToOne: false
             referencedRelation: "tipos_servicio"
             referencedColumns: ["id_tipo_servicio"]
           },
           {
-            foreignKeyName: "fk_envios_reparto_asignado"
-            columns: ["id_reparto_asignado"]
+            foreignKeyName: "envios_id_reparto_fkey"
+            columns: ["id_reparto"]
             isOneToOne: false
             referencedRelation: "repartos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_id_repartidor_preferido_fkey"
+            columns: ["id_repartidor_preferido"]
+            isOneToOne: false
+            referencedRelation: "repartidores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_id_empresa_cliente_fkey"
+            columns: ["id_empresa_cliente"]
+            isOneToOne: false
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           }
         ]
@@ -480,10 +566,10 @@ export type Database = {
           id: string // uuid, PK
           id_reparto: string // uuid, FK to repartos
           id_envio: string // uuid, FK to envios
-          orden_parada: number
-          direccion_parada: string // Can be denormalized from envio, or specific if different
-          tipo_parada: "RECOLECCION" | "ENTREGA" // enum public.tipoparadaenum
-          estado_parada: string // e.g., 'PENDIENTE', 'COMPLETADA', 'FALLIDA'
+          orden: number
+          direccion_parada: string
+          tipo_parada: Database["public"]["Enums"]["tipoparadaenum"]
+          estado_parada: string
           hora_estimada_llegada: string | null // time
           hora_real_llegada: string | null // time
           created_at: string // timestamptz
@@ -492,10 +578,10 @@ export type Database = {
           id?: string
           id_reparto: string
           id_envio: string
-          orden_parada: number
+          orden: number
           direccion_parada: string
-          tipo_parada: "RECOLECCION" | "ENTREGA"
-          estado_parada: string
+          tipo_parada: Database["public"]["Enums"]["tipoparadaenum"]
+          estado_parada?: string
           hora_estimada_llegada?: string | null
           hora_real_llegada?: string | null
           created_at?: string
@@ -504,9 +590,9 @@ export type Database = {
           id?: string
           id_reparto?: string
           id_envio?: string
-          orden_parada?: number
+          orden?: number
           direccion_parada?: string
-          tipo_parada?: "RECOLECCION" | "ENTREGA"
+          tipo_parada?: Database["public"]["Enums"]["tipoparadaenum"]
           estado_parada?: string
           hora_estimada_llegada?: string | null
           hora_real_llegada?: string | null
@@ -514,47 +600,20 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_paradas_reparto_reparto"
+            foreignKeyName: "paradas_reparto_id_reparto_fkey"
             columns: ["id_reparto"]
             isOneToOne: false
             referencedRelation: "repartos"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_paradas_reparto_envio"
+            foreignKeyName: "paradas_reparto_id_envio_fkey"
             columns: ["id_envio"]
             isOneToOne: false
             referencedRelation: "envios"
             referencedColumns: ["id"]
-          }
+          },
         ]
-      }
-      tarifas_distancia_calculadora: {
-         Row: {
-          id: string // uuid, PK
-          tipo_calculadora: string // e.g., 'express', 'lowcost', 'personalizado_cliente_x'
-          distancia_hasta_km: number
-          precio: number
-          fecha_vigencia_desde: string // date
-          created_at: string // timestamptz
-        }
-        Insert: {
-          id?: string
-          tipo_calculadora: string
-          distancia_hasta_km: number
-          precio: number
-          fecha_vigencia_desde?: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          tipo_calculadora?: string
-          distancia_hasta_km?: number
-          precio?: number
-          fecha_vigencia_desde?: string
-          created_at?: string
-        }
-        Relationships: []
       }
     }
     Views: {
@@ -667,13 +726,12 @@ export type Enums<
 export type TipoCliente = Tables<'tipos_cliente'>;
 export type TipoPaquete = Tables<'tipos_paquete'>;
 export type TarifaServicio = Tables<'tarifas_servicio'>;
-export type TipoServicio = Omit<Tables<'tipos_servicio'>, 'created_at'> & {
+export type TipoServicio = Tables<'tipos_servicio'> & {
   tarifas_servicio?: TarifaServicio[];
 };
 export type TipoReparto = Tables<'tipos_reparto'>;
 export type TipoEnvio = Tables<'tipos_envio'>;
 
-// New entity types based on the prompt
 export type Cliente = Tables<'clientes'>;
 export type Empresa = Tables<'empresas'>;
 export type TipoEmpresa = Tables<'tipos_empresa'>;
@@ -682,10 +740,9 @@ export type Capacidad = Tables<'capacidad'>;
 export type Reparto = Tables<'repartos'>;
 export type Envio = Tables<'envios'>;
 export type ParadaReparto = Tables<'paradas_reparto'>;
-export type TarifaDistanciaCalculadora = Tables<'tarifas_distancia_calculadora'>;
 
 
-// Enum-like constants for status fields previously in config types, now in instance types
+// Enum-like constants
 export const tipoParadaEnum = ["RECOLECCION", "ENTREGA"] as const;
 export type TipoParadaEnum = typeof tipoParadaEnum[number];
 
@@ -695,18 +752,15 @@ export type EstadoReparto = typeof estadoRepartoValues[number];
 export const estadoEnvioValues = ["PENDIENTE", "ASIGNADO_REPARTO", "EN_TRANSITO", "ENTREGADO", "CANCELADO"] as const;
 export type EstadoEnvio = typeof estadoEnvioValues[number];
 
+// For AI Naming Suggestions
+export type EntityType = 'cliente' | 'paquete' | 'servicio' | 'reparto' | 'envio' | 'empresa' | 'repartidor' | 'parada' | 'capacidad' | 'tarifa';
 
-// For AI Naming Suggestions - ensure these match what the AI flow expects or update flow
-export type EntityType = 'cliente' | 'paquete' | 'servicio' | 'reparto' | 'envio' | 'empresa' | 'repartidor';
-
-
-// Constants for Supabase schema (if needed elsewhere, though types are usually preferred)
 export const Constants = {
   public: {
     Enums: {
       tipoparadaenum: ["RECOLECCION", "ENTREGA"],
     },
   },
-} as const
+} as const;
 
     

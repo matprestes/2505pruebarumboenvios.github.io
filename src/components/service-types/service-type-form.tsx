@@ -16,50 +16,51 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { tipoServicioSchema } from "@/lib/schemas"; // Renamed
-import type { TipoServicio, EntityType, TarifaServicio } from "@/types"; // Renamed
+import { tipoServicioSchema } from "@/lib/schemas";
+import type { TipoServicio, EntityType, TarifaServicio } from "@/types";
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 import { generateId } from "@/lib/utils";
 import { Trash2, PlusCircle } from "lucide-react";
 
-interface TipoServicioFormProps { // Renamed
-  onSubmit: (values: z.infer<typeof tipoServicioSchema>) => void; // Renamed
-  initialData?: TipoServicio | null; // Renamed
+interface TipoServicioFormProps {
+  onSubmit: (values: z.infer<typeof tipoServicioSchema>) => void;
+  initialData?: TipoServicio | null;
   onCancel: () => void;
 }
 
-export function TipoServicioForm({ onSubmit, initialData, onCancel }: TipoServicioFormProps) { // Renamed
-  const form = useForm<z.infer<typeof tipoServicioSchema>>({ // Renamed
-    resolver: zodResolver(tipoServicioSchema), // Renamed
-    defaultValues: initialData || {
-      nombre: "",
-      descripcion: "",
-      tarifas_servicio: [], // Renamed
-    },
+export function TipoServicioForm({ onSubmit, initialData, onCancel }: TipoServicioFormProps) {
+  const form = useForm<z.infer<typeof tipoServicioSchema>>({
+    resolver: zodResolver(tipoServicioSchema),
+    defaultValues: initialData ? 
+      {
+        ...initialData,
+        tarifas_servicio: initialData.tarifas_servicio || [],
+      }
+      : {
+        nombre: "",
+        descripcion: "",
+        tarifas_servicio: [],
+      },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "tarifas_servicio", // Renamed
+    name: "tarifas_servicio",
   });
 
-  const entityType: EntityType = 'servicio'; // Renamed for AI
+  const entityType: EntityType = 'servicio';
 
-  const handleAddTarifaServicio = () => { // Renamed
-    // When adding, id_tipo_servicio is not known yet if it's a new TipoServicio.
-    // It will be assigned when the main form is submitted.
-    // For existing TipoServicio, it should be initialData.id_tipo_servicio.
-    const newTarifa: Partial<TarifaServicio> = { 
+  const handleAddTarifaServicio = () => {
+    const serviceId = form.getValues("id_tipo_servicio") || initialData?.id_tipo_servicio || ""; // Get existing or new service ID
+
+    const newTarifa: TarifaServicio = { 
         id_tarifa_servicio: generateId(), 
-        // id_tipo_servicio will be filled on submit or if initialData.id_tipo_servicio exists
+        id_tipo_servicio: serviceId, // Will be properly set if serviceId exists
         hasta_km: 0, 
         precio: 0,
-        created_at: new Date().toISOString() // Handled by DB in real scenario
+        created_at: new Date().toISOString() 
     };
-    if (initialData?.id_tipo_servicio) {
-        newTarifa.id_tipo_servicio = initialData.id_tipo_servicio;
-    }
-    append(newTarifa as TarifaServicio); // Cast as TarifaServicio for useFieldArray
+    append(newTarifa);
   };
 
   return (
@@ -98,6 +99,7 @@ export function TipoServicioForm({ onSubmit, initialData, onCancel }: TipoServic
                   placeholder="Una breve descripción del tipo de servicio."
                   className="resize-none"
                   {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -109,16 +111,16 @@ export function TipoServicioForm({ onSubmit, initialData, onCancel }: TipoServic
           <FormLabel>Tarifas por Distancia</FormLabel>
           <FormDescription>Define los precios según la distancia.</FormDescription>
           <div className="space-y-4 mt-2">
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
+            {fields.map((fieldItem, index) => (
+              <div key={fieldItem.id} className="flex items-end gap-2 p-3 border rounded-md">
                 <FormField
                   control={form.control}
-                  name={`tarifas_servicio.${index}.hasta_km`} // Renamed
-                  render={({ field: itemField }) => (
+                  name={`tarifas_servicio.${index}.hasta_km`}
+                  render={({ field }) => (
                     <FormItem className="flex-1">
                       <FormLabel className="text-xs">Hasta KM</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="KM" {...itemField} step="0.1" />
+                        <Input type="number" placeholder="KM" {...field} step="0.1" onChange={e => field.onChange(parseFloat(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -126,18 +128,17 @@ export function TipoServicioForm({ onSubmit, initialData, onCancel }: TipoServic
                 />
                 <FormField
                   control={form.control}
-                  name={`tarifas_servicio.${index}.precio`} // Renamed
-                  render={({ field: itemField }) => (
+                  name={`tarifas_servicio.${index}.precio`}
+                  render={({ field }) => (
                     <FormItem className="flex-1">
                       <FormLabel className="text-xs">Precio</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0.00" {...itemField} step="0.01" />
+                        <Input type="number" placeholder="0.00" {...field} step="0.01" onChange={e => field.onChange(parseFloat(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {/* fecha_vigencia_desde removed */}
                 <Button
                   type="button"
                   variant="ghost"
@@ -155,11 +156,11 @@ export function TipoServicioForm({ onSubmit, initialData, onCancel }: TipoServic
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleAddTarifaServicio} // Renamed
+            onClick={handleAddTarifaServicio}
             className="mt-2"
           >
             <PlusCircle className="mr-2 h-4 w-4" />
-            Agregar Tarifa de Distancia
+            Agregar Tarifa
           </Button>
         </div>
 

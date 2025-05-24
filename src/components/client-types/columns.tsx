@@ -2,14 +2,14 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { TipoCliente } from "@/types"; // Renamed
+import type { TipoCliente } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 
-export const getTipoClienteColumns = ( // Renamed
-  onEdit: (item: TipoCliente) => void, // Renamed
-  onDelete: (item: TipoCliente) => void // Renamed
-): ColumnDef<TipoCliente>[] => [ // Renamed
+export const getTipoClienteColumns = (
+  onEdit: (item: TipoCliente) => void,
+  onDelete: (item: TipoCliente) => void
+): ColumnDef<TipoCliente>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -35,15 +35,15 @@ export const getTipoClienteColumns = ( // Renamed
     enableHiding: false,
   },
   {
-    accessorKey: "nombre", // Assuming 'nombre' is the new field name
+    accessorKey: "nombre",
     header: "Nombre",
     cell: ({ row }) => <div className="font-medium">{row.getValue("nombre")}</div>,
   },
   {
-    accessorKey: "descripcion", // Assuming 'descripcion' is the new field name
+    accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("descripcion") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined | null;
       return description ? (
         <span className="truncate max-w-[400px] inline-block">{description}</span>
       ) : (

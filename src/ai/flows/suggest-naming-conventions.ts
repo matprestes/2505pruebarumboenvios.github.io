@@ -13,14 +13,14 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { EntityType } from '@/types'; // Import EntityType
+import type { EntityType } from '@/types';
 
-const updatedEntityTypes: [EntityType, ...EntityType[]] = ['cliente', 'paquete', 'servicio', 'reparto', 'envio', 'empresa', 'repartidor'];
+const entityTypeValues: [EntityType, ...EntityType[]] = ['cliente', 'paquete', 'servicio', 'reparto', 'envio', 'empresa', 'repartidor', 'parada', 'capacidad', 'tarifa'];
 
 
 const SuggestNamingConventionsInputSchema = z.object({
   entityType: z
-    .enum(updatedEntityTypes) // Updated with Spanish entity types
+    .enum(entityTypeValues)
     .describe('El tipo de entidad para el cual sugerir convenciones de nombres.'),
   exampleNames: z
     .array(z.string())
@@ -42,8 +42,7 @@ export type SuggestNamingConventionsOutput = z.infer<
 
 export async function suggestNamingConventions(
   input: SuggestNamingConventionsInput
-): Promise<SuggestNamingConventionsOutput> {
-  return suggestNamingConventionsFlow(input);
+): Promise suggestNamingConventionsFlow(input);
 }
 
 const prompt = ai.definePrompt({

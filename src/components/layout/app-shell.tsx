@@ -14,17 +14,14 @@ import {
 import { SidebarNav } from './sidebar-nav';
 import { AppHeader } from './header';
 import { Logo } from '../icons/logo';
-// import { Button } from '@/components/ui/button'; // Not used
-// import { Settings } from 'lucide-react'; // Not used
 
-// Updated page titles to Spanish
 const pageTitles: Record<string, string> = {
   '/': 'Panel General',
-  '/client-types': 'Tipos de Cliente',
-  '/package-types': 'Tipos de Paquete',
-  '/service-types': 'Tipos de Servicio',
-  '/delivery-types': 'Tipos de Reparto',
-  '/shipment-types': 'Tipos de Envío',
+  '/tipos-cliente': 'Tipos de Cliente',
+  '/tipos-paquete': 'Tipos de Paquete',
+  '/tipos-servicio': 'Tipos de Servicio',
+  '/tipos-reparto': 'Tipos de Reparto',
+  '/tipos-envio': 'Tipos de Envío',
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -66,5 +63,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
-    

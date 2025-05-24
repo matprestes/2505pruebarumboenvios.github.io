@@ -17,30 +17,28 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch"; // Added Switch for 'activo'
-import { tipoRepartoSchema } from "@/lib/schemas"; // Renamed
-import type { TipoReparto, EntityType } from "@/types"; // Renamed
-// Removed deliveryStatuses and deliveryCategories imports as they are no longer fields of TipoReparto
+import { Switch } from "@/components/ui/switch";
+import { tipoRepartoSchema } from "@/lib/schemas";
+import type { TipoReparto, EntityType } from "@/types";
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 
-interface TipoRepartoFormProps { // Renamed
-  onSubmit: (values: z.infer<typeof tipoRepartoSchema>) => void; // Renamed
-  initialData?: TipoReparto | null; // Renamed
+interface TipoRepartoFormProps {
+  onSubmit: (values: z.infer<typeof tipoRepartoSchema>) => void;
+  initialData?: TipoReparto | null;
   onCancel: () => void;
 }
 
-export function TipoRepartoForm({ onSubmit, initialData, onCancel }: TipoRepartoFormProps) { // Renamed
-  const form = useForm<z.infer<typeof tipoRepartoSchema>>({ // Renamed
-    resolver: zodResolver(tipoRepartoSchema), // Renamed
+export function TipoRepartoForm({ onSubmit, initialData, onCancel }: TipoRepartoFormProps) {
+  const form = useForm<z.infer<typeof tipoRepartoSchema>>({
+    resolver: zodResolver(tipoRepartoSchema),
     defaultValues: initialData || {
       nombre: "",
       descripcion: "",
       activo: true,
-      // 'estado' and 'tipo_reparto' (category) removed from TipoReparto
     },
   });
 
-  const entityType: EntityType = 'reparto'; // For AI suggestions
+  const entityType: EntityType = 'reparto';
 
   return (
     <Form {...form}>
@@ -78,6 +76,7 @@ export function TipoRepartoForm({ onSubmit, initialData, onCancel }: TipoReparto
                   placeholder="Una breve descripción del tipo de reparto."
                   className="resize-none"
                   {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -104,7 +103,6 @@ export function TipoRepartoForm({ onSubmit, initialData, onCancel }: TipoReparto
             </FormItem>
           )}
         />
-        {/* Removed FormFields for 'estado' and 'tipo_reparto' (category) */}
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar

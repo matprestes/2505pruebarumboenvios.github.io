@@ -27,37 +27,40 @@ import { cn } from '@/lib/utils';
 
 const mainNavItem = { href: '/', label: 'Panel General', icon: LayoutDashboard };
 
-// Updated to Spanish labels
 const configNavItems = [
-  { href: '/client-types', label: 'Tipos de Cliente', icon: Users },
-  { href: '/package-types', label: 'Tipos de Paquete', icon: Package },
-  { href: '/service-types', label: 'Tipos de Servicio', icon: Truck },
-  { href: '/delivery-types', label: 'Tipos de Reparto', icon: ListChecks },
-  { href: '/shipment-types', label: 'Tipos de Envío', icon: PackagePlus },
+  { href: '/tipos-cliente', label: 'Tipos de Cliente', icon: Users },
+  { href: '/tipos-paquete', label: 'Tipos de Paquete', icon: Package },
+  { href: '/tipos-servicio', label: 'Tipos de Servicio', icon: Truck },
+  { href: '/tipos-reparto', label: 'Tipos de Reparto', icon: ListChecks },
+  { href: '/tipos-envio', label: 'Tipos de Envío', icon: PackagePlus },
 ];
 
 export function SidebarNav() {
   const pathname = usePathname();
   const { state: sidebarState, isMobile } = useSidebar();
   
-  const isConfigSectionActive = configNavItems.some(item => pathname.startsWith(item.href));
+  const isConfigActive = configNavItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'));
   
-  // Controlled state for the accordion
-  const [openAccordionValue, setOpenAccordionValue] = useState<string | undefined>(
-    isConfigSectionActive ? "config-item" : undefined
-  );
+  const [openAccordionValue, setOpenAccordionValue] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    // Keep accordion open if any config item is active, otherwise close it.
-    setOpenAccordionValue(isConfigSectionActive ? "config-item" : undefined);
-  }, [isConfigSectionActive, pathname]);
+    if (isConfigActive) {
+      setOpenAccordionValue("config-item");
+    } else {
+      // If no config item is active and the accordion was open for config, consider closing it.
+      // This can be refined based on desired UX (e.g., keep it open if user explicitly opened it).
+      if (openAccordionValue === "config-item" && !isConfigActive) {
+        // setOpenAccordionValue(undefined); // Example: close if no longer active
+      }
+    }
+  }, [pathname, isConfigActive, openAccordionValue]);
 
 
   const accordionTriggerClasses = cn(
     "flex w-full items-center gap-2 overflow-hidden rounded-md px-2 py-2 text-left text-sm font-medium outline-none ring-sidebar-ring transition-colors",
     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-    (isConfigSectionActive || openAccordionValue === "config-item") && "bg-sidebar-accent text-sidebar-accent-foreground", // Active if section or item is active
+    (openAccordionValue === "config-item" || isConfigActive) && "bg-sidebar-accent text-sidebar-accent-foreground",
     "h-8",
     "group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2",
     "hover:no-underline",
@@ -83,7 +86,7 @@ export function SidebarNav() {
           tooltip={{ children: mainNavItem.label }}
         >
           <Link href={mainNavItem.href}>
-            <mainNavItem.icon />
+            <mainNavItem.icon className="h-5 w-5" />
             <span>{mainNavItem.label}</span>
           </Link>
         </SidebarMenuButton>
@@ -101,12 +104,12 @@ export function SidebarNav() {
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild disabled={sidebarState === "expanded" || isMobile}>
-                   <AccordionTrigger className={accordionTriggerClasses}>
+                  <AccordionTrigger className={accordionTriggerClasses}>
                     <Settings className="h-4 w-4 shrink-0" />
                     <span className={accordionTriggerTextSpanClasses}>Configuración</span>
                   </AccordionTrigger>
                 </TooltipTrigger>
-                 <TooltipContent side="right" align="center">
+                <TooltipContent side="right" align="center">
                   Configuración
                 </TooltipContent>
               </Tooltip>
@@ -123,7 +126,7 @@ export function SidebarNav() {
                       className="h-7 w-full justify-start text-xs" 
                     >
                       <Link href={item.href}>
-                        <item.icon />
+                        <item.icon className="h-4 w-4 shrink-0" />
                         <span>{item.label}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -137,5 +140,3 @@ export function SidebarNav() {
     </SidebarMenu>
   );
 }
-
-    

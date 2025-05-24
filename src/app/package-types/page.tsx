@@ -4,69 +4,75 @@
 import React, { useState, useEffect } from "react";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getTipoPaqueteColumns } from "@/components/package-types/columns"; // Renamed
-import { TipoPaqueteForm } from "@/components/package-types/package-type-form"; // Renamed
+import { getTipoPaqueteColumns } from "@/components/package-types/columns";
+import { TipoPaqueteForm } from "@/components/package-types/package-type-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { TipoPaquete } from "@/types"; // Renamed
-import { tipoPaqueteSchema } from "@/lib/schemas"; // Renamed
+import type { TipoPaquete } from "@/types";
+import { tipoPaqueteSchema } from "@/lib/schemas";
 import { generateId } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 // Mock data - updated to new structure
-const initialTiposPaquete: TipoPaquete[] = [ // Renamed
+const initialTiposPaquete: TipoPaquete[] = [
   { id_tipo_paquete: generateId(), nombre: "Sobre", descripcion: "Documentos y objetos planos", dimensiones: "Max 30x40cm, 0.5kg", activo: true, created_at: new Date().toISOString() },
   { id_tipo_paquete: generateId(), nombre: "Paquete Pequeño", descripcion: "Cajas pequeñas", dimensiones: "Max 20x20x20cm, 2kg", activo: true, created_at: new Date().toISOString() },
-  { id_tipo_paquete: generateId(), nombre: "Paquete Mediano", descripcion: "Cajas medianas", dimensiones: "Max 40x40x40cm, 10kg", activo: false, created_at: new Date().toISOString() },
+  { id_tipo_paquete: generateId(), nombre: "Paquete Mediano", descripcion: "Cajas medianas", dimensiones: "Max 40x40x40cm, 10kg", activo: true, created_at: new Date().toISOString() },
+  { id_tipo_paquete: generateId(), nombre: "Paquete Grande", descripcion: "Cajas grandes", dimensiones: "Max 60x60x60cm, 25kg", activo: false, created_at: new Date().toISOString() },
 ];
 
-export default function TiposPaquetePage() { // Renamed
-  const [tiposPaquete, setTiposPaquete] = useState<TipoPaquete[]>([]); // Renamed
+export default function TiposPaquetePage() {
+  const [tiposPaquete, setTiposPaquete] = useState<TipoPaquete[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTipoPaquete, setEditingTipoPaquete] = useState<TipoPaquete | null>(null); // Renamed
+  const [editingTipoPaquete, setEditingTipoPaquete] = useState<TipoPaquete | null>(null);
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
-  const [tipoPaqueteToDelete, setTipoPaqueteToDelete] = useState<TipoPaquete | null>(null); // Renamed
+  const [tipoPaqueteToDelete, setTipoPaqueteToDelete] = useState<TipoPaquete | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    setTiposPaquete(initialTiposPaquete); // Renamed
+    setTiposPaquete(initialTiposPaquete);
   }, []);
 
-  const handleNewTipoPaquete = () => { // Renamed
+  const handleNewTipoPaquete = () => {
     setEditingTipoPaquete(null);
     setIsFormOpen(true);
   };
 
-  const handleEditTipoPaquete = (tipoPaquete: TipoPaquete) => { // Renamed
+  const handleEditTipoPaquete = (tipoPaquete: TipoPaquete) => {
     setEditingTipoPaquete(tipoPaquete);
     setIsFormOpen(true);
   };
 
-  const handleDeleteTipoPaquete = (tipoPaquete: TipoPaquete) => { // Renamed
+  const handleDeleteTipoPaquete = (tipoPaquete: TipoPaquete) => {
     setTipoPaqueteToDelete(tipoPaquete);
     setIsConfirmDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
     if (tipoPaqueteToDelete) {
-      setTiposPaquete((prev) => prev.filter((pt) => pt.id_tipo_paquete !== tipoPaqueteToDelete.id_tipo_paquete)); // Renamed
+      setTiposPaquete((prev) => prev.filter((pt) => pt.id_tipo_paquete !== tipoPaqueteToDelete.id_tipo_paquete));
       toast({ title: "Éxito", description: "Tipo de paquete eliminado correctamente." });
       setTipoPaqueteToDelete(null);
     }
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = (values: z.infer<typeof tipoPaqueteSchema>) => { // Renamed schema
+  const handleFormSubmit = (values: z.infer<typeof tipoPaqueteSchema>) => {
     if (editingTipoPaquete) {
-      setTiposPaquete((prev) => // Renamed
+      setTiposPaquete((prev) =>
         prev.map((pt) =>
-          pt.id_tipo_paquete === editingTipoPaquete.id_tipo_paquete ? { ...editingTipoPaquete, ...values, created_at: editingTipoPaquete.created_at } : pt // Preserve created_at
+          pt.id_tipo_paquete === editingTipoPaquete.id_tipo_paquete ? { ...editingTipoPaquete, ...values, created_at: editingTipoPaquete.created_at } : pt
         )
       );
       toast({ title: "Éxito", description: "Tipo de paquete actualizado." });
     } else {
-      const newTipoPaquete = { ...values, id_tipo_paquete: generateId(), created_at: new Date().toISOString(), activo: values.activo ?? true }; // Renamed
-      setTiposPaquete((prev) => [...prev, newTipoPaquete]); // Renamed
+      const newTipoPaquete: TipoPaquete = { 
+        ...values, 
+        id_tipo_paquete: generateId(), 
+        created_at: new Date().toISOString(), 
+        activo: values.activo ?? true 
+      };
+      setTiposPaquete((prev) => [...prev, newTipoPaquete]);
       toast({ title: "Éxito", description: "Nuevo tipo de paquete creado." });
     }
     setIsFormOpen(false);
@@ -74,7 +80,8 @@ export default function TiposPaquetePage() { // Renamed
   };
   
   const columns = React.useMemo(
-    () => getTipoPaqueteColumns(handleEditTipoPaquete, handleDeleteTipoPaquete), // Renamed
+    () => getTipoPaqueteColumns(handleEditTipoPaquete, handleDeleteTipoPaquete),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -82,13 +89,13 @@ export default function TiposPaquetePage() { // Renamed
     <div className="container mx-auto py-2">
       <DataTable
         columns={columns}
-        data={tiposPaquete} // Renamed
+        data={tiposPaquete}
         filterColumnId="nombre"
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Paquete"
-        onNew={handleNewTipoPaquete} // Renamed
-        onEdit={handleEditTipoPaquete} // Renamed
-        onDelete={handleDeleteTipoPaquete} // Renamed
+        onNew={handleNewTipoPaquete}
+        onEdit={handleEditTipoPaquete}
+        onDelete={handleDeleteTipoPaquete}
       />
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -102,7 +109,7 @@ export default function TiposPaquetePage() { // Renamed
               {editingTipoPaquete ? "Editar Tipo de Paquete" : "Crear Nuevo Tipo de Paquete"}
             </DialogTitle>
           </DialogHeader>
-          <TipoPaqueteForm // Renamed
+          <TipoPaqueteForm
             onSubmit={handleFormSubmit}
             initialData={editingTipoPaquete}
             onCancel={() => {

@@ -17,26 +17,26 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { tipoClienteSchema } from "@/lib/schemas"; // Renamed
-import type { TipoCliente, EntityType } from "@/types"; // Renamed
+import { tipoClienteSchema } from "@/lib/schemas";
+import type { TipoCliente, EntityType } from "@/types";
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 
-interface TipoClienteFormProps { // Renamed
-  onSubmit: (values: z.infer<typeof tipoClienteSchema>) => void; // Renamed
-  initialData?: TipoCliente | null; // Renamed
+interface TipoClienteFormProps {
+  onSubmit: (values: z.infer<typeof tipoClienteSchema>) => void;
+  initialData?: TipoCliente | null;
   onCancel: () => void;
 }
 
-export function TipoClienteForm({ onSubmit, initialData, onCancel }: TipoClienteFormProps) { // Renamed
-  const form = useForm<z.infer<typeof tipoClienteSchema>>({ // Renamed
-    resolver: zodResolver(tipoClienteSchema), // Renamed
+export function TipoClienteForm({ onSubmit, initialData, onCancel }: TipoClienteFormProps) {
+  const form = useForm<z.infer<typeof tipoClienteSchema>>({
+    resolver: zodResolver(tipoClienteSchema),
     defaultValues: initialData || {
       nombre: "",
       descripcion: "",
     },
   });
 
-  const entityType: EntityType = 'cliente'; // Use 'cliente' for AI suggestions
+  const entityType: EntityType = 'cliente';
 
   return (
     <Form {...form}>
@@ -74,6 +74,7 @@ export function TipoClienteForm({ onSubmit, initialData, onCancel }: TipoCliente
                   placeholder="Una breve descripción del tipo de cliente."
                   className="resize-none"
                   {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />

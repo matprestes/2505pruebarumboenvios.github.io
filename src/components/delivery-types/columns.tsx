@@ -2,15 +2,15 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { TipoReparto } from "@/types"; // Renamed
+import type { TipoReparto } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { Badge } from "@/components/ui/badge";
 
-export const getTipoRepartoColumns = ( // Renamed
-  onEdit: (item: TipoReparto) => void, // Renamed
-  onDelete: (item: TipoReparto) => void // Renamed
-): ColumnDef<TipoReparto>[] => [ // Renamed
+export const getTipoRepartoColumns = (
+  onEdit: (item: TipoReparto) => void,
+  onDelete: (item: TipoReparto) => void
+): ColumnDef<TipoReparto>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -44,7 +44,7 @@ export const getTipoRepartoColumns = ( // Renamed
     accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("descripcion") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined | null;
       return description ? (
         <span className="truncate max-w-[300px] inline-block">{description}</span>
       ) : (
@@ -68,7 +68,6 @@ export const getTipoRepartoColumns = ( // Renamed
       return <span>{new Date(date).toLocaleDateString()}</span>;
     },
   },
-  // 'estado' and 'tipo_reparto' (as category) were removed from TipoReparto entity
   {
     id: "actions",
     cell: ({ row }) => (

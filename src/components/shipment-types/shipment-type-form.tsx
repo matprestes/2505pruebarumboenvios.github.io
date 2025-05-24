@@ -3,7 +3,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import type * as z from "zod";
+import type as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,31 +17,28 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch"; // Added
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // No longer needed for 'estado'
-import { tipoEnvioSchema } from "@/lib/schemas"; // Renamed
-import type { TipoEnvio, EntityType } from "@/types"; // Renamed
-// import { shipmentStatuses } from "@/types"; // No longer needed here
+import { Switch } from "@/components/ui/switch";
+import { tipoEnvioSchema } from "@/lib/schemas";
+import type { TipoEnvio, EntityType } from "@/types";
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 
-interface TipoEnvioFormProps { // Renamed
-  onSubmit: (values: z.infer<typeof tipoEnvioSchema>) => void; // Renamed
-  initialData?: TipoEnvio | null; // Renamed
+interface TipoEnvioFormProps {
+  onSubmit: (values: z.infer<typeof tipoEnvioSchema>) => void;
+  initialData?: TipoEnvio | null;
   onCancel: () => void;
 }
 
-export function TipoEnvioForm({ onSubmit, initialData, onCancel }: TipoEnvioFormProps) { // Renamed
-  const form = useForm<z.infer<typeof tipoEnvioSchema>>({ // Renamed
-    resolver: zodResolver(tipoEnvioSchema), // Renamed
+export function TipoEnvioForm({ onSubmit, initialData, onCancel }: TipoEnvioFormProps) {
+  const form = useForm<z.infer<typeof tipoEnvioSchema>>({
+    resolver: zodResolver(tipoEnvioSchema),
     defaultValues: initialData || {
       nombre: "",
       descripcion: "",
       activo: true,
-      // 'estado' removed
     },
   });
 
-  const entityType: EntityType = 'envio'; // Use 'envio' for AI Naming
+  const entityType: EntityType = 'envio';
 
   return (
     <Form {...form}>
@@ -79,6 +76,7 @@ export function TipoEnvioForm({ onSubmit, initialData, onCancel }: TipoEnvioForm
                   placeholder="Una breve descripción del tipo de envío."
                   className="resize-none"
                   {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -105,7 +103,6 @@ export function TipoEnvioForm({ onSubmit, initialData, onCancel }: TipoEnvioForm
             </FormItem>
           )}
         />
-        {/* 'estado' field removed */}
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar

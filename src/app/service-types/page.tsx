@@ -4,73 +4,61 @@
 import React, { useState, useEffect } from "react";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getTipoServicioColumns } from "@/components/service-types/columns"; // Renamed
-import { TipoServicioForm } from "@/components/service-types/service-type-form"; // Renamed
+import { getTipoServicioColumns } from "@/components/service-types/columns";
+import { TipoServicioForm } from "@/components/service-types/service-type-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { TipoServicio, TarifaServicio } from "@/types"; // Renamed
-import { tipoServicioSchema } from "@/lib/schemas"; // Renamed
+import type { TipoServicio, TarifaServicio } from "@/types";
+import { tipoServicioSchema } from "@/lib/schemas";
 import { generateId } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 // Mock data - updated to new structure
-const initialTiposServicio: TipoServicio[] = [ // Renamed
+const initialTiposServicio: TipoServicio[] = [
   {
     id_tipo_servicio: generateId(),
     nombre: "Envíos Express",
     descripcion: "Entrega urgente en la ciudad.",
-    tarifas_servicio: [ // Renamed
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 2.0, precio: 1100.00, created_at: new Date().toISOString() }, // id_tipo_servicio will be set later
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 4.0, precio: 1650.00, created_at: new Date().toISOString() },
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 6.0, precio: 4200.00, created_at: new Date().toISOString() },
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 8.0, precio: 5800.00, created_at: new Date().toISOString() },
+    created_at: new Date().toISOString(),
+    tarifas_servicio: [
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 5.0, precio: 1500.00, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 10.0, precio: 2500.00, created_at: new Date().toISOString() },
     ],
   },
   {
     id_tipo_servicio: generateId(),
     nombre: "Envíos LowCost",
     descripcion: "Entrega económica programada.",
+    created_at: new Date().toISOString(),
     tarifas_servicio: [
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 3.0, precio: 550.00, created_at: new Date().toISOString() },
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 5.0, precio: 770.00, created_at: new Date().toISOString() },
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 10.0, precio: 1000.00, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 5.0, precio: 800.00, created_at: new Date().toISOString() },
+      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 10.0, precio: 1200.00, created_at: new Date().toISOString() },
     ],
   },
   {
     id_tipo_servicio: generateId(),
     nombre: "Moto Fija",
     descripcion: "Servicio de mensajería con moto asignada para cliente.",
+    created_at: new Date().toISOString(),
     tarifas_servicio: [ 
       { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 50, precio: 50000, created_at: new Date().toISOString() }
     ]
   },
-  {
-    id_tipo_servicio: generateId(),
-    nombre: "Plan Emprendedores",
-    descripcion: "Tarifas especiales y soluciones para emprendedores.",
-    tarifas_servicio: [
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 5, precio: 600, created_at: new Date().toISOString() },
-      { id_tarifa_servicio: generateId(), id_tipo_servicio: "", hasta_km: 10, precio: 900, created_at: new Date().toISOString() },
-    ]
-  },
-  {
-    id_tipo_servicio: generateId(),
-    nombre: "Envíos Flex",
-    descripcion: "Servicio adaptable a necesidades específicas.",
-    tarifas_servicio: [] 
-  }
-].map(ts => ({
+].map(ts => {
+  const serviceId = ts.id_tipo_servicio;
+  return {
     ...ts, 
-    tarifas_servicio: ts.tarifas_servicio?.map(tarifa => ({...tarifa, id_tipo_servicio: ts.id_tipo_servicio!})) || [] 
-}));
+    tarifas_servicio: ts.tarifas_servicio?.map(tarifa => ({...tarifa, id_tipo_servicio: serviceId!})) || [] 
+  };
+});
 
 
-export default function TiposServicioPage() { // Renamed
-  const [tiposServicio, setTiposServicio] = useState<TipoServicio[]>([]); // Renamed
+export default function TiposServicioPage() {
+  const [tiposServicio, setTiposServicio] = useState<TipoServicio[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTipoServicio, setEditingTipoServicio] = useState<TipoServicio | null>(null); // Renamed
+  const [editingTipoServicio, setEditingTipoServicio] = useState<TipoServicio | null>(null);
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
-  const [tipoServicioToDelete, setTipoServicioToDelete] = useState<TipoServicio | null>(null); // Renamed
+  const [tipoServicioToDelete, setTipoServicioToDelete] = useState<TipoServicio | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -81,12 +69,12 @@ export default function TiposServicioPage() { // Renamed
     setTiposServicio(loadedServiceTypes);
   }, []);
 
-  const handleNewTipoServicio = () => { // Renamed
+  const handleNewTipoServicio = () => {
     setEditingTipoServicio(null);
     setIsFormOpen(true);
   };
 
-  const handleEditTipoServicio = (tipoServicio: TipoServicio) => { // Renamed
+  const handleEditTipoServicio = (tipoServicio: TipoServicio) => {
     setEditingTipoServicio({
       ...tipoServicio,
       tarifas_servicio: tipoServicio.tarifas_servicio || [], 
@@ -94,36 +82,39 @@ export default function TiposServicioPage() { // Renamed
     setIsFormOpen(true);
   };
 
-  const handleDeleteTipoServicio = (tipoServicio: TipoServicio) => { // Renamed
+  const handleDeleteTipoServicio = (tipoServicio: TipoServicio) => {
     setTipoServicioToDelete(tipoServicio);
     setIsConfirmDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
     if (tipoServicioToDelete) {
-      setTiposServicio((prev) => prev.filter((st) => st.id_tipo_servicio !== tipoServicioToDelete.id_tipo_servicio)); // Renamed
+      setTiposServicio((prev) => prev.filter((st) => st.id_tipo_servicio !== tipoServicioToDelete.id_tipo_servicio));
       toast({ title: "Éxito", description: "Tipo de servicio eliminado correctamente." });
       setTipoServicioToDelete(null);
     }
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = (values: z.infer<typeof tipoServicioSchema>) => { // Renamed schema
+  const handleFormSubmit = (values: z.infer<typeof tipoServicioSchema>) => {
+    const serviceId = editingTipoServicio?.id_tipo_servicio || generateId();
+    
     const processedValues = {
       ...values,
       tarifas_servicio: values.tarifas_servicio?.map(dr => ({ 
         ...dr, 
         id_tarifa_servicio: dr.id_tarifa_servicio || generateId(), 
-        created_at: new Date().toISOString() // Assuming created_at is set here for mock
+        id_tipo_servicio: serviceId, // Ensure FK is set
+        created_at: dr.created_at || new Date().toISOString() 
       })) || [],
     };
 
     if (editingTipoServicio) {
-      const updatedTipoServicio = {
+      const updatedTipoServicio: TipoServicio = {
         ...editingTipoServicio,
         ...processedValues,
-        id_tipo_servicio: editingTipoServicio.id_tipo_servicio!, // Ensure ID is present
-        tarifas_servicio: processedValues.tarifas_servicio.map(t => ({...t, id_tipo_servicio: editingTipoServicio.id_tipo_servicio!}))
+        id_tipo_servicio: serviceId,
+        created_at: editingTipoServicio.created_at || new Date().toISOString(),
       };
       setTiposServicio((prev) =>
         prev.map((st) =>
@@ -132,14 +123,12 @@ export default function TiposServicioPage() { // Renamed
       );
       toast({ title: "Éxito", description: "Tipo de servicio actualizado." });
     } else {
-      const newId = generateId();
-      const newTipoServicio = { 
+      const newTipoServicio: TipoServicio = { 
         ...processedValues, 
-        id_tipo_servicio: newId, 
+        id_tipo_servicio: serviceId, 
         created_at: new Date().toISOString(),
-        tarifas_servicio: processedValues.tarifas_servicio.map(t => ({...t, id_tipo_servicio: newId}))
       };
-      setTiposServicio((prev) => [...prev, newTipoServicio]); // Renamed
+      setTiposServicio((prev) => [...prev, newTipoServicio]);
       toast({ title: "Éxito", description: "Nuevo tipo de servicio creado." });
     }
     setIsFormOpen(false);
@@ -147,7 +136,8 @@ export default function TiposServicioPage() { // Renamed
   };
 
   const columns = React.useMemo(
-    () => getTipoServicioColumns(handleEditTipoServicio, handleDeleteTipoServicio), // Renamed
+    () => getTipoServicioColumns(handleEditTipoServicio, handleDeleteTipoServicio),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -155,13 +145,13 @@ export default function TiposServicioPage() { // Renamed
     <div className="container mx-auto py-2">
       <DataTable
         columns={columns}
-        data={tiposServicio} // Renamed
+        data={tiposServicio}
         filterColumnId="nombre"
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Servicio"
-        onNew={handleNewTipoServicio} // Renamed
-        onEdit={handleEditTipoServicio} // Renamed
-        onDelete={handleDeleteTipoServicio} // Renamed
+        onNew={handleNewTipoServicio}
+        onEdit={handleEditTipoServicio}
+        onDelete={handleDeleteTipoServicio}
       />
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -175,7 +165,7 @@ export default function TiposServicioPage() { // Renamed
               {editingTipoServicio ? "Editar Tipo de Servicio" : "Crear Nuevo Tipo de Servicio"}
             </DialogTitle>
           </DialogHeader>
-          <TipoServicioForm // Renamed
+          <TipoServicioForm
             onSubmit={handleFormSubmit}
             initialData={editingTipoServicio}
             onCancel={() => {

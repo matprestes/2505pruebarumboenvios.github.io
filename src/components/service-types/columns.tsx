@@ -2,14 +2,14 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { TipoServicio } from "@/types"; // Renamed
+import type { TipoServicio } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 
-export const getTipoServicioColumns = ( // Renamed
-  onEdit: (item: TipoServicio) => void, // Renamed
-  onDelete: (item: TipoServicio) => void // Renamed
-): ColumnDef<TipoServicio>[] => [ // Renamed
+export const getTipoServicioColumns = (
+  onEdit: (item: TipoServicio) => void,
+  onDelete: (item: TipoServicio) => void
+): ColumnDef<TipoServicio>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -43,7 +43,7 @@ export const getTipoServicioColumns = ( // Renamed
     accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => {
-      const description = row.getValue("descripcion") as string | undefined;
+      const description = row.getValue("descripcion") as string | undefined | null;
       return description ? (
         <span className="truncate max-w-[400px] inline-block">{description}</span>
       ) : (
@@ -52,14 +52,21 @@ export const getTipoServicioColumns = ( // Renamed
     },
   },
   {
-    accessorKey: "tarifas_servicio", // Displaying count of rates as an example
+    accessorKey: "tarifas_servicio",
     header: "Nº de Tarifas",
     cell: ({ row }) => {
       const tarifas = row.original.tarifas_servicio;
       return <span>{tarifas?.length || 0}</span>;
     }
   },
-   // created_at can be added if needed, similar to other column files
+   {
+    accessorKey: "created_at",
+    header: "Fecha de Creación",
+    cell: ({ row }) => {
+      const date = row.getValue("created_at") as string;
+      return <span>{new Date(date).toLocaleDateString()}</span>;
+    },
+  },
   {
     id: "actions",
     cell: ({ row }) => (

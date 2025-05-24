@@ -17,29 +17,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch"; // Added Switch for 'activo'
-import { tipoPaqueteSchema } from "@/lib/schemas"; // Renamed
-import type { TipoPaquete, EntityType } from "@/types"; // Renamed
+import { Switch } from "@/components/ui/switch";
+import { tipoPaqueteSchema } from "@/lib/schemas";
+import type { TipoPaquete, EntityType } from "@/types";
 import { AiNamingSuggestion } from "@/components/ai-naming-suggestion";
 
-interface TipoPaqueteFormProps { // Renamed
-  onSubmit: (values: z.infer<typeof tipoPaqueteSchema>) => void; // Renamed
-  initialData?: TipoPaquete | null; // Renamed
+interface TipoPaqueteFormProps {
+  onSubmit: (values: z.infer<typeof tipoPaqueteSchema>) => void;
+  initialData?: TipoPaquete | null;
   onCancel: () => void;
 }
 
-export function TipoPaqueteForm({ onSubmit, initialData, onCancel }: TipoPaqueteFormProps) { // Renamed
-  const form = useForm<z.infer<typeof tipoPaqueteSchema>>({ // Renamed
-    resolver: zodResolver(tipoPaqueteSchema), // Renamed
+export function TipoPaqueteForm({ onSubmit, initialData, onCancel }: TipoPaqueteFormProps) {
+  const form = useForm<z.infer<typeof tipoPaqueteSchema>>({
+    resolver: zodResolver(tipoPaqueteSchema),
     defaultValues: initialData || {
       nombre: "",
       descripcion: "",
       dimensiones: "",
-      activo: true, // Default to true
+      activo: true,
     },
   });
 
-  const entityType: EntityType = 'paquete'; // Use 'paquete' for AI
+  const entityType: EntityType = 'paquete';
 
   return (
     <Form {...form}>
@@ -77,6 +77,7 @@ export function TipoPaqueteForm({ onSubmit, initialData, onCancel }: TipoPaquete
                   placeholder="Una breve descripción del tipo de paquete."
                   className="resize-none"
                   {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -90,7 +91,7 @@ export function TipoPaqueteForm({ onSubmit, initialData, onCancel }: TipoPaquete
             <FormItem>
               <FormLabel>Dimensiones (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="Ej: 20x20x10 cm, Max 5kg" {...field} />
+                <Input placeholder="Ej: 20x20x10 cm, Max 5kg" {...field} value={field.value ?? ""}/>
               </FormControl>
               <FormDescription>
                 Dimensiones o límites de peso para este tipo de paquete.
