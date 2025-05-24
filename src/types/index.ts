@@ -761,7 +761,7 @@ export type Envio = Tables<'envios'> & {
 export type ParadaReparto = Tables<'paradas_reparto'> & { repartos?: Pick<Reparto, 'id' | 'fecha_programada'> | null, envios?: Pick<Envio, 'id' | 'direccion_destino'> | null };
 
 
-// Enum-like constants
+// Enum-like constants for string literals
 export const tipoParadaEnum = ["RECOLECCION", "ENTREGA"] as const;
 export type TipoParadaEnum = typeof tipoParadaEnum[number];
 
