@@ -15,7 +15,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { EntityType } from '@/types';
 
-const entityTypeValues: [EntityType, ...EntityType[]] = ['cliente', 'paquete', 'servicio', 'reparto', 'envio', 'empresa', 'repartidor', 'parada', 'capacidad', 'tarifa'];
+const entityTypeValues: [EntityType, ...EntityType[]] = ['cliente', 'paquete', 'servicio', 'reparto', 'envio', 'empresa', 'repartidor', 'parada', 'capacidad', 'tarifa', 'tipo_empresa'];
 
 
 const SuggestNamingConventionsInputSchema = z.object({

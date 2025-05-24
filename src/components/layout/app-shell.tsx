@@ -22,6 +22,7 @@ const pageTitles: Record<string, string> = {
   '/tipos-servicio': 'Tipos de Servicio',
   '/tipos-reparto': 'Tipos de Reparto',
   '/tipos-envio': 'Tipos de Envío',
+  '/tipos-empresa': 'Tipos de Empresa',
   '/clientes': 'Gestión de Clientes',
   '/empresas': 'Gestión de Empresas',
   '/repartidores': 'Gestión de Repartidores',
@@ -36,14 +37,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setCurrentPageTitle(pageTitles[pathname] || 'Rumbos Envios');
   }, [pathname]);
-  
+
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
   if (!hasMounted) {
-    return null; 
+    return null;
   }
 
   return (
@@ -68,5 +69,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
-    

@@ -1,6 +1,6 @@
 
 import { DashboardCard } from '@/components/dashboard-card';
-import { Users, Package, Truck, ListChecks, PackagePlus, Building, UserCheck, Route, ClipboardList } from 'lucide-react';
+import { Users, Package, Truck, ListChecks, PackagePlus, Building, UserCheck, Route, ClipboardList, Briefcase } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function DashboardPage() {
@@ -10,6 +10,7 @@ export default async function DashboardPage() {
     tipos_servicio: 0,
     tipos_reparto: 0,
     tipos_envio: 0,
+    tipos_empresa: 0,
     clientes: 0,
     empresas: 0,
     repartidores: 0,
@@ -31,7 +32,7 @@ export default async function DashboardPage() {
             .select('*', { count: 'exact', head: true });
 
           if (error) {
-            console.error(`DashboardPage: Error fetching count for ${tableName}:`, error.message);
+            console.error(`DashboardPage: Error fetching count for ${tableName}:`, JSON.stringify(error, null, 2));
             return 0;
           }
           return count ?? 0;
@@ -40,18 +41,33 @@ export default async function DashboardPage() {
           return 0;
         }
       };
-      
+
+      const countsResult = await Promise.all([
+        fetchCount('tipos_cliente'),
+        fetchCount('tipos_paquete'),
+        fetchCount('tipos_servicio'),
+        fetchCount('tipos_reparto'),
+        fetchCount('tipos_envio'),
+        fetchCount('tipos_empresa'),
+        fetchCount('clientes'),
+        fetchCount('empresas'),
+        fetchCount('repartidores'),
+        fetchCount('repartos'),
+        fetchCount('envios'),
+      ]);
+
       entityCounts = {
-        tipos_cliente: await fetchCount('tipos_cliente'),
-        tipos_paquete: await fetchCount('tipos_paquete'),
-        tipos_servicio: await fetchCount('tipos_servicio'),
-        tipos_reparto: await fetchCount('tipos_reparto'),
-        tipos_envio: await fetchCount('tipos_envio'),
-        clientes: await fetchCount('clientes'),
-        empresas: await fetchCount('empresas'),
-        repartidores: await fetchCount('repartidores'),
-        repartos: await fetchCount('repartos'),
-        envios: await fetchCount('envios'),
+        tipos_cliente: countsResult[0],
+        tipos_paquete: countsResult[1],
+        tipos_servicio: countsResult[2],
+        tipos_reparto: countsResult[3],
+        tipos_envio: countsResult[4],
+        tipos_empresa: countsResult[5],
+        clientes: countsResult[6],
+        empresas: countsResult[7],
+        repartidores: countsResult[8],
+        repartos: countsResult[9],
+        envios: countsResult[10],
       };
     } else {
       console.warn("DashboardPage: Supabase environment variables are not sufficiently set. Counts will default to 0.");
@@ -144,10 +160,15 @@ export default async function DashboardPage() {
               href="/tipos-envio"
               count={entityCounts.tipos_envio}
             />
+            <DashboardCard
+              title="Tipos de Empresa"
+              description="Define los tipos de empresas clientes o proveedoras."
+              icon={Briefcase}
+              href="/tipos-empresa"
+              count={entityCounts.tipos_empresa}
+            />
           </div>
       </div>
     </div>
   );
 }
-
-    

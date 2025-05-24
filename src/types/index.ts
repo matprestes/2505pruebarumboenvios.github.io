@@ -190,8 +190,8 @@ export type Database = {
           email_contacto: string | null
           telefono_contacto: string | null
           direccion_fiscal: string | null
-          latitud: number | null // Added
-          longitud: number | null // Added
+          latitud: number | null
+          longitud: number | null
           notas: string | null
           created_at: string // timestamptz
         }
@@ -203,8 +203,8 @@ export type Database = {
           email_contacto?: string | null
           telefono_contacto?: string | null
           direccion_fiscal?: string | null
-          latitud?: number | null // Added
-          longitud?: number | null // Added
+          latitud?: number | null
+          longitud?: number | null
           notas?: string | null
           created_at?: string
         }
@@ -216,8 +216,8 @@ export type Database = {
           email_contacto?: string | null
           telefono_contacto?: string | null
           direccion_fiscal?: string | null
-          latitud?: number | null // Added
-          longitud?: number | null // Added
+          latitud?: number | null
+          longitud?: number | null
           notas?: string | null
           created_at?: string
         }
@@ -737,28 +737,28 @@ export type TipoServicio = Tables<'tipos_servicio'> & {
 };
 export type TipoReparto = Tables<'tipos_reparto'>;
 export type TipoEnvio = Tables<'tipos_envio'>;
-
-export type Cliente = Tables<'clientes'> & { tipos_cliente?: TipoCliente | null, empresas?: Empresa | null };
-export type Empresa = Tables<'empresas'> & { tipos_empresa?: TipoEmpresa | null };
 export type TipoEmpresa = Tables<'tipos_empresa'>;
+
+export type Cliente = Tables<'clientes'> & { tipos_cliente?: Pick<TipoCliente, 'nombre'> | null, empresas?: Pick<Empresa, 'razon_social'> | null };
+export type Empresa = Tables<'empresas'> & { tipos_empresa?: Pick<TipoEmpresa, 'nombre'> | null };
 export type Repartidor = Tables<'repartidores'>;
-export type Capacidad = Tables<'capacidad'> & { repartidores?: Repartidor | null };
-export type Reparto = Tables<'repartos'> & { 
-  tipos_reparto?: TipoReparto | null, 
-  repartidores?: Repartidor | null, 
-  empresas?: Empresa | null, // Empresa para la que es el reparto
-  empresa_despachante?: Empresa | null // Empresa que despacha
+export type Capacidad = Tables<'capacidad'> & { repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null };
+export type Reparto = Tables<'repartos'> & {
+  tipos_reparto?: Pick<TipoReparto, 'nombre'> | null,
+  repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null,
+  empresas?: Pick<Empresa, 'razon_social'> | null, // Empresa para la que es el reparto
+  empresa_despachante?: Pick<Empresa, 'razon_social'> | null // Empresa que despacha
 };
 export type Envio = Tables<'envios'> & {
-  clientes?: Cliente | null,
-  tipos_envio?: TipoEnvio | null,
-  tipos_paquete?: TipoPaquete | null,
-  tipos_servicio?: TipoServicio | null,
-  repartos?: Reparto | null,
-  repartidores?: Repartidor | null, // Repartidor preferido
-  empresas?: Empresa | null // Empresa cliente
+  clientes?: Pick<Cliente, 'nombre' | 'apellido'> | null,
+  tipos_envio?: Pick<TipoEnvio, 'nombre'> | null,
+  tipos_paquete?: Pick<TipoPaquete, 'nombre'> | null,
+  tipos_servicio?: Pick<TipoServicio, 'nombre'> | null,
+  repartos?: Pick<Reparto, 'id' | 'fecha_programada' | 'estado'> | null,
+  repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null, // Repartidor preferido
+  empresas?: Pick<Empresa, 'razon_social'> | null // Empresa cliente
 };
-export type ParadaReparto = Tables<'paradas_reparto'> & { repartos?: Reparto | null, envios?: Envio | null };
+export type ParadaReparto = Tables<'paradas_reparto'> & { repartos?: Pick<Reparto, 'id' | 'fecha_programada'> | null, envios?: Pick<Envio, 'id' | 'direccion_destino'> | null };
 
 
 // Enum-like constants
@@ -779,5 +779,3 @@ export type SelectOption = {
   value: string;
   label: string;
 };
-
-    

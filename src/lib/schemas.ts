@@ -150,7 +150,7 @@ export const envioSchema = z.object({
   precio_calculado: z.coerce.number().optional().nullable(),
   distancia_km: z.coerce.number().optional().nullable(),
   notas: z.string().optional().nullable(),
-  suggested_options: z.any().optional().nullable(), 
+  suggested_options: z.any().optional().nullable(),
   reasoning: z.string().optional().nullable(),
   precio_servicio_final: z.coerce.number().optional().nullable(),
   created_at: z.string().datetime().optional(),
@@ -168,5 +168,3 @@ export const paradaRepartoSchema = z.object({
   hora_real_llegada: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato HH:MM").optional().nullable(),
   created_at: z.string().datetime().optional(),
 });
-
-    

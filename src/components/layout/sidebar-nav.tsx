@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Package, Truck, ListChecks, PackagePlus, Settings, Building, UserCheck, Route, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, Package, Truck, ListChecks, PackagePlus, Settings, Building, UserCheck, Route, ClipboardList, Briefcase } from 'lucide-react';
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -27,22 +27,21 @@ import { cn } from '@/lib/utils';
 
 const mainNavItem = { href: '/', label: 'Panel General', icon: LayoutDashboard };
 
-const configNavItems = [
-  { href: '/tipos-cliente', label: 'Tipos de Cliente', icon: Users },
-  { href: '/tipos-paquete', label: 'Tipos de Paquete', icon: Package },
-  { href: '/tipos-servicio', label: 'Tipos de Servicio', icon: Truck },
-  { href: '/tipos-reparto', label: 'Tipos de Reparto', icon: ListChecks },
-  { href: '/tipos-envio', label: 'Tipos de Envío', icon: PackagePlus },
-  // Potentially add /tipos-empresa here if it's considered core config
-];
-
 const operationsNavItems = [
   { href: '/clientes', label: 'Clientes', icon: Users },
   { href: '/empresas', label: 'Empresas', icon: Building },
   { href: '/repartidores', label: 'Repartidores', icon: UserCheck },
   { href: '/repartos', label: 'Repartos', icon: Route },
   { href: '/envios', label: 'Envíos', icon: ClipboardList },
-  // Add /capacidad and /paradas-reparto if direct navigation is desired, or manage them within repartidores/repartos
+];
+
+const configNavItems = [
+  { href: '/tipos-cliente', label: 'Tipos de Cliente', icon: Users },
+  { href: '/tipos-paquete', label: 'Tipos de Paquete', icon: Package },
+  { href: '/tipos-servicio', label: 'Tipos de Servicio', icon: Truck },
+  { href: '/tipos-reparto', label: 'Tipos de Reparto', icon: ListChecks },
+  { href: '/tipos-envio', label: 'Tipos de Envío', icon: PackagePlus },
+  { href: '/tipos-empresa', label: 'Tipos de Empresa', icon: Briefcase },
 ];
 
 
@@ -50,18 +49,18 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { state: sidebarState, isMobile } = useSidebar();
 
-  const isConfigActive = configNavItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'));
   const isOperationsActive = operationsNavItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'));
-  
+  const isConfigActive = configNavItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'));
+
   const [openAccordionValue, setOpenAccordionValue] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (isConfigActive) {
-      setOpenAccordionValue("config-item");
-    } else if (isOperationsActive) {
+    if (isOperationsActive) {
       setOpenAccordionValue("operations-item");
+    } else if (isConfigActive) {
+      setOpenAccordionValue("config-item");
     }
-  }, [pathname, isConfigActive, isOperationsActive]);
+  }, [pathname, isOperationsActive, isConfigActive]);
 
 
   const accordionTriggerClasses = (isActive: boolean, currentAccordionValue: string) => cn(
@@ -72,7 +71,7 @@ export function SidebarNav() {
     "h-8",
     "group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2",
     "hover:no-underline",
-    "[&_svg:last-child]:group-data-[collapsible=icon]:hidden" 
+    "[&_svg:last-child]:group-data-[collapsible=icon]:hidden"
   );
 
   const accordionTriggerTextSpanClasses = cn(
@@ -117,7 +116,7 @@ export function SidebarNav() {
                 <TooltipTrigger asChild disabled={sidebarState === "expanded" || isMobile}>
                   <div className={cn((sidebarState === "collapsed" && !isMobile) ? "" : "w-full")}>
                     <AccordionTrigger className={accordionTriggerClasses(isOperationsActive, "operations-item")}>
-                      <LayoutDashboard className="h-4 w-4 shrink-0" /> {/* Placeholder icon, change as needed */}
+                      <LayoutDashboard className="h-4 w-4 shrink-0" />
                       <span className={accordionTriggerTextSpanClasses}>Operaciones</span>
                     </AccordionTrigger>
                   </div>
@@ -135,7 +134,7 @@ export function SidebarNav() {
                   <SidebarMenuItem key={item.href} className="!py-0.5">
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.href}
+                      isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
                       tooltip={{ children: item.label }}
                       size="sm"
                       className="h-7 w-full justify-start text-xs"
@@ -186,7 +185,7 @@ export function SidebarNav() {
                   <SidebarMenuItem key={item.href} className="!py-0.5">
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.href}
+                      isActive={pathname === item.href || pathname.startsWith(item.href + '/')}
                       tooltip={{ children: item.label }}
                       size="sm"
                       className="h-7 w-full justify-start text-xs"
@@ -206,5 +205,3 @@ export function SidebarNav() {
     </SidebarMenu>
   );
 }
-
-    
