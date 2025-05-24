@@ -746,8 +746,8 @@ export type Capacidad = Tables<'capacidad'> & { repartidores?: Pick<Repartidor, 
 export type Reparto = Tables<'repartos'> & {
   tipos_reparto?: Pick<TipoReparto, 'nombre'> | null,
   repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null,
-  empresas?: Pick<Empresa, 'razon_social'> | null, // Empresa para la que es el reparto
-  empresa_despachante?: Pick<Empresa, 'razon_social'> | null // Empresa que despacha
+  empresas?: Pick<Empresa, 'razon_social'> | null,
+  empresa_despachante?: Pick<Empresa, 'razon_social'> | null
 };
 export type Envio = Tables<'envios'> & {
   clientes?: Pick<Cliente, 'nombre' | 'apellido'> | null,
@@ -755,8 +755,8 @@ export type Envio = Tables<'envios'> & {
   tipos_paquete?: Pick<TipoPaquete, 'nombre'> | null,
   tipos_servicio?: Pick<TipoServicio, 'nombre'> | null,
   repartos?: Pick<Reparto, 'id' | 'fecha_programada' | 'estado'> | null,
-  repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null, // Repartidor preferido
-  empresas?: Pick<Empresa, 'razon_social'> | null // Empresa cliente
+  repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null,
+  empresas?: Pick<Empresa, 'razon_social'> | null
 };
 export type ParadaReparto = Tables<'paradas_reparto'> & { repartos?: Pick<Reparto, 'id' | 'fecha_programada'> | null, envios?: Pick<Envio, 'id' | 'direccion_destino'> | null };
 
@@ -779,3 +779,5 @@ export type SelectOption = {
   value: string;
   label: string;
 };
+
+    

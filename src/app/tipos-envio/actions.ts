@@ -70,7 +70,7 @@ export async function addTipoEnvioAction(
 ): Promise<{ success: boolean; message: string; tipoEnvio?: TipoEnvio }> {
   const supabase = createClient();
   const { id_tipo_envio, created_at, ...insertData } = values;
-  const validatedFields = tipoEnvioSchema.safeParse(insertData);
+  const validatedFields = tipoEnvioSchema.omit({ id_tipo_envio: true, created_at: true }).safeParse(insertData);
 
   if (!validatedFields.success) {
      console.error("Validation errors (addTipoEnvioAction):", validatedFields.error.flatten().fieldErrors);
@@ -98,12 +98,12 @@ export async function addTipoEnvioAction(
 }
 
 export async function updateTipoEnvioAction(
-  id_tipo_envio: string,
+  id_tipo_envio_param: string,
   values: z.infer<typeof tipoEnvioSchema>
 ): Promise<{ success: boolean; message: string; tipoEnvio?: TipoEnvio }> {
   const supabase = createClient();
-  const { created_at, ...updateData } = values;
-  const validatedFields = tipoEnvioSchema.partial().safeParse(updateData);
+  const { created_at, id_tipo_envio, ...updateData } = values;
+  const validatedFields = tipoEnvioSchema.omit({id_tipo_envio: true, created_at: true }).partial().safeParse(updateData);
 
   if (!validatedFields.success) {
     console.error("Validation errors (updateTipoEnvioAction):", validatedFields.error.flatten().fieldErrors);
@@ -113,7 +113,7 @@ export async function updateTipoEnvioAction(
   const { error, data } = await supabase
     .from("tipos_envio")
     .update(validatedFields.data)
-    .eq("id_tipo_envio", id_tipo_envio)
+    .eq("id_tipo_envio", id_tipo_envio_param)
     .select()
     .single();
 
@@ -169,3 +169,5 @@ export async function getTiposEnvioForSelectAction(): Promise<SelectOption[]> {
   }
   return data.map((te) => ({ value: te.id_tipo_envio, label: te.nombre }));
 }
+
+    

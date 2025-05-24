@@ -2,7 +2,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { tipoServicioSchema, tarifaServicioSchema } from "@/lib/schemas"; // Assuming you have a tarifaServicioSchema
+import { tipoServicioSchema, tarifaServicioSchema } from "@/lib/schemas";
 import type { TipoServicio, TarifaServicio } from "@/types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -21,7 +21,7 @@ export async function getTiposServicioAction({
 
   let supabaseQuery = supabase
     .from("tipos_servicio")
-    .select("*, tarifas_servicio(*)", { count: "exact" }) // Fetch related tarifas_servicio
+    .select("*, tarifas_servicio(*)", { count: "exact" })
     .range(offset, offset + pageSize - 1)
     .order("created_at", { ascending: false });
 
@@ -48,7 +48,7 @@ export async function getTipoServicioByIdAction(id_tipo_servicio: string): Promi
   const supabase = createClient();
   const { data, error } = await supabase
     .from("tipos_servicio")
-    .select("*, tarifas_servicio(*)") // Fetch related tarifas_servicio
+    .select("*, tarifas_servicio(*)")
     .eq("id_tipo_servicio", id_tipo_servicio)
     .single();
 
@@ -69,15 +69,17 @@ export async function addTipoServicioAction(
   values: z.infer<typeof tipoServicioSchema>
 ): Promise<{ success: boolean; message: string; tipoServicio?: TipoServicio }> {
   const supabase = createClient();
-  const { id_tipo_servicio, created_at, tarifas_servicio, ...tipoServicioData } = values;
+  const { id_tipo_servicio, created_at, tarifas_servicio, ...tipoServicioDataToInsert } = values;
   
-  const validatedTipoServicio = tipoServicioSchema.omit({tarifas_servicio: true, id_tipo_servicio: true, created_at: true}).safeParse(tipoServicioData);
+  const validatedTipoServicio = tipoServicioSchema
+    .omit({ id_tipo_servicio: true, created_at: true, tarifas_servicio: true })
+    .safeParse(tipoServicioDataToInsert);
+
   if (!validatedTipoServicio.success) {
     console.error("Validation errors (addTipoServicioAction - tipoServicio):", validatedTipoServicio.error.flatten().fieldErrors);
     return { success: false, message: "Error de validación al crear tipo de servicio." };
   }
 
-  // Insert TipoServicio first
   const { data: newTipoServicio, error: tipoServicioError } = await supabase
     .from("tipos_servicio")
     .insert(validatedTipoServicio.data)
@@ -95,14 +97,16 @@ export async function addTipoServicioAction(
     return { success: false, message: `Error al crear tipo de servicio: ${tipoServicioError?.message}` };
   }
 
-  // Insert TarifasServicio
   if (tarifas_servicio && tarifas_servicio.length > 0) {
     const tarifasToInsert = tarifas_servicio.map(tarifa => {
       const { id_tarifa_servicio, created_at: tarifaCreatedAt, ...tarifaData } = tarifa;
       return { ...tarifaData, id_tipo_servicio: newTipoServicio.id_tipo_servicio };
     });
 
-    const validatedTarifas = z.array(tarifaServicioSchema.omit({id_tarifa_servicio: true, created_at: true})).safeParse(tarifasToInsert);
+    const validatedTarifas = z.array(
+        tarifaServicioSchema.omit({ id_tarifa_servicio: true, created_at: true })
+    ).safeParse(tarifasToInsert);
+    
     if(!validatedTarifas.success) {
         console.error("Validation errors (addTipoServicioAction - tarifas):", validatedTarifas.error.flatten().fieldErrors);
         // Optionally delete the just created tipo_servicio or handle rollback
@@ -121,7 +125,6 @@ export async function addTipoServicioAction(
         "Hint:", tarifasError.hint,
         "Full error:", JSON.stringify(tarifasError, null, 2)
       );
-      // Optionally delete the just created tipo_servicio or handle rollback
       return { success: false, message: `Error al crear tarifas para el servicio: ${tarifasError.message}` };
     }
   }
@@ -132,24 +135,26 @@ export async function addTipoServicioAction(
 }
 
 export async function updateTipoServicioAction(
-  id_tipo_servicio: string,
+  id_tipo_servicio_param: string, // Renamed to avoid conflict with values
   values: z.infer<typeof tipoServicioSchema>
 ): Promise<{ success: boolean; message: string; tipoServicio?: TipoServicio }> {
   const supabase = createClient();
-  const { created_at, tarifas_servicio, ...tipoServicioDataToUpdate } = values;
-  const validatedTipoServicio = tipoServicioSchema.omit({tarifas_servicio: true, created_at: true}).partial().safeParse(tipoServicioDataToUpdate);
-
+  const { id_tipo_servicio, created_at, tarifas_servicio, ...tipoServicioDataToUpdate } = values;
+  
+  const validatedTipoServicio = tipoServicioSchema
+    .omit({ id_tipo_servicio: true, created_at: true, tarifas_servicio: true })
+    .partial()
+    .safeParse(tipoServicioDataToUpdate);
 
   if (!validatedTipoServicio.success) {
      console.error("Validation errors (updateTipoServicioAction - tipoServicio):", validatedTipoServicio.error.flatten().fieldErrors);
     return { success: false, message: "Error de validación al actualizar tipo de servicio." };
   }
   
-  // Update TipoServicio
   const { error: tipoServicioError } = await supabase
     .from("tipos_servicio")
     .update(validatedTipoServicio.data)
-    .eq("id_tipo_servicio", id_tipo_servicio);
+    .eq("id_tipo_servicio", id_tipo_servicio_param);
 
   if (tipoServicioError) {
     console.error(
@@ -162,11 +167,10 @@ export async function updateTipoServicioAction(
     return { success: false, message: `Error al actualizar tipo de servicio: ${tipoServicioError.message}` };
   }
 
-  // Handle TarifasServicio: Delete existing and insert new ones (simplest approach for full sync)
   const { error: deleteTarifasError } = await supabase
     .from("tarifas_servicio")
     .delete()
-    .eq("id_tipo_servicio", id_tipo_servicio);
+    .eq("id_tipo_servicio", id_tipo_servicio_param);
 
   if (deleteTarifasError) {
      console.error(
@@ -182,10 +186,13 @@ export async function updateTipoServicioAction(
   if (tarifas_servicio && tarifas_servicio.length > 0) {
     const tarifasToInsert = tarifas_servicio.map(tarifa => {
       const { id_tarifa_servicio, created_at: tarifaCreatedAt, ...tarifaData } = tarifa;
-      return { ...tarifaData, id_tipo_servicio: id_tipo_servicio };
+      return { ...tarifaData, id_tipo_servicio: id_tipo_servicio_param };
     });
     
-    const validatedTarifas = z.array(tarifaServicioSchema.omit({id_tarifa_servicio: true, created_at: true})).safeParse(tarifasToInsert);
+    const validatedTarifas = z.array(
+        tarifaServicioSchema.omit({ id_tarifa_servicio: true, created_at: true })
+    ).safeParse(tarifasToInsert);
+
     if(!validatedTarifas.success) {
         console.error("Validation errors (updateTipoServicioAction - tarifas):", validatedTarifas.error.flatten().fieldErrors);
         return { success: false, message: "Error de validación en las nuevas tarifas del servicio." };
@@ -208,7 +215,7 @@ export async function updateTipoServicioAction(
   }
 
   revalidatePath("/tipos-servicio");
-  const resultData = await getTipoServicioByIdAction(id_tipo_servicio);
+  const resultData = await getTipoServicioByIdAction(id_tipo_servicio_param);
   return { success: true, message: "Tipo de servicio actualizado exitosamente.", tipoServicio: resultData || undefined };
 }
 
@@ -216,23 +223,7 @@ export async function updateTipoServicioAction(
 export async function deleteTipoServicioAction(id_tipo_servicio: string): Promise<{ success: boolean; message: string }> {
   const supabase = createClient();
   
-  // First delete related tarifas_servicio due to foreign key constraint
-  const { error: tarifasError } = await supabase
-    .from("tarifas_servicio")
-    .delete()
-    .eq("id_tipo_servicio", id_tipo_servicio);
-
-  if (tarifasError) {
-    console.error(
-      "Error deleting tarifas_servicio for tipo_servicio. Message:", tarifasError.message, 
-      "Code:", tarifasError.code, 
-      "Details:", tarifasError.details, 
-      "Hint:", tarifasError.hint,
-      "Full error:", JSON.stringify(tarifasError, null, 2)
-    );
-    return { success: false, message: `Error al eliminar tarifas asociadas: ${tarifasError.message}` };
-  }
-  
+  // ON DELETE CASCADE will handle deleting tarifas_servicio
   const { error } = await supabase.from("tipos_servicio").delete().eq("id_tipo_servicio", id_tipo_servicio);
 
   if (error) {
@@ -248,3 +239,5 @@ export async function deleteTipoServicioAction(id_tipo_servicio: string): Promis
   revalidatePath("/tipos-servicio");
   return { success: true, message: "Tipo de servicio eliminado exitosamente." };
 }
+
+    

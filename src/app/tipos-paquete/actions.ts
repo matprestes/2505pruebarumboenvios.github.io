@@ -70,7 +70,7 @@ export async function addTipoPaqueteAction(
 ): Promise<{ success: boolean; message: string; tipoPaquete?: TipoPaquete }> {
   const supabase = createClient();
   const { id_tipo_paquete, created_at, ...insertData } = values;
-  const validatedFields = tipoPaqueteSchema.safeParse(insertData);
+  const validatedFields = tipoPaqueteSchema.omit({ id_tipo_paquete: true, created_at: true }).safeParse(insertData);
 
   if (!validatedFields.success) {
     console.error("Validation errors (addTipoPaqueteAction):", validatedFields.error.flatten().fieldErrors);
@@ -102,8 +102,8 @@ export async function updateTipoPaqueteAction(
   values: z.infer<typeof tipoPaqueteSchema>
 ): Promise<{ success: boolean; message: string; tipoPaquete?: TipoPaquete }> {
   const supabase = createClient();
-  const { created_at, ...updateData } = values;
-  const validatedFields = tipoPaqueteSchema.partial().safeParse(updateData);
+  const { created_at, id_tipo_paquete: idToExclude, ...updateData } = values;
+  const validatedFields = tipoPaqueteSchema.omit({id_tipo_paquete: true, created_at: true }).partial().safeParse(updateData);
 
   if (!validatedFields.success) {
     console.error("Validation errors (updateTipoPaqueteAction):", validatedFields.error.flatten().fieldErrors);
@@ -148,3 +148,5 @@ export async function deleteTipoPaqueteAction(id_tipo_paquete: string): Promise<
   revalidatePath("/tipos-paquete");
   return { success: true, message: "Tipo de paquete eliminado exitosamente." };
 }
+
+    

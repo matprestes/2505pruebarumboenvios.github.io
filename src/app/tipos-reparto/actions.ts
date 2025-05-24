@@ -70,7 +70,7 @@ export async function addTipoRepartoAction(
 ): Promise<{ success: boolean; message: string; tipoReparto?: TipoReparto }> {
   const supabase = createClient();
   const { id_tipo_reparto, created_at, ...insertData } = values;
-  const validatedFields = tipoRepartoSchema.safeParse(insertData);
+  const validatedFields = tipoRepartoSchema.omit({ id_tipo_reparto: true, created_at: true }).safeParse(insertData);
 
   if (!validatedFields.success) {
     console.error("Validation errors (addTipoRepartoAction):", validatedFields.error.flatten().fieldErrors);
@@ -98,12 +98,12 @@ export async function addTipoRepartoAction(
 }
 
 export async function updateTipoRepartoAction(
-  id_tipo_reparto: string,
+  id_tipo_reparto_param: string,
   values: z.infer<typeof tipoRepartoSchema>
 ): Promise<{ success: boolean; message: string; tipoReparto?: TipoReparto }> {
   const supabase = createClient();
-  const { created_at, ...updateData } = values;
-  const validatedFields = tipoRepartoSchema.partial().safeParse(updateData);
+  const { created_at, id_tipo_reparto, ...updateData } = values;
+  const validatedFields = tipoRepartoSchema.omit({ id_tipo_reparto: true, created_at: true }).partial().safeParse(updateData);
 
 
   if (!validatedFields.success) {
@@ -114,7 +114,7 @@ export async function updateTipoRepartoAction(
   const { error, data } = await supabase
     .from("tipos_reparto")
     .update(validatedFields.data)
-    .eq("id_tipo_reparto", id_tipo_reparto)
+    .eq("id_tipo_reparto", id_tipo_reparto_param)
     .select()
     .single();
 
@@ -170,3 +170,5 @@ export async function getTiposRepartoForSelectAction(): Promise<SelectOption[]> 
   }
   return data.map((tr) => ({ value: tr.id_tipo_reparto, label: tr.nombre }));
 }
+
+    
