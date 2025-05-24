@@ -34,11 +34,11 @@ La estructura del directorio `src` está organizada para seguir las convenciones
 
 *   **`src/components/`**: Alberga todos los componentes React reutilizables.
     *   `ui/`: Componentes de la librería ShadCN UI (Button, Card, Table, etc.).
-    *   `client-types/` (ahora `tipos-cliente`): Componentes específicos para Tipos de Cliente.
-    *   `package-types/` (ahora `tipos-paquete`): Componentes para Tipos de Paquete.
-    *   `service-types/` (ahora `tipos-servicio`): Componentes para Tipos de Servicio.
-    *   `delivery-types/` (ahora `tipos-reparto`): Componentes para Tipos de Reparto.
-    *   `shipment-types/` (ahora `tipos-envio`): Componentes para Tipos de Envío.
+    *   `tipos-cliente/`: Componentes específicos para Tipos de Cliente.
+    *   `tipos-paquete/`: Componentes para Tipos de Paquete.
+    *   `tipos-servicio/`: Componentes para Tipos de Servicio.
+    *   `tipos-reparto/`: Componentes para Tipos de Reparto.
+    *   `tipos-envio/`: Componentes para Tipos de Envío.
     *   `data-table/`: Componentes genéricos para la funcionalidad de tablas de datos.
     *   `layout/`: Componentes estructurales como `AppShell`, `SidebarNav`, y `AppHeader`.
     *   `ai-naming-suggestion.tsx`: Componente para la funcionalidad de sugerencias de nombres por IA.
@@ -128,5 +128,3 @@ La base de datos está diseñada para soportar las operaciones de Rumbos Envios,
 *(Nota: La tabla `tarifas_distancia_calculadora` mencionada en el prompt anterior fue integrada/reemplazada por la tabla `tarifas_servicio` asociada directamente a `tipos_servicio` según el esquema visual y la lógica de la aplicación.)*
 
 Este documento proporciona una visión general del estado actual del proyecto Rumbos Envios.
-
-    
