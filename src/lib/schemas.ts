@@ -7,7 +7,7 @@ export const tipoClienteSchema = z.object({
   id_tipo_cliente: z.string().uuid().optional(),
   nombre: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   descripcion: z.string().optional().nullable(),
-  created_at: z.string().optional(), // Handled by DB
+  created_at: z.string().datetime().optional(), // Handled by DB
 });
 
 export const tipoPaqueteSchema = z.object({
@@ -16,7 +16,7 @@ export const tipoPaqueteSchema = z.object({
   descripcion: z.string().optional().nullable(),
   dimensiones: z.string().optional().nullable(),
   activo: z.boolean().default(true),
-  created_at: z.string().optional(), // Handled by DB
+  created_at: z.string().datetime().optional(), // Handled by DB
 });
 
 export const tarifaServicioSchema = z.object({
@@ -24,7 +24,7 @@ export const tarifaServicioSchema = z.object({
   id_tipo_servicio: z.string().uuid({ message: "El ID del tipo de servicio es requerido." }),
   hasta_km: z.coerce.number().min(0, { message: "La distancia debe ser un número positivo." }),
   precio: z.coerce.number().min(0, { message: "El precio debe ser un número positivo." }),
-  created_at: z.string().optional(), // Handled by DB
+  created_at: z.string().datetime().optional(), // Handled by DB
 });
 
 export const tipoServicioSchema = z.object({
@@ -32,7 +32,7 @@ export const tipoServicioSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   descripcion: z.string().optional().nullable(),
   tarifas_servicio: z.array(tarifaServicioSchema).optional().default([]),
-  created_at: z.string().optional(), // Handled by DB
+  created_at: z.string().datetime().optional(), // Handled by DB
 });
 
 export const tipoRepartoSchema = z.object({
@@ -40,7 +40,7 @@ export const tipoRepartoSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   descripcion: z.string().optional().nullable(),
   activo: z.boolean().default(true),
-  created_at: z.string().optional(), // Handled by DB
+  created_at: z.string().datetime().optional(), // Handled by DB
 });
 
 export const tipoEnvioSchema = z.object({
@@ -48,14 +48,14 @@ export const tipoEnvioSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   descripcion: z.string().optional().nullable(),
   activo: z.boolean().default(true),
-  created_at: z.string().optional(), // Handled by DB
+  created_at: z.string().datetime().optional(), // Handled by DB
 });
 
 export const tipoEmpresaSchema = z.object({
   id: z.string().uuid().optional(),
   nombre: z.string().min(1, "El nombre es requerido."),
   descripcion: z.string().optional().nullable(),
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
 
@@ -72,7 +72,7 @@ export const clienteSchema = z.object({
   latitud: z.coerce.number().optional().nullable(),
   longitud: z.coerce.number().optional().nullable(),
   notas: z.string().optional().nullable(),
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
 export const empresaSchema = z.object({
@@ -83,8 +83,10 @@ export const empresaSchema = z.object({
   email_contacto: z.string().email({ message: "Email inválido."}).optional().nullable().or(z.literal('')),
   telefono_contacto: z.string().optional().nullable(),
   direccion_fiscal: z.string().optional().nullable(),
+  latitud: z.coerce.number().optional().nullable(),
+  longitud: z.coerce.number().optional().nullable(),
   notas: z.string().optional().nullable(),
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
 export const repartidorSchema = z.object({
@@ -95,7 +97,7 @@ export const repartidorSchema = z.object({
   telefono: z.string().optional().nullable(),
   email: z.string().email({ message: "Email inválido."}).optional().nullable().or(z.literal('')),
   activo: z.boolean().default(true),
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
 export const capacidadSchema = z.object({
@@ -105,7 +107,7 @@ export const capacidadSchema = z.object({
   tipo_vehiculo: z.string().min(1, "El tipo de vehículo es requerido."),
   carga_max_kg: z.coerce.number().positive("La carga máxima debe ser positiva.").optional().nullable(),
   volumen_max_m3: z.coerce.number().positive("El volumen máximo debe ser positivo.").optional().nullable(),
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
 export const repartoSchema = z.object({
@@ -119,7 +121,7 @@ export const repartoSchema = z.object({
   }),
   estado: z.enum(estadoRepartoValues, { message: "Estado de reparto inválido." }).default("PENDIENTE"),
   tipo: z.string().optional().nullable(), // e.g., EMPRESA, INDIVIDUAL
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
 export const envioSchema = z.object({
@@ -151,7 +153,7 @@ export const envioSchema = z.object({
   suggested_options: z.any().optional().nullable(), 
   reasoning: z.string().optional().nullable(),
   precio_servicio_final: z.coerce.number().optional().nullable(),
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
 export const paradaRepartoSchema = z.object({
@@ -164,7 +166,7 @@ export const paradaRepartoSchema = z.object({
   estado_parada: z.string().min(1, "El estado de la parada es requerido.").default('PENDIENTE'),
   hora_estimada_llegada: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato HH:MM").optional().nullable(),
   hora_real_llegada: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato HH:MM").optional().nullable(),
-  created_at: z.string().optional(),
+  created_at: z.string().datetime().optional(),
 });
 
     

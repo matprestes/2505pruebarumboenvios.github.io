@@ -43,6 +43,8 @@ export function EmpresaForm({
       email_contacto: "",
       telefono_contacto: "",
       direccion_fiscal: "",
+      latitud: undefined,
+      longitud: undefined,
       notas: "",
       id_tipo_empresa: null,
     },
@@ -146,6 +148,34 @@ export function EmpresaForm({
             </FormItem>
           )}
         />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+                control={form.control}
+                name="latitud"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Latitud (Opcional)</FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="Ej: -38.012795" {...field} value={field.value ?? ""} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="longitud"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Longitud (Opcional)</FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="Ej: -57.541350" {...field} value={field.value ?? ""} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
         <FormField
           control={form.control}
           name="notas"
@@ -176,5 +206,3 @@ export function EmpresaForm({
     </Form>
   );
 }
-
-    

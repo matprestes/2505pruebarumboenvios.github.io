@@ -190,6 +190,8 @@ export type Database = {
           email_contacto: string | null
           telefono_contacto: string | null
           direccion_fiscal: string | null
+          latitud: number | null // Added
+          longitud: number | null // Added
           notas: string | null
           created_at: string // timestamptz
         }
@@ -201,6 +203,8 @@ export type Database = {
           email_contacto?: string | null
           telefono_contacto?: string | null
           direccion_fiscal?: string | null
+          latitud?: number | null // Added
+          longitud?: number | null // Added
           notas?: string | null
           created_at?: string
         }
@@ -212,6 +216,8 @@ export type Database = {
           email_contacto?: string | null
           telefono_contacto?: string | null
           direccion_fiscal?: string | null
+          latitud?: number | null // Added
+          longitud?: number | null // Added
           notas?: string | null
           created_at?: string
         }
