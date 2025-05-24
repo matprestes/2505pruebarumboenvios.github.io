@@ -22,6 +22,11 @@ const pageTitles: Record<string, string> = {
   '/tipos-servicio': 'Tipos de Servicio',
   '/tipos-reparto': 'Tipos de Reparto',
   '/tipos-envio': 'Tipos de Envío',
+  '/clientes': 'Gestión de Clientes',
+  '/empresas': 'Gestión de Empresas',
+  '/repartidores': 'Gestión de Repartidores',
+  '/repartos': 'Gestión de Repartos',
+  '/envios': 'Gestión de Envíos',
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -63,3 +68,5 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
+    

@@ -21,7 +21,7 @@ export const tipoPaqueteSchema = z.object({
 
 export const tarifaServicioSchema = z.object({
   id_tarifa_servicio: z.string().uuid().optional(),
-  id_tipo_servicio: z.string().uuid(), // FK, should be present if editing existing, or linked on creation
+  id_tipo_servicio: z.string().uuid({ message: "El ID del tipo de servicio es requerido." }),
   hasta_km: z.coerce.number().min(0, { message: "La distancia debe ser un número positivo." }),
   precio: z.coerce.number().min(0, { message: "El precio debe ser un número positivo." }),
   created_at: z.string().optional(), // Handled by DB
@@ -66,7 +66,7 @@ export const clienteSchema = z.object({
   id_empresa: z.string().uuid().optional().nullable(),
   nombre: z.string().min(1, "El nombre es requerido."),
   apellido: z.string().optional().nullable(),
-  email: z.string().email("Email inválido.").optional().nullable().or(z.literal('')),
+  email: z.string().email({ message: "Email inválido."}).optional().nullable().or(z.literal('')),
   telefono: z.string().optional().nullable(),
   direccion_completa: z.string().optional().nullable(),
   latitud: z.coerce.number().optional().nullable(),
@@ -80,7 +80,7 @@ export const empresaSchema = z.object({
   id_tipo_empresa: z.string().uuid({ message: "Debe seleccionar un tipo de empresa."}).nullable(),
   razon_social: z.string().min(1, "La razón social es requerida."),
   cuit: z.string().optional().nullable(),
-  email_contacto: z.string().email("Email inválido.").optional().nullable().or(z.literal('')),
+  email_contacto: z.string().email({ message: "Email inválido."}).optional().nullable().or(z.literal('')),
   telefono_contacto: z.string().optional().nullable(),
   direccion_fiscal: z.string().optional().nullable(),
   notas: z.string().optional().nullable(),
@@ -93,7 +93,7 @@ export const repartidorSchema = z.object({
   apellido: z.string().min(1, "El apellido es requerido."),
   dni: z.string().optional().nullable(),
   telefono: z.string().optional().nullable(),
-  email: z.string().email("Email inválido.").optional().nullable().or(z.literal('')),
+  email: z.string().email({ message: "Email inválido."}).optional().nullable().or(z.literal('')),
   activo: z.boolean().default(true),
   created_at: z.string().optional(),
 });
@@ -110,15 +110,15 @@ export const capacidadSchema = z.object({
 
 export const repartoSchema = z.object({
   id: z.string().uuid().optional(),
-  id_repartidor: z.string().uuid().optional().nullable(),
+  id_repartidor: z.string().uuid({ message: "Debe seleccionar un repartidor."}).optional().nullable(),
   id_tipo_reparto: z.string().uuid({ message: "Debe seleccionar un tipo de reparto."}),
-  id_empresa: z.string().uuid().optional().nullable(),
-  id_empresa_despachante: z.string().uuid().optional().nullable(),
+  id_empresa: z.string().uuid({ message: "Debe seleccionar una empresa."}).optional().nullable(),
+  id_empresa_despachante: z.string().uuid({ message: "Debe seleccionar una empresa despachante."}).optional().nullable(),
   fecha_programada: z.string().refine((date) => /^\d{4}-\d{2}-\d{2}$/.test(date), {
     message: "La fecha debe estar en formato YYYY-MM-DD.",
   }),
   estado: z.enum(estadoRepartoValues, { message: "Estado de reparto inválido." }).default("PENDIENTE"),
-  tipo: z.string().optional().nullable(),
+  tipo: z.string().optional().nullable(), // e.g., EMPRESA, INDIVIDUAL
   created_at: z.string().optional(),
 });
 
@@ -137,7 +137,7 @@ export const envioSchema = z.object({
   direccion_destino: z.string().min(1, "La dirección de destino es requerida."),
   latitud_destino: z.coerce.number().optional().nullable(),
   longitud_destino: z.coerce.number().optional().nullable(),
-  client_location: z.string().optional().nullable(), // Para input de dirección
+  client_location: z.string().optional().nullable(), // Para input de dirección único
   peso: z.coerce.number().positive("El peso debe ser positivo.").optional().nullable(),
   dimensiones_cm: z.string().optional().nullable(),
   fecha_solicitud: z.string().refine((date) => /^\d{4}-\d{2}-\d{2}$/.test(date), {
@@ -148,7 +148,7 @@ export const envioSchema = z.object({
   precio_calculado: z.coerce.number().optional().nullable(),
   distancia_km: z.coerce.number().optional().nullable(),
   notas: z.string().optional().nullable(),
-  suggested_options: z.any().optional().nullable(), // z.record(z.any()) or more specific if known
+  suggested_options: z.any().optional().nullable(), 
   reasoning: z.string().optional().nullable(),
   precio_servicio_final: z.coerce.number().optional().nullable(),
   created_at: z.string().optional(),
@@ -162,8 +162,8 @@ export const paradaRepartoSchema = z.object({
   direccion_parada: z.string().min(1, "La dirección de la parada es requerida."),
   tipo_parada: z.enum(tipoParadaEnum, { message: "Tipo de parada inválido." }),
   estado_parada: z.string().min(1, "El estado de la parada es requerido.").default('PENDIENTE'),
-  hora_estimada_llegada: z.string().optional().nullable(), // Validate as time if needed
-  hora_real_llegada: z.string().optional().nullable(), // Validate as time if needed
+  hora_estimada_llegada: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato HH:MM").optional().nullable(),
+  hora_real_llegada: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato HH:MM").optional().nullable(),
   created_at: z.string().optional(),
 });
 

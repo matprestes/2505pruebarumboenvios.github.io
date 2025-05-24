@@ -722,7 +722,7 @@ export type Enums<
     : never
 
 
-// Custom Application Types - Renamed to Spanish and updated fields
+// Custom Application Types
 export type TipoCliente = Tables<'tipos_cliente'>;
 export type TipoPaquete = Tables<'tipos_paquete'>;
 export type TarifaServicio = Tables<'tarifas_servicio'>;
@@ -732,14 +732,27 @@ export type TipoServicio = Tables<'tipos_servicio'> & {
 export type TipoReparto = Tables<'tipos_reparto'>;
 export type TipoEnvio = Tables<'tipos_envio'>;
 
-export type Cliente = Tables<'clientes'>;
-export type Empresa = Tables<'empresas'>;
+export type Cliente = Tables<'clientes'> & { tipos_cliente?: TipoCliente | null, empresas?: Empresa | null };
+export type Empresa = Tables<'empresas'> & { tipos_empresa?: TipoEmpresa | null };
 export type TipoEmpresa = Tables<'tipos_empresa'>;
 export type Repartidor = Tables<'repartidores'>;
-export type Capacidad = Tables<'capacidad'>;
-export type Reparto = Tables<'repartos'>;
-export type Envio = Tables<'envios'>;
-export type ParadaReparto = Tables<'paradas_reparto'>;
+export type Capacidad = Tables<'capacidad'> & { repartidores?: Repartidor | null };
+export type Reparto = Tables<'repartos'> & { 
+  tipos_reparto?: TipoReparto | null, 
+  repartidores?: Repartidor | null, 
+  empresas?: Empresa | null, // Empresa para la que es el reparto
+  empresa_despachante?: Empresa | null // Empresa que despacha
+};
+export type Envio = Tables<'envios'> & {
+  clientes?: Cliente | null,
+  tipos_envio?: TipoEnvio | null,
+  tipos_paquete?: TipoPaquete | null,
+  tipos_servicio?: TipoServicio | null,
+  repartos?: Reparto | null,
+  repartidores?: Repartidor | null, // Repartidor preferido
+  empresas?: Empresa | null // Empresa cliente
+};
+export type ParadaReparto = Tables<'paradas_reparto'> & { repartos?: Reparto | null, envios?: Envio | null };
 
 
 // Enum-like constants
@@ -753,14 +766,12 @@ export const estadoEnvioValues = ["PENDIENTE", "ASIGNADO_REPARTO", "EN_TRANSITO"
 export type EstadoEnvio = typeof estadoEnvioValues[number];
 
 // For AI Naming Suggestions
-export type EntityType = 'cliente' | 'paquete' | 'servicio' | 'reparto' | 'envio' | 'empresa' | 'repartidor' | 'parada' | 'capacidad' | 'tarifa';
+export type EntityType = 'cliente' | 'paquete' | 'servicio' | 'reparto' | 'envio' | 'empresa' | 'repartidor' | 'parada' | 'capacidad' | 'tarifa' | 'tipo_empresa';
 
-export const Constants = {
-  public: {
-    Enums: {
-      tipoparadaenum: ["RECOLECCION", "ENTREGA"],
-    },
-  },
-} as const;
+
+export type SelectOption = {
+  value: string;
+  label: string;
+};
 
     
