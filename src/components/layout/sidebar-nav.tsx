@@ -37,20 +37,20 @@ const configNavItems = [
 export function SidebarNav() {
   const pathname = usePathname();
   const { state: sidebarState, isMobile } = useSidebar();
-  const isConfigActive = configNavItems.some(item => pathname.startsWith(item.href) && (item.href === '/' ? pathname === '/' : true));
+  const isConfigActive = configNavItems.some(item => pathname.startsWith(item.href));
 
   const accordionTriggerClasses = cn(
-    // Base styles from SidebarMenuButton (approximated for AccordionTrigger)
-    "flex w-full items-center gap-2 overflow-hidden rounded-md px-2 py-2 text-left text-sm font-medium outline-none ring-sidebar-ring transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-    "h-8", // Match SidebarMenuButton height
-    // Active state for the trigger if a sub-item is active or accordion is open
-    (isConfigActive || "[&[data-state=open]]:bg-sidebar-accent [&[data-state=open]]:text-sidebar-accent-foreground") && "bg-sidebar-accent text-sidebar-accent-foreground",
-    // Icon-only mode styles (applied due to parent group having data-collapsible=icon)
+    // Base styles mimicking SidebarMenuButton behavior and AccordionTrigger defaults
+    "flex w-full items-center gap-2 overflow-hidden rounded-md px-2 py-2 text-left text-sm font-medium outline-none ring-sidebar-ring transition-colors",
+    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", // Hover state
+    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", // Focus state
+    "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground", // Open state
+    isConfigActive && "bg-sidebar-accent text-sidebar-accent-foreground", // Active state based on path
+    "h-8", // Specific height
+    // Icon-only mode styles
     "group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2",
-    // Remove hover underline from default AccordionTrigger
-    "hover:no-underline",
-    // Ensure default chevron from AccordionTrigger is hidden in icon mode and other specific stylings
-    "group-data-[collapsible=icon]:[&>svg:last-child]:hidden"
+    "hover:no-underline", // Remove underline from default AccordionTrigger
+    "group-data-[collapsible=icon]:[&>svg:last-child]:hidden" // Hide chevron in icon mode
   );
 
   const accordionTriggerTextSpanClasses = cn(
@@ -70,7 +70,7 @@ export function SidebarNav() {
         <SidebarMenuButton
           asChild
           isActive={pathname === mainNavItem.href}
-          tooltip={{ children: mainNavItem.label }} // Corrected tooltip prop
+          tooltip={{ children: mainNavItem.label }}
         >
           <Link href={mainNavItem.href}>
             <mainNavItem.icon />
@@ -89,7 +89,6 @@ export function SidebarNav() {
                   <AccordionTrigger className={accordionTriggerClasses}>
                     <Settings className="h-4 w-4 shrink-0" />
                     <span className={accordionTriggerTextSpanClasses}>Configuración</span>
-                    {/* The default chevron is part of AccordionTrigger, it will be hidden by group-data-[collapsible=icon]:[&>svg:last-child]:hidden */}
                   </AccordionTrigger>
                 </TooltipTrigger>
                 <TooltipContent side="right" align="center">
@@ -104,9 +103,9 @@ export function SidebarNav() {
                     <SidebarMenuButton
                       asChild
                       isActive={pathname === item.href}
-                      tooltip={{ children: item.label }} // Corrected tooltip prop
-                      size="sm" // Smaller for sub-items
-                      className="h-7 w-full justify-start text-xs" // Ensure full width and proper alignment
+                      tooltip={{ children: item.label }}
+                      size="sm" 
+                      className="h-7 w-full justify-start text-xs" 
                     >
                       <Link href={item.href}>
                         <item.icon />
