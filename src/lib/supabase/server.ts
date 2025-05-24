@@ -9,21 +9,16 @@ export function createClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    // This will be caught by the error handling in the page
-    // and will result in 0 counts being displayed.
-    // A warning will be logged on the server.
     console.warn(
-      'Supabase URL or Anon Key is not set in .env file. Counts will be 0.'
+      'Supabase URL or Anon Key is not set in the environment. Supabase client will likely fail to connect. Ensure these are set in your hosting provider (e.g., Netlify).'
     );
-    // To allow the page to render with 0s instead of crashing the build/request,
-    // we return a client that will likely fail queries, or you could implement
-    // a mock/dummy client here if preferred for such cases.
-    // For now, proceeding with potentially invalid client that page.tsx will handle.
+    // Proceed with empty strings to avoid crashing at createServerClient due to undefined!
+    // The client will then fail to connect, and queries should be handled by try/catch blocks.
   }
 
   return createServerClient(
-    supabaseUrl!,
-    supabaseAnonKey!,
+    supabaseUrl || '', // Fallback to empty string if undefined
+    supabaseAnonKey || '', // Fallback to empty string if undefined
     {
       cookies: {
         get(name: string) {
@@ -51,3 +46,4 @@ export function createClient() {
     }
   );
 }
+
