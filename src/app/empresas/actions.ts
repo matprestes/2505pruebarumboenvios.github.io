@@ -37,7 +37,13 @@ export async function getEmpresasAction({
   const { data, error, count } = await supabaseQuery;
 
   if (error) {
-    console.error("Error fetching empresas:", error);
+    console.error(
+      "Error fetching empresas. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { data: [], count: 0 };
   }
   return { data: data as Empresa[], count: count ?? 0 };
@@ -51,7 +57,13 @@ export async function getEmpresaByIdAction(id: string): Promise<Empresa | null> 
     .eq("id", id)
     .single();
   if (error) {
-    console.error("Error fetching empresa by ID:", error);
+    console.error(
+      "Error fetching empresa by ID. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return null;
   }
   return data as Empresa;
@@ -74,7 +86,13 @@ export async function addEmpresaAction(
     .single();
 
   if (error) {
-    console.error("Error adding empresa:", error);
+    console.error(
+      "Error adding empresa. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al crear empresa: ${error.message}` };
   }
   revalidatePath("/empresas");
@@ -100,7 +118,13 @@ export async function updateEmpresaAction(
     .single();
 
   if (error) {
-    console.error("Error updating empresa:", error);
+    console.error(
+      "Error updating empresa. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al actualizar empresa: ${error.message}` };
   }
   revalidatePath("/empresas");
@@ -113,7 +137,13 @@ export async function deleteEmpresaAction(id: string): Promise<{ success: boolea
   const { error } = await supabase.from("empresas").delete().eq("id", id);
 
   if (error) {
-    console.error("Error deleting empresa:", error);
+    console.error(
+      "Error deleting empresa. Message:", error.message, 
+      "Code:", error.code, 
+      "Details:", error.details, 
+      "Hint:", error.hint,
+      "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al eliminar empresa: ${error.message}` };
   }
   revalidatePath("/empresas");
@@ -128,11 +158,34 @@ export async function getTiposEmpresaForSelectAction(): Promise<SelectOption[]> 
     .order("nombre");
 
   if (error) {
-    console.error("Error fetching tipos_empresa for select:", error);
+    console.error(
+        "Error fetching tipos_empresa for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return [];
   }
   return data.map((te) => ({ value: te.id, label: te.nombre }));
 }
 
+export async function getEmpresasForSelectAction(): Promise<SelectOption[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("empresas")
+    .select("id, razon_social")
+    .order("razon_social");
 
-    
+  if (error) {
+     console.error(
+        "Error fetching empresas for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
+    return [];
+  }
+  return data.map((e) => ({ value: e.id, label: e.razon_social }));
+}
