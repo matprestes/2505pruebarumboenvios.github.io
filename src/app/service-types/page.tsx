@@ -14,9 +14,46 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 
 // Mock data
 const initialServiceTypes: ServiceType[] = [
-  { id: generateId(), name: "Estándar", description: "Envío regular (3-5 días)", baseRate: 5.00, ratePerKm: 0.10, ratePerKg: 0.50 },
-  { id: generateId(), name: "Express", description: "Envío rápido (1-2 días)", baseRate: 15.00, ratePerKm: 0.20, ratePerKg: 1.00 },
-  { id: generateId(), name: "Económico", description: "Envío más lento y barato", baseRate: 2.50, ratePerKm: 0.05 },
+  { 
+    id: generateId(), 
+    name: "Envíos Express", 
+    description: "Entrega urgente en la ciudad.", 
+    baseRate: 15.00, 
+    ratePerKm: 0.20, 
+    ratePerKg: 1.00 
+  },
+  { 
+    id: generateId(), 
+    name: "Envíos LowCost", 
+    description: "Entrega económica programada.", 
+    baseRate: 2.50, 
+    ratePerKm: 0.05,
+    ratePerKg: 0.20
+  },
+  { 
+    id: generateId(), 
+    name: "Moto Fija", 
+    description: "Servicio de mensajería con moto asignada para cliente.", 
+    baseRate: 50.00, // Could be a subscription model
+    ratePerKm: 0.00, // Or based on contract
+    ratePerKg: undefined
+  },
+  {
+    id: generateId(),
+    name: "Plan Emprendedores",
+    description: "Tarifas especiales y soluciones para emprendedores.",
+    baseRate: 10.00,
+    ratePerKm: 0.10,
+    ratePerKg: 0.40
+  },
+  {
+    id: generateId(),
+    name: "Envíos Flex",
+    description: "Servicio adaptable a necesidades específicas.",
+    baseRate: 8.00,
+    ratePerKm: 0.15,
+    ratePerKg: 0.60
+  }
 ];
 
 
