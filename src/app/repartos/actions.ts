@@ -3,11 +3,11 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { repartoSchema, repartoLoteSchema } from "@/lib/schemas";
-import type { Reparto, SelectOption, Cliente } from "@/types";
+import type { Reparto, SelectOption, Cliente, RepartoLoteFormValues, Empresa } from "@/types";
+import { Database } from "@/types";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getRepartidoresForSelectAction } from "@/app/repartidores/actions"; // Assumed to exist and be correct
-import { getEmpresasForSelectAction } from "@/app/empresas/actions"; // Assumed to exist and be correct
 
 export async function getTiposRepartoForSelectAction(): Promise<SelectOption[]> {
   const supabase = createClient();
@@ -30,11 +30,11 @@ export async function getTiposRepartoForSelectAction(): Promise<SelectOption[]> 
   return data.map((tr) => ({ value: tr.id_tipo_reparto, label: tr.nombre }));
 }
 
-export async function getClientesByEmpresaForSelectAction(id_empresa: string): Promise<SelectOption[]> {
+export async function getClientesByEmpresaAction(id_empresa: string): Promise<Pick<Cliente, 'id' | 'nombre' | 'apellido' | 'direccion_completa'>[]> {
     const supabase = createClient();
     const { data, error } = await supabase
         .from("clientes")
-        .select("id, nombre, apellido")
+        .select("id, nombre, apellido, direccion_completa")
         .eq("id_empresa", id_empresa)
         .order("apellido")
         .order("nombre");
@@ -49,7 +49,7 @@ export async function getClientesByEmpresaForSelectAction(id_empresa: string): P
         );
         return [];
     }
-    return data.map(c => ({ value: c.id, label: `${c.apellido || ''}${c.apellido && c.nombre ? ', ' : ''}${c.nombre}`.trim() }));
+    return data || [];
 }
 
 
@@ -176,7 +176,7 @@ export async function updateRepartoAction(
   if (!validatedFields.success) {
     return { success: false, message: "Error de validación." };
   }
-  // created_at should not be updated
+  
   const { created_at, ...updateData } = validatedFields.data;
 
   const { error, data } = await supabase
@@ -220,75 +220,174 @@ export async function deleteRepartoAction(id: string): Promise<{ success: boolea
 }
 
 export async function addRepartosLoteAction(
-  values: z.infer<typeof repartoLoteSchema>
-): Promise<{ success: boolean; message: string; repartosCreados?: number }> {
+  values: RepartoLoteFormValues
+): Promise<{ success: boolean; message: string; repartosCreados?: number, enviosCreados?: number, paradasCreadas?: number }> {
   const supabase = createClient();
   const validatedFields = repartoLoteSchema.safeParse(values);
 
   if (!validatedFields.success) {
+    console.error("Validation errors in batch repartos:", validatedFields.error.flatten().fieldErrors);
     return { success: false, message: "Error de validación en los datos del lote." };
   }
 
-  const { id_tipo_reparto, id_empresa, fecha_programada, id_repartidor, cliente_ids } = validatedFields.data;
-
-  let clientesParaReparto: Pick<Cliente, 'id'>[] = [];
-
-  if (cliente_ids && cliente_ids.length > 0) {
-    const { data, error } = await supabase
-      .from("clientes")
-      .select("id")
-      .in("id", cliente_ids)
-      .eq("id_empresa", id_empresa); // Ensure selected clients belong to the specified empresa
-    if (error) {
-      console.error("Error fetching selected clients for batch:", error);
-      return { success: false, message: "Error al obtener clientes seleccionados para el lote." };
-    }
-    clientesParaReparto = data || [];
-  } else {
-    const { data, error } = await supabase
-      .from("clientes")
-      .select("id")
-      .eq("id_empresa", id_empresa);
-    if (error) {
-      console.error("Error fetching all clients for empresa for batch:", error);
-      return { success: false, message: "Error al obtener todos los clientes de la empresa para el lote." };
-    }
-    clientesParaReparto = data || [];
-  }
-
-  if (clientesParaReparto.length === 0) {
-    return { success: false, message: "No se encontraron clientes para esta empresa o selección." };
-  }
-
-  const repartosToInsert = clientesParaReparto.map(cliente => ({
+  const {
     id_tipo_reparto,
-    id_empresa, // The company for whom the deliveries are made
+    id_empresa,
+    id_empresa_despachante,
     fecha_programada,
+    id_repartidor,
+    clientes_config,
+    id_tipo_envio_default,
+    id_tipo_paquete_default,
+  } = validatedFields.data;
+
+  // Paso 1: Crear el Reparto principal (el lote)
+  const repartoInsertData: Database['public']['Tables']['repartos']['Insert'] = {
+    id_tipo_reparto,
     id_repartidor: id_repartidor || null,
-    estado: 'PENDIENTE',
-    tipo: 'LOTE', // Marking these as batch deliveries
-    // Note: We are not setting id_empresa_despachante here, assuming it's not relevant for batch client deliveries or will be handled differently.
-    // Also, we are not linking specific 'envios' here, as a 'reparto' is a collection of potential 'envios'.
-  }));
+    id_empresa, // Empresa de los clientes
+    id_empresa_despachante: id_empresa_despachante || null,
+    fecha_programada,
+    estado: id_repartidor ? 'ASIGNADO' : 'PENDIENTE',
+    tipo: 'LOTE',
+  };
 
-  const { data: newRepartos, error: insertError } = await supabase
+  const { data: newReparto, error: repartoError } = await supabase
     .from("repartos")
-    .insert(repartosToInsert)
-    .select();
+    .insert(repartoInsertData)
+    .select()
+    .single();
 
-  if (insertError) {
-    console.error(
-      "Error adding batch repartos. Message:", insertError.message,
-      "Code:", insertError.code,
-      "Details:", insertError.details,
-      "Hint:", insertError.hint,
-      "Full error:", JSON.stringify(insertError, null, 2)
-    );
-    return { success: false, message: `Error al crear repartos por lote: ${insertError.message}` };
+  if (repartoError || !newReparto) {
+    console.error("Error creating main batch reparto:", repartoError);
+    return { success: false, message: `Error al crear el reparto principal del lote: ${repartoError?.message}` };
+  }
+
+  let enviosCreados = 0;
+  let paradasCreadas = 0;
+
+  // Obtener dirección de la empresa despachante si existe
+  let direccionDespachante: string | null = null;
+  if (id_empresa_despachante) {
+    const { data: empresaDespachanteData, error: empresaDespachanteError } = await supabase
+      .from('empresas')
+      .select('direccion_fiscal')
+      .eq('id', id_empresa_despachante)
+      .single();
+    if (empresaDespachanteError) {
+      console.warn("Could not fetch dispatching company address:", empresaDespachanteError);
+    } else {
+      direccionDespachante = empresaDespachanteData?.direccion_fiscal || null;
+    }
+  }
+
+
+  for (const config of clientes_config) {
+    if (config.seleccionado && config.id_tipo_servicio && config.precio_servicio_final && config.direccion_completa) {
+      // Paso 2a: Crear el Envio
+      const envioInsertData: Database['public']['Tables']['envios']['Insert'] = {
+        id_cliente: config.cliente_id,
+        id_reparto: newReparto.id,
+        id_tipo_envio: id_tipo_envio_default,
+        id_tipo_paquete: id_tipo_paquete_default,
+        id_tipo_servicio: config.id_tipo_servicio,
+        direccion_destino: config.direccion_completa,
+        fecha_solicitud: fecha_programada, // Usar fecha del reparto
+        estado: 'ASIGNADO_REPARTO',
+        precio_servicio_final: config.precio_servicio_final,
+        // Otros campos opcionales de envio pueden ser null o valores por defecto de la DB
+      };
+
+      const { data: newEnvio, error: envioError } = await supabase
+        .from("envios")
+        .insert(envioInsertData)
+        .select("id")
+        .single();
+
+      if (envioError || !newEnvio) {
+        console.error(`Error creating envio for client ${config.cliente_id}:`, envioError);
+        // Continuar con los demás, pero registrar el error
+        continue;
+      }
+      enviosCreados++;
+
+      // Paso 2b: Crear ParadaReparto para RECOLECCION (si aplica)
+      if (direccionDespachante) {
+        const paradaRecoleccionData: Database['public']['Tables']['paradas_reparto']['Insert'] = {
+          id_reparto: newReparto.id,
+          id_envio: newEnvio.id,
+          orden: 1, // Asumir orden 1 para recolección
+          direccion_parada: direccionDespachante,
+          tipo_parada: 'RECOLECCION',
+          estado_parada: 'PENDIENTE',
+        };
+        const { error: paradaRecError } = await supabase.from("paradas_reparto").insert(paradaRecoleccionData);
+        if (paradaRecError) console.error(`Error creating RECOLECCION parada for envio ${newEnvio.id}:`, paradaRecError);
+        else paradasCreadas++;
+      }
+      
+      // Paso 2c: Crear ParadaReparto para ENTREGA
+      const paradaEntregaData: Database['public']['Tables']['paradas_reparto']['Insert'] = {
+        id_reparto: newReparto.id,
+        id_envio: newEnvio.id,
+        orden: direccionDespachante ? 2 : 1, // Orden 2 si hay recolección, sino 1
+        direccion_parada: config.direccion_completa,
+        tipo_parada: 'ENTREGA',
+        estado_parada: 'PENDIENTE',
+      };
+      const { error: paradaEntError } = await supabase.from("paradas_reparto").insert(paradaEntregaData);
+      if (paradaEntError) console.error(`Error creating ENTREGA parada for envio ${newEnvio.id}:`, paradaEntError);
+      else paradasCreadas++;
+    }
   }
 
   revalidatePath("/repartos");
-  return { success: true, message: `Se crearon ${newRepartos?.length || 0} repartos exitosamente.`, repartosCreados: newRepartos?.length || 0 };
+  return { 
+    success: true, 
+    message: `Reparto por lote creado. ${enviosCreados} envíos y ${paradasCreadas} paradas generadas.`,
+    repartosCreados: 1, // Se crea 1 reparto principal
+    enviosCreados,
+    paradasCreadas,
+  };
+}
+
+// Estas funciones podrían importarse desde sus respectivos módulos actions.ts
+// pero las incluimos aquí para que este archivo sea autocontenido para el formulario de lotes.
+export async function getRepartidoresForSelectAction(): Promise<SelectOption[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("repartidores")
+    .select("id, nombre, apellido")
+    .eq("activo", true)
+    .order("apellido")
+    .order("nombre");
+
+  if (error) {
+    console.error("Error fetching repartidores for select:", error);
+    return [];
+  }
+  return data.map((r) => ({ value: r.id, label: `${r.apellido}, ${r.nombre}` }));
+}
+
+
+export async function getEmpresasForSelectAction(): Promise<SelectOption[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("empresas")
+    .select("id, razon_social")
+    .order("razon_social");
+
+  if (error) {
+     console.error(
+        "Error fetching empresas for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
+    return [];
+  }
+  return data.map((e) => ({ value: e.id, label: e.razon_social }));
 }
 
     

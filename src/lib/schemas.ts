@@ -114,10 +114,10 @@ export const capacidadSchema = z.object({
 
 export const repartoSchema = z.object({
   id: z.string().uuid().optional(),
-  id_repartidor: z.string().uuid({ message: "Debe seleccionar un repartidor."}).optional().nullable(),
+  id_repartidor: z.string().uuid({ message: "Debe seleccionar un repartidor."}).nullable().optional(),
   id_tipo_reparto: z.string().uuid({ message: "Debe seleccionar un tipo de reparto."}),
-  id_empresa: z.string().uuid({ message: "Debe seleccionar una empresa (destino/servicio)."}).optional().nullable(),
-  id_empresa_despachante: z.string().uuid({ message: "Debe seleccionar una empresa despachante."}).optional().nullable(),
+  id_empresa: z.string().uuid({ message: "Debe seleccionar una empresa (destino/servicio)."}).nullable().optional(),
+  id_empresa_despachante: z.string().uuid({ message: "Debe seleccionar una empresa despachante."}).nullable().optional(),
   fecha_programada: z.string().refine((date) => /^\d{4}-\d{2}-\d{2}$/.test(date), {
     message: "La fecha debe estar en formato YYYY-MM-DD.",
   }),
@@ -152,7 +152,7 @@ export const envioSchema = z.object({
   precio_calculado: z.coerce.number().optional().nullable(),
   distancia_km: z.coerce.number().optional().nullable(),
   notas: z.string().optional().nullable(),
-  suggested_options: z.any().optional().nullable(), // JSON can be any type
+  suggested_options: z.any().optional().nullable(), 
   reasoning: z.string().optional().nullable(),
   precio_servicio_final: z.coerce.number().optional().nullable(),
   created_at: z.string().datetime().optional(),
@@ -171,15 +171,37 @@ export const paradaRepartoSchema = z.object({
   created_at: z.string().datetime().optional(),
 });
 
-// Schema for Batch Reparto Form
+export const clienteServicioConfigSchema = z.object({
+  cliente_id: z.string().uuid(),
+  nombre_completo: z.string(),
+  direccion_completa: z.string().nullable(),
+  seleccionado: z.boolean(),
+  id_tipo_servicio: z.string().uuid().nullable(),
+  precio_servicio_final: z.coerce.number().positive("El precio debe ser un número positivo.").nullable(),
+}).refine(data => {
+  if (data.seleccionado) {
+    return data.id_tipo_servicio !== null && data.precio_servicio_final !== null;
+  }
+  return true;
+}, {
+  message: "Si el cliente está seleccionado, el tipo de servicio y el precio final son requeridos.",
+  path: ["id_tipo_servicio"], // You can point to a general path or a specific one
+});
+
 export const repartoLoteSchema = z.object({
   id_tipo_reparto: z.string().uuid({ message: "Debe seleccionar un tipo de reparto."}),
-  id_empresa: z.string().uuid({ message: "Debe seleccionar una empresa."}),
+  id_empresa: z.string().uuid({ message: "Debe seleccionar una empresa para los clientes."}),
+  id_empresa_despachante: z.string().uuid({ message: "Debe seleccionar una empresa despachante (origen)."}).nullable().optional(),
   fecha_programada: z.string().refine((date) => /^\d{4}-\d{2}-\d{2}$/.test(date), {
     message: "La fecha debe estar en formato YYYY-MM-DD.",
   }),
-  id_repartidor: z.string().uuid().optional().nullable(),
-  cliente_ids: z.array(z.string().uuid()).optional().default([]),
+  id_repartidor: z.string().uuid().nullable().optional(),
+  clientes_config: z.array(clienteServicioConfigSchema).min(1, "Debe configurar al menos un cliente para el lote.").refine(
+    (configs) => configs.some(c => c.seleccionado), 
+    { message: "Debe seleccionar al menos un cliente para el lote."}
+  ),
+  id_tipo_envio_default: z.string().uuid({ message: "Debe seleccionar un tipo de envío por defecto." }),
+  id_tipo_paquete_default: z.string().uuid({ message: "Debe seleccionar un tipo de paquete por defecto." }),
 });
 
     

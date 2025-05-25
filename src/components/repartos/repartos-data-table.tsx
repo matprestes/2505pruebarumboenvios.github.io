@@ -6,14 +6,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DataTable } from "@/components/data-table/data-table";
 import { getRepartoColumns } from "./columns";
 import { RepartoForm } from "./reparto-form";
-import { RepartoLoteForm } from "./reparto-lote-form"; // New form for batch
+import { RepartoLoteForm } from "./reparto-lote-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { Reparto, SelectOption, RepartoLoteFormValues } from "@/types"; // RepartoLoteFormValues added
-import { addRepartoAction, updateRepartoAction, deleteRepartoAction, getRepartoByIdAction, addRepartosLoteAction } from "@/app/repartos/actions"; // addRepartosLoteAction added
+import type { Reparto, SelectOption, RepartoLoteFormValues, Cliente } from "@/types";
+import { addRepartoAction, updateRepartoAction, deleteRepartoAction, getRepartoByIdAction, addRepartosLoteAction } from "@/app/repartos/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListPlus } from "lucide-react";
+import { ListPlus } from "lucide-react";
 
 interface RepartosDataTableProps {
   initialData: Reparto[];
@@ -24,7 +24,10 @@ interface RepartosDataTableProps {
   tiposRepartoOptions: SelectOption[];
   repartidoresOptions: SelectOption[];
   empresasOptions: SelectOption[];
-  getClientesByEmpresaAction: (empresaId: string) => Promise<SelectOption[]>; // Action to fetch clients for batch form
+  tiposEnvioOptions: SelectOption[];
+  tiposPaqueteOptions: SelectOption[];
+  tiposServicioOptions: SelectOption[];
+  getClientesByEmpresaAction: (empresaId: string) => Promise<Pick<Cliente, 'id' | 'nombre' | 'apellido' | 'direccion_completa'>[]>;
 }
 
 export default function RepartosDataTable({
@@ -36,6 +39,9 @@ export default function RepartosDataTable({
   tiposRepartoOptions,
   repartidoresOptions,
   empresasOptions,
+  tiposEnvioOptions,
+  tiposPaqueteOptions,
+  tiposServicioOptions,
   getClientesByEmpresaAction,
 }: RepartosDataTableProps) {
   const [data, setData] = useState<Reparto[]>(initialData);
@@ -44,7 +50,7 @@ export default function RepartosDataTable({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingReparto, setEditingReparto] = useState<Partial<Reparto> | null>(null);
   
-  const [isBatchFormOpen, setIsBatchFormOpen] = useState(false); // State for batch form dialog
+  const [isBatchFormOpen, setIsBatchFormOpen] = useState(false); 
 
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
   const [repartoToDelete, setRepartoToDelete] = useState<Reparto | null>(null);
@@ -65,7 +71,7 @@ export default function RepartosDataTable({
     setIsFormOpen(true);
   };
 
-  const handleNewBatch = () => { // Handler for batch creation dialog
+  const handleNewBatch = () => { 
     setIsBatchFormOpen(true);
   };
 
@@ -86,7 +92,7 @@ export default function RepartosDataTable({
       const result = await deleteRepartoAction(repartoToDelete.id);
       if (result.success) {
         toast({ title: "Éxito", description: result.message });
-        router.replace(`${pathname}?${searchParams.toString()}`);
+        router.replace(\`\${pathname}?\${searchParams.toString()}\`);
       } else {
         toast({ title: "Error", description: result.message, variant: "destructive" });
       }
@@ -105,7 +111,7 @@ export default function RepartosDataTable({
       toast({ title: "Éxito", description: result.message });
       setIsFormOpen(false);
       setEditingReparto(null);
-      router.replace(`${pathname}?${searchParams.toString()}`);
+      router.replace(\`\${pathname}?\${searchParams.toString()}\`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });
     }
@@ -118,7 +124,7 @@ export default function RepartosDataTable({
     if (result.success) {
       toast({ title: "Éxito", description: result.message });
       setIsBatchFormOpen(false);
-      router.replace(`${pathname}?${searchParams.toString()}`);
+      router.replace(\`\${pathname}?\${searchParams.toString()}\`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });
     }
@@ -126,7 +132,7 @@ export default function RepartosDataTable({
   };
 
 
-  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -176,7 +182,7 @@ export default function RepartosDataTable({
 
       {/* Dialog for Batch Reparto Creation */}
       <Dialog open={isBatchFormOpen} onOpenChange={setIsBatchFormOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-3xl"> {/* Wider dialog for batch form */}
           <DialogHeader>
             <DialogTitle>Crear Repartos por Lote</DialogTitle>
             <DialogDescription>Configure los detalles para generar múltiples repartos.</DialogDescription>
@@ -187,6 +193,9 @@ export default function RepartosDataTable({
             tiposRepartoOptions={tiposRepartoOptions}
             repartidoresOptions={repartidoresOptions}
             empresasOptions={empresasOptions}
+            tiposEnvioOptions={tiposEnvioOptions}
+            tiposPaqueteOptions={tiposPaqueteOptions}
+            tiposServicioOptions={tiposServicioOptions}
             getClientesByEmpresaAction={getClientesByEmpresaAction}
             isSubmitting={isSubmitting}
           />
@@ -198,7 +207,7 @@ export default function RepartosDataTable({
         onClose={() => setIsConfirmDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
-        description={`¿Estás seguro de que deseas eliminar el reparto ID ${repartoToDelete?.id?.substring(0,8)}...? Esta acción no se puede deshacer.`}
+        description={\`¿Estás seguro de que deseas eliminar el reparto ID \${repartoToDelete?.id?.substring(0,8)}...? Esta acción no se puede deshacer.\`}
       />
     </>
   );

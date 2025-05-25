@@ -1,9 +1,16 @@
 
 import { getRepartosAction } from "./actions";
 import RepartosDataTable from "@/components/repartos/repartos-data-table";
-import { getTiposRepartoForSelectAction, getClientesByEmpresaForSelectAction } from "./actions"; // getClientesByEmpresaForSelectAction added
-import { getRepartidoresForSelectAction } from "@/app/repartidores/actions";
-import { getEmpresasForSelectAction } from "@/app/empresas/actions";
+import { 
+  getTiposRepartoForSelectAction, 
+  getClientesByEmpresaForSelectAction,
+  getRepartidoresForSelectAction,
+  getEmpresasForSelectAction
+} from "./actions";
+import { getTiposEnvioForSelectAction } from "@/app/tipos-envio/actions";
+import { getTiposPaqueteForSelectAction } from "@/app/tipos-paquete/actions";
+import { getTiposServicioForSelectAction } from "@/app/tipos-servicio/actions";
+
 
 export const metadata = {
   title: "Gestión de Repartos",
@@ -28,23 +35,24 @@ export default async function RepartosPage({
     query,
   });
 
-  const [tiposRepartoOptions, repartidoresOptions, empresasOptions] = await Promise.all([
+  const [
+    tiposRepartoOptions, 
+    repartidoresOptions, 
+    empresasOptions,
+    tiposEnvioOptions,
+    tiposPaqueteOptions,
+    tiposServicioOptions,
+  ] = await Promise.all([
     getTiposRepartoForSelectAction(),
-    getRepartidoresForSelectAction(), // Fetches all active repartidores
-    getEmpresasForSelectAction(),     // Fetches all empresas
+    getRepartidoresForSelectAction(), 
+    getEmpresasForSelectAction(),
+    getTiposEnvioForSelectAction(),
+    getTiposPaqueteForSelectAction(),
+    getTiposServicioForSelectAction(),
   ]);
 
   return (
     <div className="container mx-auto py-2">
-      {/* PageHeader component would go here, e.g.,
-      <PageHeader
-        title="Gestión de Repartos"
-        actions={[
-          { label: "Crear Nuevo Reparto", onClick: () => {} }, // onClick would trigger dialog in DataTable
-          { label: "Crear Reparto por Lote", onClick: () => {} } // onClick would trigger dialog in DataTable
-        ]}
-      />
-      */}
       <h1 className="text-3xl font-bold mb-6">Gestión de Repartos</h1>
       <RepartosDataTable
         initialData={repartos}
@@ -55,8 +63,10 @@ export default async function RepartosPage({
         tiposRepartoOptions={tiposRepartoOptions}
         repartidoresOptions={repartidoresOptions}
         empresasOptions={empresasOptions}
-        // Passing getClientesByEmpresaForSelectAction to be used in the batch form
-        getClientesByEmpresaAction={getClientesByEmpresaForSelectAction}
+        tiposEnvioOptions={tiposEnvioOptions}
+        tiposPaqueteOptions={tiposPaqueteOptions}
+        tiposServicioOptions={tiposServicioOptions}
+        getClientesByEmpresaAction={getClientesByEmpresaAction}
       />
     </div>
   );

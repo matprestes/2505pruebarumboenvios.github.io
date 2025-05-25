@@ -366,11 +366,11 @@ export type Database = {
           id: string
           id_repartidor: string | null
           id_tipo_reparto: string
-          id_empresa: string | null
-          id_empresa_despachante: string | null
+          id_empresa: string | null // Empresa de los clientes del reparto
+          id_empresa_despachante: string | null // Empresa origen/recoleccion
           fecha_programada: string
           estado: string
-          tipo: string | null
+          tipo: string | null // Ej: INDIVIDUAL, LOTE
           created_at: string
         }
         Insert: {
@@ -379,7 +379,7 @@ export type Database = {
           id_tipo_reparto: string
           id_empresa?: string | null
           id_empresa_despachante?: string | null
-          fecha_programada: string
+          fecha_programada?: string
           estado?: string
           tipo?: string | null
           created_at?: string
@@ -575,8 +575,8 @@ export type Database = {
           direccion_parada: string
           tipo_parada: Database["public"]["Enums"]["tipoparadaenum"]
           estado_parada: string
-          hora_estimada_llegada: string | null
-          hora_real_llegada: string | null
+          hora_estimada_llegada: string | null // time
+          hora_real_llegada: string | null // time
           created_at: string
         }
         Insert: {
@@ -773,7 +773,7 @@ export type Envio = Tables<'envios'> & {
 };
 
 export const tipoParadaEnum = ["RECOLECCION", "ENTREGA"] as const;
-export type TipoParadaEnum = typeof tipoParadaEnum[number];
+export type TipoParadaEnum = Database["public"]["Enums"]["tipoparadaenum"];
 
 export type ParadaReparto = Tables<'paradas_reparto'> & {
   repartos?: Pick<Reparto, 'id' | 'fecha_programada'> | null;
@@ -804,13 +804,25 @@ export type SelectOption = {
   label: string;
 };
 
+export interface ClienteServicioConfig {
+  cliente_id: string;
+  nombre_completo: string;
+  direccion_completa: string | null;
+  seleccionado: boolean;
+  id_tipo_servicio: string | null;
+  precio_servicio_final: number | null;
+}
+
 // For Batch Reparto Form
 export interface RepartoLoteFormValues {
   id_tipo_reparto: string;
-  id_empresa: string;
+  id_empresa: string; // Empresa de los clientes
+  id_empresa_despachante: string | null; // Empresa origen/recolección
   fecha_programada: string;
   id_repartidor?: string | null;
-  cliente_ids?: string[]; // Array of client IDs from the selected empresa
+  clientes_config: ClienteServicioConfig[];
+  id_tipo_envio_default: string;
+  id_tipo_paquete_default: string;
 }
 
     
