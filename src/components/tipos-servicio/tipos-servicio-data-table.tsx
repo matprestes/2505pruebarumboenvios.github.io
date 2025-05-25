@@ -79,7 +79,7 @@ export default function TiposServicioDataTable({
       if (result.success) {
         toast({ title: "Éxito", description: result.message });
         // Trigger re-fetch by navigating
-        router.replace(\`\${pathname}?\${searchParams.toString()}\`);
+        router.replace(`${pathname}?${searchParams.toString()}`);
       } else {
         toast({ title: "Error", description: result.message, variant: "destructive" });
       }
@@ -102,14 +102,14 @@ export default function TiposServicioDataTable({
       setIsFormOpen(false);
       setEditingTipoServicio(null);
       // Trigger re-fetch
-      router.replace(\`\${pathname}?\${searchParams.toString()}\`);
+      router.replace(`${pathname}?${searchParams.toString()}`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });
     }
     setIsSubmitting(false);
   };
   
-  const columns = useMemo(() => getTipoServicioColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getTipoServicioColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -150,7 +150,7 @@ export default function TiposServicioDataTable({
         onClose={() => setIsConfirmDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
-        description={\`¿Estás seguro de que deseas eliminar el tipo de servicio "\${tipoServicioToDelete?.nombre}"? Esta acción no se puede deshacer.\`}
+        description={`¿Estás seguro de que deseas eliminar el tipo de servicio "${tipoServicioToDelete?.nombre}"? Esta acción no se puede deshacer.`}
       />
     </>
   );
