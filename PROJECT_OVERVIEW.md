@@ -13,11 +13,11 @@ Rumbos Envios es una aplicación de panel de control diseñada para gestionar la
     *   **Tipos de Reparto:** CRUD para modalidades de operaciones de reparto y su estado de activación.
     *   **Tipos de Envío:** CRUD para categorías generales para los envíos y su estado de activación.
     *   **Tipos de Empresa:** CRUD para tipos de empresas (ej., Minorista, Proveedor).
-*   **Gestión de Entidades Operativas (Implementación Futura/Parcial):**
+*   **Gestión de Entidades Operativas:**
     *   **Clientes:** CRUD para la información de los clientes.
     *   **Empresas:** CRUD para la información de las empresas.
     *   **Repartidores:** CRUD para la información de los repartidores.
-    *   **Repartos:** CRUD para la planificación y seguimiento de repartos.
+    *   **Repartos:** CRUD para la planificación y seguimiento de repartos, incluyendo creación por lote.
     *   **Envíos:** CRUD para la creación y gestión de envíos.
 *   **Validación en Tiempo Real:** Formularios con validación para proporcionar retroalimentación inmediata.
 *   **Herramienta de Sugerencias de IA:** Asistencia inteligente para convenciones de nomenclatura.
@@ -60,7 +60,7 @@ La estructura del directorio `src` está organizada para seguir las convenciones
         *   `actions.ts`: Server Actions para CRUD de Repartidores y obtención de datos para selects.
     *   **`repartos/`**:
         *   `page.tsx`: Página Server Component para listar Repartos.
-        *   `actions.ts`: Server Actions para CRUD de Repartos y obtención de datos para selects.
+        *   `actions.ts`: Server Actions para CRUD de Repartos (individual y por lote) y obtención de datos para selects.
     *   **`envios/`**:
         *   `page.tsx`: Página Server Component para listar Envíos.
         *   `actions.ts`: Server Actions para CRUD de Envíos y obtención de datos para selects.
@@ -69,23 +69,23 @@ La estructura del directorio `src` está organizada para seguir las convenciones
     *   `ui/`: Componentes de la librería ShadCN UI.
     *   **`tipos-cliente/`**:
         *   `columns.tsx`: Definición de columnas para la tabla de Tipos de Cliente.
-        *   `client-type-form.tsx`: Formulario para crear/editar Tipos de Cliente.
+        *   `tipo-cliente-form.tsx`: Formulario para crear/editar Tipos de Cliente.
         *   `tipos-cliente-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Cliente.
     *   **`tipos-paquete/`**:
         *   `columns.tsx`: Columnas para Tipos de Paquete.
-        *   `package-type-form.tsx`: Formulario para Tipos de Paquete.
+        *   `tipo-paquete-form.tsx`: Formulario para Tipos de Paquete.
         *   `tipos-paquete-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Paquete.
     *   **`tipos-servicio/`**:
         *   `columns.tsx`: Columnas para Tipos de Servicio.
-        *   `service-type-form.tsx`: Formulario para Tipos de Servicio.
+        *   `tipo-servicio-form.tsx`: Formulario para Tipos de Servicio.
         *   `tipos-servicio-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Servicio.
     *   **`tipos-reparto/`**:
         *   `columns.tsx`: Columnas para Tipos de Reparto.
-        *   `delivery-type-form.tsx`: Formulario para Tipos de Reparto.
+        *   `tipo-reparto-form.tsx`: Formulario para Tipos de Reparto.
         *   `tipos-reparto-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Reparto.
     *   **`tipos-envio/`**:
         *   `columns.tsx`: Columnas para Tipos de Envío.
-        *   `shipment-type-form.tsx`: Formulario para Tipos de Envío.
+        *   `tipo-envio-form.tsx`: Formulario para Tipos de Envío.
         *   `tipos-envio-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Envío.
     *   **`tipos-empresa/`**:
         *   `columns.tsx`: Columnas para Tipos de Empresa.
@@ -105,7 +105,8 @@ La estructura del directorio `src` está organizada para seguir las convenciones
         *   `repartidores-data-table.tsx`: Componente Client para la tabla y diálogos de Repartidores.
     *   **`repartos/`**:
         *   `columns.tsx`: Columnas para Repartos.
-        *   `reparto-form.tsx`: Formulario para Repartos.
+        *   `reparto-form.tsx`: Formulario para Reparto individual.
+        *   `reparto-lote-form.tsx`: Formulario para creación de Repartos por Lote.
         *   `repartos-data-table.tsx`: Componente Client para la tabla y diálogos de Repartos.
     *   **`envios/`**:
         *   `columns.tsx`: Columnas para Envíos.
@@ -150,7 +151,7 @@ Cada sección de "Tipos de..." (ej., `/tipos-cliente`, `/tipos-paquete`) sigue u
     *   Maneja la confirmación para eliminar.
     *   Llama a las Server Actions.
     *   Actualiza los parámetros de la URL para paginación y búsqueda.
-*   **Formulario (`src/components/tipos-*/[nombre-formulario].tsx`):** Formulario para crear/editar la entidad, con validación Zod.
+*   **Formulario (`src/components/tipos-*/tipo-[entidad]-form.tsx`):** Formulario para crear/editar la entidad, con validación Zod.
 *   **Columnas (`src/components/tipos-*/columns.tsx`):** Definición de columnas para la tabla.
 
 **Entidades de Configuración:**
@@ -171,7 +172,7 @@ Cada sección operativa principal sigue una estructura similar:
     *   Maneja la confirmación para eliminar.
     *   Llama a las Server Actions.
     *   Actualiza los parámetros de la URL para paginación y búsqueda.
-*   **Formulario (`src/components/{entidad}/[entidad]-form.tsx`):** Formulario para crear/editar la entidad, con validación Zod y Selects para FKs.
+*   **Formulario (`src/components/{entidad}/[entidad]-form.tsx`):** Formulario para crear/editar la entidad, con validación Zod y Selects para FKs. En el caso de "Repartos", también hay un formulario para creación por lote (`reparto-lote-form.tsx`).
 *   **Columnas (`src/components/{entidad}/columns.tsx`):** Definición de columnas para la tabla.
 
 **Entidades Operativas:**
@@ -213,3 +214,5 @@ Cada sección operativa principal sigue una estructura similar:
     *   Columnas: `id` (PK, uuid), `id_reparto` (FK a `repartos` ON DELETE CASCADE), `id_envio` (FK a `envios` ON DELETE CASCADE), `orden` (integer), `direccion_parada` (text), `tipo_parada` (public.tipoparadaenum), `estado_parada` (text), `hora_estimada_llegada` (time, nullable), `hora_real_llegada` (time, nullable), `created_at` (timestamptz). Restricción UNIQUE en `(id_reparto, id_envio, tipo_parada, orden)`.
 
 Este documento proporciona una visión general actualizada del proyecto Rumbos Envios.
+
+    

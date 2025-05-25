@@ -59,6 +59,8 @@ export function SidebarNav() {
       setOpenAccordionValue("operations-item");
     } else if (isConfigActive) {
       setOpenAccordionValue("config-item");
+    } else {
+      setOpenAccordionValue(undefined); // Close accordion if no relevant section is active
     }
   }, [pathname, isOperationsActive, isConfigActive]);
 
@@ -205,3 +207,5 @@ export function SidebarNav() {
     </SidebarMenu>
   );
 }
+
+    

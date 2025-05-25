@@ -792,14 +792,25 @@ export type EntityType =
   | 'parada'
   | 'capacidad'
   | 'tarifa'
-  | 'tipo_cliente' // Added
-  | 'tipo_paquete' // Added
-  | 'tipo_servicio' // Added
-  | 'tipo_reparto' // Added
-  | 'tipo_envio' // Added
-  | 'tipo_empresa'; // Added
+  | 'tipo_cliente'
+  | 'tipo_paquete'
+  | 'tipo_servicio'
+  | 'tipo_reparto'
+  | 'tipo_envio'
+  | 'tipo_empresa';
 
 export type SelectOption = {
   value: string;
   label: string;
 };
+
+// For Batch Reparto Form
+export interface RepartoLoteFormValues {
+  id_tipo_reparto: string;
+  id_empresa: string;
+  fecha_programada: string;
+  id_repartidor?: string | null;
+  cliente_ids?: string[]; // Array of client IDs from the selected empresa
+}
+
+    
