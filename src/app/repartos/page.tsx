@@ -3,9 +3,9 @@ import { getRepartosAction } from "./actions";
 import RepartosDataTable from "@/components/repartos/repartos-data-table";
 import { 
   getTiposRepartoForSelectAction, 
-  getClientesByEmpresaForSelectAction,
   getRepartidoresForSelectAction,
-  getEmpresasForSelectAction
+  getEmpresasForSelectAction,
+  getClientesByEmpresaAction // Added import
 } from "./actions";
 import { getTiposEnvioForSelectAction } from "@/app/tipos-envio/actions";
 import { getTiposPaqueteForSelectAction } from "@/app/tipos-paquete/actions";
