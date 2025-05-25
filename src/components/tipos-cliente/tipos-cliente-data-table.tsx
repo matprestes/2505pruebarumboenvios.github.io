@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
 import { getTipoClienteColumns } from "./columns";
-import { TipoClienteForm } from "./tipo-cliente-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoCliente } from "@/types";
@@ -137,12 +136,7 @@ export default function TiposClienteDataTable({
             </DialogTitle>
             {editingTipoCliente?.id_tipo_cliente && <DialogDescription>ID: {editingTipoCliente.id_tipo_cliente}</DialogDescription>}
           </DialogHeader>
-          <TipoClienteForm
-            onSubmit={handleFormSubmit}
-            initialData={editingTipoCliente as TipoCliente | null}
-            onCancel={() => { setIsFormOpen(false); setEditingTipoCliente(null); }}
-            isSubmitting={isSubmitting}
-          />
+       
         </DialogContent>
       </Dialog>
       <ConfirmDialog

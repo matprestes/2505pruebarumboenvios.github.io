@@ -114,7 +114,8 @@ export function RepartoLoteForm({
     return currentConfigs.filter(c =>
       c.nombre_completo.toLowerCase().includes(clienteSearchTerm.toLowerCase())
     );
-  }, [clienteSearchTerm, fields, form]); // fields dependency to re-filter when configs change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clienteSearchTerm, fields, form.watch("clientes_config")]); 
 
   const handleSelectAllFilteredClientes = (checked: boolean) => {
     const currentConfigs = form.getValues("clientes_config");
@@ -193,16 +194,16 @@ export function RepartoLoteForm({
             )}
 
             <ScrollArea className={cn("h-64 w-full rounded-md border p-2 mt-2", filteredClientesConfig.length === 0 && "hidden")}>
-              {fields.map((field, index) => {
-                const clientOriginalIndex = form.getValues("clientes_config").findIndex(c => c.cliente_id === field.cliente_id);
-                 if (!filteredClientesConfig.find(fc => fc.cliente_id === field.cliente_id)) return null;
+              {fields.map((fieldItem, index) => {
+                const clientOriginalIndex = form.getValues("clientes_config").findIndex(c => c.cliente_id === fieldItem.cliente_id);
+                 if (!filteredClientesConfig.find(fc => fc.cliente_id === fieldItem.cliente_id)) return null;
 
                 return (
-                <div key={field.id} className="mb-3 rounded-md border p-3 space-y-3">
+                <div key={fieldItem.id} className="mb-3 rounded-md border p-3 space-y-3">
                   <FormField control={form.control} name={`clientes_config.${clientOriginalIndex}.seleccionado`} render={({ field: checkboxField }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl>
                           <Checkbox checked={checkboxField.value} onCheckedChange={checkboxField.onChange}/>
-                      </FormControl><FormLabel className="text-sm font-normal">{field.nombre_completo} <br/><span className="text-xs text-muted-foreground">{field.direccion_completa || 'Sin dirección'}</span></FormLabel></FormItem>
+                      </FormControl><FormLabel className="text-sm font-normal">{fieldItem.nombre_completo} <br/><span className="text-xs text-muted-foreground">{fieldItem.direccion_completa || 'Sin dirección'}</span></FormLabel></FormItem>
                   )}/>
                   {form.watch(`clientes_config.${clientOriginalIndex}.seleccionado`) && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-8">
@@ -227,7 +228,7 @@ export function RepartoLoteForm({
 
         <div className="flex justify-end space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>Cancelar</Button>
-          <Button type="submit" disabled={isSubmitting || !selectedEmpresaId || loadingClientes}>
+          <Button type="submit" disabled={isSubmitting || !selectedEmpresaId || loadingClientes || filteredClientesConfig.filter(c => c.seleccionado).length === 0}>
             {isSubmitting ? "Creando Lote..." : "Crear Repartos por Lote"}
           </Button>
         </div>
@@ -235,5 +236,4 @@ export function RepartoLoteForm({
     </Form>
   );
 }
-
     

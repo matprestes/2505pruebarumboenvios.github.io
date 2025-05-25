@@ -22,7 +22,7 @@ export const tipoPaqueteSchema = z.object({
 
 export const tarifaServicioSchema = z.object({
   id_tarifa_servicio: z.string().uuid().optional(),
-  id_tipo_servicio: z.string().uuid({ message: "El ID del tipo de servicio es requerido." }),
+  id_tipo_servicio: z.string().uuid({ message: "El ID del tipo de servicio es requerido." }), // Required for relation
   hasta_km: z.coerce.number().min(0, { message: "La distancia debe ser un número positivo." }),
   precio: z.coerce.number().min(0, { message: "El precio debe ser un número positivo." }),
   created_at: z.string().datetime().optional(),
@@ -185,8 +185,7 @@ export const clienteServicioConfigSchema = z.object({
     return true;
   }, {
     message: "Si el cliente está seleccionado, el tipo de servicio y el precio final son requeridos.",
-    // Apply the error to a common path or a specific one if desired
-    path: ["id_tipo_servicio"], 
+    path: ["id_tipo_servicio"], // O aplicar a un path general si es más apropiado
   });
 
 export const repartoLoteSchema = z.object({
@@ -197,10 +196,11 @@ export const repartoLoteSchema = z.object({
     message: "La fecha debe estar en formato YYYY-MM-DD.",
   }),
   id_repartidor: z.string().uuid().nullable().optional(),
-  clientes_config: z.array(clienteServicioConfigSchema).min(1, "Debe configurar al menos un cliente para el lote.").refine(
-    (configs) => configs.some(c => c.seleccionado), 
-    { message: "Debe seleccionar al menos un cliente para el lote."}
-  ),
+  clientes_config: z.array(clienteServicioConfigSchema)
+    .min(1, "Debe configurar al menos un cliente para el lote.")
+    .refine((configs) => configs.some(c => c.seleccionado), 
+      { message: "Debe seleccionar al menos un cliente para el lote."}
+    ),
   id_tipo_envio_default: z.string().uuid({ message: "Debe seleccionar un tipo de envío por defecto." }),
   id_tipo_paquete_default: z.string().uuid({ message: "Debe seleccionar un tipo de paquete por defecto." }),
 });

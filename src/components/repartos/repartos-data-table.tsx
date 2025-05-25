@@ -136,7 +136,7 @@ export default function RepartosDataTable({
   };
 
 
-  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>

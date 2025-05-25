@@ -718,7 +718,7 @@ export type Enums<
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
   ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
@@ -742,7 +742,7 @@ export type Cliente = Tables<'clientes'> & {
   empresas?: Pick<Empresa, 'razon_social'> | null;
 };
 export type Empresa = Tables<'empresas'> & {
-  tipos_empresa?: Pick<TipoEmpresa, 'nombre'> | null;
+  tipos_empresa?: Pick<TipoEmpresa, 'id'| 'nombre'> | null; // Included ID for potential use
 };
 export type Repartidor = Tables<'repartidores'>;
 export type Capacidad = Tables<'capacidad'> & {
@@ -818,11 +818,10 @@ export interface RepartoLoteFormValues {
   id_tipo_reparto: string;
   id_empresa: string; 
   id_empresa_despachante: string | null; 
-  fecha_programada: string;
+  fecha_programada: string; // YYYY-MM-DD
   id_repartidor?: string | null;
   clientes_config: ClienteServicioConfig[];
   id_tipo_envio_default: string;
   id_tipo_paquete_default: string;
 }
-
     

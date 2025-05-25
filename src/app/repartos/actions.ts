@@ -4,7 +4,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { repartoSchema, repartoLoteSchema } from "@/lib/schemas";
 import type { Reparto, SelectOption, Cliente, RepartoLoteFormValues, Empresa } from "@/types";
-import { Database } from "@/types";
+import type { Database } from "@/types"; // Asegúrate de importar Database
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -143,7 +143,8 @@ export async function addRepartoAction(
   const validatedFields = repartoSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    return { success: false, message: "Error de validación." };
+    console.error("Validation errors (addRepartoAction):", validatedFields.error.flatten().fieldErrors);
+    return { success: false, message: "Error de validación al crear reparto." };
   }
 
   const { error, data } = await supabase
@@ -174,9 +175,11 @@ export async function updateRepartoAction(
   const validatedFields = repartoSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    return { success: false, message: "Error de validación." };
+    console.error("Validation errors (updateRepartoAction):", validatedFields.error.flatten().fieldErrors);
+    return { success: false, message: "Error de validación al actualizar reparto." };
   }
 
+  // Omit created_at as it should not be updated
   const { created_at, ...updateData } = validatedFields.data;
 
   const { error, data } = await supabase
@@ -249,7 +252,7 @@ export async function addRepartosLoteAction(
     id_empresa_despachante: id_empresa_despachante || null,
     fecha_programada,
     estado: id_repartidor ? 'ASIGNADO' : 'PENDIENTE',
-    tipo: 'LOTE',
+    tipo: 'LOTE', // Marcar como tipo LOTE
   };
 
   const { data: newReparto, error: repartoError } = await supabase
@@ -274,7 +277,7 @@ export async function addRepartosLoteAction(
       .eq('id', id_empresa_despachante)
       .single();
     if (empresaDespachanteError) {
-      console.warn("Could not fetch dispatching company address. Message:", empresaDespachanteError.message);
+      console.warn("Could not fetch dispatching company address for batch reparto. Message:", empresaDespachanteError.message);
     } else {
       direccionDespachante = empresaDespachanteData?.direccion_fiscal || null;
     }
@@ -289,12 +292,12 @@ export async function addRepartosLoteAction(
         id_reparto: newReparto.id,
         id_tipo_envio: id_tipo_envio_default,
         id_tipo_paquete: id_tipo_paquete_default,
-        id_tipo_servicio: config.id_tipo_servicio,
-        direccion_destino: config.direccion_completa,
-        fecha_solicitud: fecha_programada,
+        id_tipo_servicio: config.id_tipo_servicio, // Ya validado que no es null
+        direccion_destino: config.direccion_completa, // Ya validado que no es null
+        fecha_solicitud: fecha_programada, // Usar la fecha del reparto
         estado: 'ASIGNADO_REPARTO',
-        precio_servicio_final: config.precio_servicio_final,
-        // Otros campos de envio como peso, dimensiones_cm podrían tomarse de tipos_paquete o ser null. Por ahora, null.
+        precio_servicio_final: config.precio_servicio_final, // Ya validado que no es null
+        // Otros campos pueden ser null o derivarse de los tipos por defecto si es necesario
       };
 
       const { data: newEnvio, error: envioError } = await supabase
@@ -305,7 +308,8 @@ export async function addRepartosLoteAction(
 
       if (envioError || !newEnvio) {
         console.error(`Error creating envio for client ${config.cliente_id}. Message:`, envioError?.message, "Full error:", JSON.stringify(envioError, null, 2));
-        continue; // Skip to next client if envio creation fails
+        // Considerar cómo manejar errores parciales. Por ahora, continuamos.
+        continue;
       }
       enviosCreados++;
 
@@ -330,7 +334,7 @@ export async function addRepartosLoteAction(
         id_reparto: newReparto.id,
         id_envio: newEnvio.id,
         orden: ordenParada,
-        direccion_parada: config.direccion_completa,
+        direccion_parada: config.direccion_completa, // Dirección del cliente
         tipo_parada: 'ENTREGA',
         estado_parada: 'PENDIENTE',
       };
