@@ -170,3 +170,5 @@ export async function getTiposPaqueteForSelectAction(): Promise<SelectOption[]> 
   }
   return data.map((tp) => ({ value: tp.id_tipo_paquete, label: tp.nombre }));
 }
+
+    

@@ -176,7 +176,7 @@ export async function updateRepartoAction(
   if (!validatedFields.success) {
     return { success: false, message: "Error de validación." };
   }
-  
+
   const { created_at, ...updateData } = validatedFields.data;
 
   const { error, data } = await supabase
@@ -232,8 +232,8 @@ export async function addRepartosLoteAction(
 
   const {
     id_tipo_reparto,
-    id_empresa,
-    id_empresa_despachante,
+    id_empresa, // Empresa de los clientes
+    id_empresa_despachante, // Empresa origen/recolección
     fecha_programada,
     id_repartidor,
     clientes_config,
@@ -241,10 +241,11 @@ export async function addRepartosLoteAction(
     id_tipo_paquete_default,
   } = validatedFields.data;
 
+  // Paso 1: Crear el Reparto principal (el lote)
   const repartoInsertData: Database['public']['Tables']['repartos']['Insert'] = {
     id_tipo_reparto,
     id_repartidor: id_repartidor || null,
-    id_empresa, 
+    id_empresa,
     id_empresa_despachante: id_empresa_despachante || null,
     fecha_programada,
     estado: id_repartidor ? 'ASIGNADO' : 'PENDIENTE',
@@ -279,8 +280,10 @@ export async function addRepartosLoteAction(
     }
   }
 
+  // Paso 2: Iterar sobre clientes_config
   for (const config of clientes_config) {
     if (config.seleccionado && config.id_tipo_servicio && config.precio_servicio_final && config.direccion_completa) {
+      // Paso 2a: Crear el Envio
       const envioInsertData: Database['public']['Tables']['envios']['Insert'] = {
         id_cliente: config.cliente_id,
         id_reparto: newReparto.id,
@@ -288,9 +291,10 @@ export async function addRepartosLoteAction(
         id_tipo_paquete: id_tipo_paquete_default,
         id_tipo_servicio: config.id_tipo_servicio,
         direccion_destino: config.direccion_completa,
-        fecha_solicitud: fecha_programada, 
+        fecha_solicitud: fecha_programada,
         estado: 'ASIGNADO_REPARTO',
         precio_servicio_final: config.precio_servicio_final,
+        // Otros campos de envio como peso, dimensiones_cm podrían tomarse de tipos_paquete o ser null. Por ahora, null.
       };
 
       const { data: newEnvio, error: envioError } = await supabase
@@ -301,11 +305,12 @@ export async function addRepartosLoteAction(
 
       if (envioError || !newEnvio) {
         console.error(`Error creating envio for client ${config.cliente_id}. Message:`, envioError?.message, "Full error:", JSON.stringify(envioError, null, 2));
-        continue;
+        continue; // Skip to next client if envio creation fails
       }
       enviosCreados++;
 
       let ordenParada = 1;
+      // Paso 2b: Crear ParadaReparto para RECOLECCION (si aplica)
       if (direccionDespachante) {
         const paradaRecoleccionData: Database['public']['Tables']['paradas_reparto']['Insert'] = {
           id_reparto: newReparto.id,
@@ -319,7 +324,8 @@ export async function addRepartosLoteAction(
         if (paradaRecError) console.error(`Error creating RECOLECCION parada for envio ${newEnvio.id}. Message:`, paradaRecError.message, "Full error:", JSON.stringify(paradaRecError, null, 2));
         else paradasCreadas++;
       }
-      
+
+      // Paso 2c: Crear ParadaReparto para ENTREGA
       const paradaEntregaData: Database['public']['Tables']['paradas_reparto']['Insert'] = {
         id_reparto: newReparto.id,
         id_envio: newEnvio.id,
@@ -335,14 +341,15 @@ export async function addRepartosLoteAction(
   }
 
   revalidatePath("/repartos");
-  return { 
-    success: true, 
-    message: `Reparto por lote creado. ${enviosCreados} envíos y ${paradasCreadas} paradas generadas.`,
+  return {
+    success: true,
+    message: `Reparto por lote creado. Repartos: 1. Envíos: ${enviosCreados}. Paradas: ${paradasCreadas}.`,
     repartosCreados: 1,
     enviosCreados,
     paradasCreadas,
   };
 }
+
 
 export async function getRepartidoresForSelectAction(): Promise<SelectOption[]> {
   const supabase = createClient();
@@ -386,3 +393,5 @@ export async function getEmpresasForSelectAction(): Promise<SelectOption[]> {
   }
   return data.map((e) => ({ value: e.id, label: e.razon_social }));
 }
+
+    

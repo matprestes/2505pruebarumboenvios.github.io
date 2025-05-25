@@ -105,6 +105,7 @@ export async function updateTipoEnvioAction(
   const { created_at, id_tipo_envio, ...updateData } = values;
   const validatedFields = tipoEnvioSchema.omit({id_tipo_envio: true, created_at: true }).partial().safeParse(updateData);
 
+
   if (!validatedFields.success) {
     console.error("Validation errors (updateTipoEnvioAction):", validatedFields.error.flatten().fieldErrors);
     return { success: false, message: "Error de validación al actualizar tipo de envío." };
@@ -169,3 +170,5 @@ export async function getTiposEnvioForSelectAction(): Promise<SelectOption[]> {
   }
   return data.map((te) => ({ value: te.id_tipo_envio, label: te.nombre }));
 }
+
+    

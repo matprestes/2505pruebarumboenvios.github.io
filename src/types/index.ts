@@ -366,11 +366,11 @@ export type Database = {
           id: string
           id_repartidor: string | null
           id_tipo_reparto: string
-          id_empresa: string | null // Empresa de los clientes del reparto
-          id_empresa_despachante: string | null // Empresa origen/recoleccion
-          fecha_programada: string
+          id_empresa: string | null
+          id_empresa_despachante: string | null
+          fecha_programada: string // date
           estado: string
-          tipo: string | null // Ej: INDIVIDUAL, LOTE
+          tipo: string | null
           created_at: string
         }
         Insert: {
@@ -445,7 +445,7 @@ export type Database = {
           client_location: string | null
           peso: number | null
           dimensiones_cm: string | null
-          fecha_solicitud: string
+          fecha_solicitud: string // date
           estado: string
           precio_total: number | null
           precio_calculado: number | null
@@ -474,7 +474,7 @@ export type Database = {
           client_location?: string | null
           peso?: number | null
           dimensiones_cm?: string | null
-          fecha_solicitud?: string
+          fecha_solicitud?: string // date
           estado?: string
           precio_total?: number | null
           precio_calculado?: number | null
@@ -503,7 +503,7 @@ export type Database = {
           client_location?: string | null
           peso?: number | null
           dimensiones_cm?: string | null
-          fecha_solicitud?: string
+          fecha_solicitud?: string // date
           estado?: string
           precio_total?: number | null
           precio_calculado?: number | null
@@ -755,8 +755,8 @@ export type EstadoReparto = typeof estadoRepartoValues[number];
 export type Reparto = Tables<'repartos'> & {
   tipos_reparto?: Pick<TipoReparto, 'nombre'> | null;
   repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null;
-  empresas?: Pick<Empresa, 'razon_social'> | null; // empresa (destino/servicio)
-  empresa_despachante?: Pick<Empresa, 'razon_social'> | null; // empresa_despachante
+  empresas?: Pick<Empresa, 'razon_social'> | null; 
+  empresa_despachante?: Pick<Empresa, 'razon_social'> | null; 
 };
 
 export const estadoEnvioValues = ["PENDIENTE", "ASIGNADO_REPARTO", "EN_TRANSITO", "ENTREGADO", "CANCELADO"] as const;
@@ -768,8 +768,8 @@ export type Envio = Tables<'envios'> & {
   tipos_paquete?: Pick<TipoPaquete, 'nombre'> | null;
   tipos_servicio?: Pick<TipoServicio, 'nombre'> | null;
   repartos?: Pick<Reparto, 'id' | 'fecha_programada' | 'estado'> | null;
-  repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null; // Repartidor Preferido
-  empresas?: Pick<Empresa, 'razon_social'> | null; // Empresa Cliente
+  repartidores?: Pick<Repartidor, 'nombre' | 'apellido'> | null; 
+  empresas?: Pick<Empresa, 'razon_social'> | null; 
 };
 
 export const tipoParadaEnum = ["RECOLECCION", "ENTREGA"] as const;
@@ -806,18 +806,18 @@ export type SelectOption = {
 
 export interface ClienteServicioConfig {
   cliente_id: string;
-  nombre_completo: string;
-  direccion_completa: string | null;
+  nombre_completo: string; 
+  direccion_completa: string | null; 
   seleccionado: boolean;
-  id_tipo_servicio: string | null;
-  precio_servicio_final: number | null;
+  id_tipo_servicio: string | null; 
+  precio_servicio_final: number | null; 
 }
 
 // For Batch Reparto Form
 export interface RepartoLoteFormValues {
   id_tipo_reparto: string;
-  id_empresa: string; // Empresa de los clientes
-  id_empresa_despachante: string | null; // Empresa origen/recolección
+  id_empresa: string; 
+  id_empresa_despachante: string | null; 
   fecha_programada: string;
   id_repartidor?: string | null;
   clientes_config: ClienteServicioConfig[];

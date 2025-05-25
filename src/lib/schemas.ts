@@ -32,7 +32,7 @@ export const tipoServicioSchema = z.object({
   id_tipo_servicio: z.string().uuid().optional(),
   nombre: z.string().min(1, { message: "El nombre es requerido." }),
   descripcion: z.string().optional().nullable(),
-  tarifas_servicio: z.array(tarifaServicioSchema.omit({id_tipo_servicio: true, id_tarifa_servicio: true, created_at: true })).optional().default([]),
+  tarifas_servicio: z.array(tarifaServicioSchema.omit({ id_tipo_servicio: true, id_tarifa_servicio: true, created_at: true })).optional().default([]),
   created_at: z.string().datetime().optional(),
 });
 
@@ -176,22 +176,23 @@ export const clienteServicioConfigSchema = z.object({
   nombre_completo: z.string(),
   direccion_completa: z.string().nullable(),
   seleccionado: z.boolean(),
-  id_tipo_servicio: z.string().uuid().nullable(),
-  precio_servicio_final: z.coerce.number().positive("El precio debe ser un número positivo.").nullable(),
+  id_tipo_servicio: z.string().uuid({ message: "Debe seleccionar un tipo de servicio para el cliente." }).nullable(),
+  precio_servicio_final: z.coerce.number().positive({ message: "El precio debe ser positivo."}).nullable(),
 }).refine(data => {
-  if (data.seleccionado) {
-    return data.id_tipo_servicio !== null && data.precio_servicio_final !== null;
-  }
-  return true;
-}, {
-  message: "Si el cliente está seleccionado, el tipo de servicio y el precio final son requeridos.",
-  path: ["id_tipo_servicio"], // You can point to a general path or a specific one
-});
+    if (data.seleccionado) {
+      return data.id_tipo_servicio !== null && data.precio_servicio_final !== null;
+    }
+    return true;
+  }, {
+    message: "Si el cliente está seleccionado, el tipo de servicio y el precio final son requeridos.",
+    // Apply the error to a common path or a specific one if desired
+    path: ["id_tipo_servicio"], 
+  });
 
 export const repartoLoteSchema = z.object({
   id_tipo_reparto: z.string().uuid({ message: "Debe seleccionar un tipo de reparto."}),
   id_empresa: z.string().uuid({ message: "Debe seleccionar una empresa para los clientes."}),
-  id_empresa_despachante: z.string().uuid({ message: "Debe seleccionar una empresa despachante (origen)."}).nullable().optional(),
+  id_empresa_despachante: z.string().uuid({ message: "Debe seleccionar una empresa despachante."}).nullable().optional(),
   fecha_programada: z.string().refine((date) => /^\d{4}-\d{2}-\d{2}$/.test(date), {
     message: "La fecha debe estar en formato YYYY-MM-DD.",
   }),
