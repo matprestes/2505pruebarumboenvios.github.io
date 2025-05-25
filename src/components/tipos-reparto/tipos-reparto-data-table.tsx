@@ -62,9 +62,11 @@ export default function TiposRepartoDataTable({
       toast({ title: "Error", description: "ID de tipo de reparto no válido.", variant: "destructive" });
       return;
     }
+    setIsSubmitting(true);
     const fullTipoReparto = await getTipoRepartoByIdAction(tipoReparto.id_tipo_reparto);
     setEditingTipoReparto(fullTipoReparto);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (tipoReparto: TipoReparto) => {
@@ -107,7 +109,7 @@ export default function TiposRepartoDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoRepartoColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getTipoRepartoColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -118,8 +120,6 @@ export default function TiposRepartoDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Reparto"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

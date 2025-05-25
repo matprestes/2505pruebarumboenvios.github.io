@@ -69,9 +69,11 @@ export default function ClientesDataTable({
   };
 
   const handleEdit = async (cliente: Cliente) => {
+    setIsSubmitting(true);
     const fullCliente = await getClienteByIdAction(cliente.id);
     setEditingCliente(fullCliente);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (cliente: Cliente) => {
@@ -111,7 +113,7 @@ export default function ClientesDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getClienteColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getClienteColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -122,8 +124,6 @@ export default function ClientesDataTable({
         filterPlaceholder="Buscar por nombre, apellido, email..."
         newButtonLabel="Nuevo Cliente"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

@@ -62,9 +62,11 @@ export default function TiposEnvioDataTable({
       toast({ title: "Error", description: "ID de tipo de envío no válido.", variant: "destructive" });
       return;
     }
+    setIsSubmitting(true);
     const fullTipoEnvio = await getTipoEnvioByIdAction(tipoEnvio.id_tipo_envio);
     setEditingTipoEnvio(fullTipoEnvio);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (tipoEnvio: TipoEnvio) => {
@@ -107,7 +109,7 @@ export default function TiposEnvioDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoEnvioColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getTipoEnvioColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -118,8 +120,6 @@ export default function TiposEnvioDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Envío"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

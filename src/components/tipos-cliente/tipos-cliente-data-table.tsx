@@ -62,9 +62,11 @@ export default function TiposClienteDataTable({
       toast({ title: "Error", description: "ID de tipo de cliente no válido.", variant: "destructive" });
       return;
     }
+    setIsSubmitting(true);
     const fullTipoCliente = await getTipoClienteByIdAction(tipoCliente.id_tipo_cliente);
     setEditingTipoCliente(fullTipoCliente);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (tipoCliente: TipoCliente) => {
@@ -78,6 +80,7 @@ export default function TiposClienteDataTable({
       const result = await deleteTipoClienteAction(tipoClienteToDelete.id_tipo_cliente);
       if (result.success) {
         toast({ title: "Éxito", description: result.message });
+        // Re-fetch data by navigating with current search params
         router.replace(`${pathname}?${searchParams.toString()}`);
       } else {
         toast({ title: "Error", description: result.message, variant: "destructive" });
@@ -107,7 +110,7 @@ export default function TiposClienteDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoClienteColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getTipoClienteColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -118,8 +121,6 @@ export default function TiposClienteDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Cliente"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}
@@ -140,6 +141,7 @@ export default function TiposClienteDataTable({
             onSubmit={handleFormSubmit}
             initialData={editingTipoCliente as TipoCliente | null}
             onCancel={() => { setIsFormOpen(false); setEditingTipoCliente(null); }}
+            isSubmitting={isSubmitting}
           />
         </DialogContent>
       </Dialog>

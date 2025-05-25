@@ -62,9 +62,11 @@ export default function TiposServicioDataTable({
       toast({ title: "Error", description: "ID de tipo de servicio no válido.", variant: "destructive" });
       return;
     }
+    setIsSubmitting(true);
     const fullTipoServicio = await getTipoServicioByIdAction(tipoServicio.id_tipo_servicio);
     setEditingTipoServicio(fullTipoServicio);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (tipoServicio: TipoServicio) => {
@@ -107,7 +109,7 @@ export default function TiposServicioDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoServicioColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getTipoServicioColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -118,8 +120,6 @@ export default function TiposServicioDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Servicio"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

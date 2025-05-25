@@ -11,8 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { TipoEmpresa } from "@/types";
 import { addTipoEmpresaAction, updateTipoEmpresaAction, deleteTipoEmpresaAction, getTipoEmpresaByIdAction } from "@/app/tipos-empresa/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { tipoEmpresaSchema } from "@/lib/schemas"; // Import the schema
-import type * as z from "zod"; // Import z for type inference
+import { tipoEmpresaSchema } from "@/lib/schemas"; 
+import type * as z from "zod"; 
 
 interface TiposEmpresaDataTableProps {
   initialData: TipoEmpresa[];
@@ -53,9 +53,11 @@ export default function TiposEmpresaDataTable({
   };
 
   const handleEdit = async (tipoEmpresa: TipoEmpresa) => {
+    setIsSubmitting(true);
     const fullTipoEmpresa = await getTipoEmpresaByIdAction(tipoEmpresa.id);
     setEditingTipoEmpresa(fullTipoEmpresa);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (tipoEmpresa: TipoEmpresa) => {
@@ -95,7 +97,7 @@ export default function TiposEmpresaDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoEmpresaColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getTipoEmpresaColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -106,8 +108,6 @@ export default function TiposEmpresaDataTable({
         filterPlaceholder="Buscar por nombre..."
         newButtonLabel="Nuevo Tipo de Empresa"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

@@ -53,9 +53,11 @@ export default function RepartidoresDataTable({
   };
 
   const handleEdit = async (repartidor: Repartidor) => {
+    setIsSubmitting(true);
     const fullRepartidor = await getRepartidorByIdAction(repartidor.id);
     setEditingRepartidor(fullRepartidor);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (repartidor: Repartidor) => {
@@ -95,7 +97,7 @@ export default function RepartidoresDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getRepartidorColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getRepartidorColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -106,8 +108,6 @@ export default function RepartidoresDataTable({
         filterPlaceholder="Buscar por nombre, DNI..."
         newButtonLabel="Nuevo Repartidor"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

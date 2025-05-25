@@ -62,9 +62,11 @@ export default function EmpresasDataTable({
   };
 
   const handleEdit = async (empresa: Empresa) => {
+    setIsSubmitting(true);
     const fullEmpresa = await getEmpresaByIdAction(empresa.id);
     setEditingEmpresa(fullEmpresa);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (empresa: Empresa) => {
@@ -104,7 +106,7 @@ export default function EmpresasDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getEmpresaColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getEmpresaColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -115,8 +117,6 @@ export default function EmpresasDataTable({
         filterPlaceholder="Buscar por razón social, CUIT..."
         newButtonLabel="Nueva Empresa"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

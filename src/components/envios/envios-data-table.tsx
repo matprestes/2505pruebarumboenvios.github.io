@@ -67,9 +67,11 @@ export default function EnviosDataTable({
   };
 
   const handleEdit = async (envio: Envio) => {
+    setIsSubmitting(true);
     const fullEnvio = await getEnvioByIdAction(envio.id);
     setEditingEnvio(fullEnvio);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (envio: Envio) => {
@@ -109,7 +111,7 @@ export default function EnviosDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getEnvioColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getEnvioColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -120,8 +122,6 @@ export default function EnviosDataTable({
         filterPlaceholder="Buscar por ID, cliente, destino..."
         newButtonLabel="Nuevo Envío"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

@@ -62,9 +62,11 @@ export default function TiposPaqueteDataTable({
       toast({ title: "Error", description: "ID de tipo de paquete no válido.", variant: "destructive" });
       return;
     }
+    setIsSubmitting(true);
     const fullTipoPaquete = await getTipoPaqueteByIdAction(tipoPaquete.id_tipo_paquete);
     setEditingTipoPaquete(fullTipoPaquete);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (tipoPaquete: TipoPaquete) => {
@@ -107,7 +109,7 @@ export default function TiposPaqueteDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoPaqueteColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getTipoPaqueteColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -118,8 +120,6 @@ export default function TiposPaqueteDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Paquete"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}

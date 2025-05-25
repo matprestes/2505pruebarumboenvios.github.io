@@ -78,9 +78,11 @@ export default function RepartosDataTable({
   };
 
   const handleEdit = async (reparto: Reparto) => {
+    setIsSubmitting(true);
     const fullReparto = await getRepartoByIdAction(reparto.id);
     setEditingReparto(fullReparto);
     setIsFormOpen(true);
+    setIsSubmitting(false);
   };
 
   const handleDelete = (reparto: Reparto) => {
@@ -134,7 +136,7 @@ export default function RepartosDataTable({
   };
 
 
-  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -145,8 +147,6 @@ export default function RepartosDataTable({
         filterPlaceholder="Buscar por estado, repartidor..."
         newButtonLabel="Nuevo Reparto"
         onNew={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}
