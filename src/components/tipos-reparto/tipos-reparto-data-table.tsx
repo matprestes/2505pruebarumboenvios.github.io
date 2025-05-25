@@ -5,16 +5,16 @@ import React, { useState, useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getTipoRepartoColumns } from "./columns"; 
-import { TipoRepartoForm } from "./tipo-reparto-form"; 
+import { getTipoRepartoColumns } from "./columns";
+import { TipoRepartoForm } from "./tipo-reparto-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoReparto } from "@/types";
 import { tipoRepartoSchema } from "@/lib/schemas";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { 
-  addTipoRepartoAction, 
-  updateTipoRepartoAction, 
+import {
+  addTipoRepartoAction,
+  updateTipoRepartoAction,
   deleteTipoRepartoAction,
   getTipoRepartoByIdAction
 } from "@/app/tipos-reparto/actions";
@@ -93,7 +93,7 @@ export default function TiposRepartoDataTable({
     const action = editingTipoReparto?.id_tipo_reparto
       ? updateTipoRepartoAction(editingTipoReparto.id_tipo_reparto, values)
       : addTipoRepartoAction(values);
-    
+
     const result = await action;
 
     if (result.success) {
@@ -106,8 +106,8 @@ export default function TiposRepartoDataTable({
     }
     setIsSubmitting(false);
   };
-  
-  const columns = useMemo(() => getTipoRepartoColumns(handleEdit, handleDelete), []); 
+
+  const columns = useMemo(() => getTipoRepartoColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -118,7 +118,7 @@ export default function TiposRepartoDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Reparto"
         onNew={handleNew}
-        onEdit={handleEdit} 
+        onEdit={handleEdit}
         onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
@@ -138,8 +138,9 @@ export default function TiposRepartoDataTable({
           </DialogHeader>
           <TipoRepartoForm
             onSubmit={handleFormSubmit}
-            initialData={editingTipoReparto as TipoReparto | null} 
+            initialData={editingTipoReparto as TipoReparto | null}
             onCancel={() => { setIsFormOpen(false); setEditingTipoReparto(null); }}
+            isSubmitting={isSubmitting}
           />
         </DialogContent>
       </Dialog>
@@ -149,6 +150,7 @@ export default function TiposRepartoDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el tipo de reparto "${tipoRepartoToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

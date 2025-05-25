@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { Envio, SelectOption } from "@/types";
 import { addEnvioAction, updateEnvioAction, deleteEnvioAction, getEnvioByIdAction } from "@/app/envios/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { envioSchema } from "@/lib/schemas";
+import type * as z from "zod";
 
 interface EnviosDataTableProps {
   initialData: Envio[];
@@ -91,7 +93,7 @@ export default function EnviosDataTable({
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: z.infer<typeof envioSchema>) => {
     setIsSubmitting(true);
     const action = editingEnvio?.id ? updateEnvioAction(editingEnvio.id, values) : addEnvioAction(values);
     const result = await action;
@@ -107,14 +109,14 @@ export default function EnviosDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getEnvioColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getEnvioColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
       <DataTable
         columns={columns}
         data={data}
-        filterColumnId="id" 
+        filterColumnId="id"
         filterPlaceholder="Buscar por ID, cliente, destino..."
         newButtonLabel="Nuevo Envío"
         onNew={handleNew}
@@ -157,6 +159,7 @@ export default function EnviosDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el envío ID ${envioToDelete?.id?.substring(0,8)}...? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

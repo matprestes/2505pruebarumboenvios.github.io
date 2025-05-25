@@ -11,8 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { TipoEmpresa } from "@/types";
 import { addTipoEmpresaAction, updateTipoEmpresaAction, deleteTipoEmpresaAction, getTipoEmpresaByIdAction } from "@/app/tipos-empresa/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import type { tipoEmpresaSchema } from "@/lib/schemas";
-import type * as z from "zod";
+import { tipoEmpresaSchema } from "@/lib/schemas"; // Import the schema
+import type * as z from "zod"; // Import z for type inference
 
 interface TiposEmpresaDataTableProps {
   initialData: TipoEmpresa[];
@@ -95,14 +95,14 @@ export default function TiposEmpresaDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoEmpresaColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getTipoEmpresaColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
       <DataTable
         columns={columns}
         data={data}
-        filterColumnId="nombre" 
+        filterColumnId="nombre"
         filterPlaceholder="Buscar por nombre..."
         newButtonLabel="Nuevo Tipo de Empresa"
         onNew={handleNew}
@@ -138,6 +138,7 @@ export default function TiposEmpresaDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el tipo de empresa "${tipoEmpresaToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

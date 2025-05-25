@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { Empresa, SelectOption } from "@/types";
 import { addEmpresaAction, updateEmpresaAction, deleteEmpresaAction, getEmpresaByIdAction, getTiposEmpresaForSelectAction } from "@/app/empresas/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { empresaSchema } from "@/lib/schemas";
+import type * as z from "zod";
 
 interface EmpresasDataTableProps {
   initialData: Empresa[];
@@ -86,7 +88,7 @@ export default function EmpresasDataTable({
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: z.infer<typeof empresaSchema>) => {
     setIsSubmitting(true);
     const action = editingEmpresa?.id ? updateEmpresaAction(editingEmpresa.id, values) : addEmpresaAction(values);
     const result = await action;
@@ -102,7 +104,7 @@ export default function EmpresasDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getEmpresaColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getEmpresaColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -146,6 +148,7 @@ export default function EmpresasDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar la empresa "${empresaToDelete?.razon_social}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

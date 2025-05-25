@@ -107,7 +107,7 @@ export default function TiposPaqueteDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoPaqueteColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getTipoPaqueteColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -140,6 +140,7 @@ export default function TiposPaqueteDataTable({
             onSubmit={handleFormSubmit}
             initialData={editingTipoPaquete as TipoPaquete | null}
             onCancel={() => { setIsFormOpen(false); setEditingTipoPaquete(null); }}
+            isSubmitting={isSubmitting}
           />
         </DialogContent>
       </Dialog>
@@ -149,6 +150,7 @@ export default function TiposPaqueteDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el tipo de paquete "${tipoPaqueteToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

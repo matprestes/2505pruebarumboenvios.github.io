@@ -6,15 +6,15 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
 import { getTipoServicioColumns } from "./columns";
-import { TipoServicioForm } from "./service-type-form";
+import { TipoServicioForm } from "./tipo-servicio-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoServicio } from "@/types";
 import { tipoServicioSchema } from "@/lib/schemas";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { 
-  addTipoServicioAction, 
-  updateTipoServicioAction, 
+import {
+  addTipoServicioAction,
+  updateTipoServicioAction,
   deleteTipoServicioAction,
   getTipoServicioByIdAction
 } from "@/app/tipos-servicio/actions";
@@ -78,7 +78,6 @@ export default function TiposServicioDataTable({
       const result = await deleteTipoServicioAction(tipoServicioToDelete.id_tipo_servicio);
       if (result.success) {
         toast({ title: "Éxito", description: result.message });
-        // Trigger re-fetch by navigating
         router.replace(`${pathname}?${searchParams.toString()}`);
       } else {
         toast({ title: "Error", description: result.message, variant: "destructive" });
@@ -94,21 +93,20 @@ export default function TiposServicioDataTable({
     const action = editingTipoServicio?.id_tipo_servicio
       ? updateTipoServicioAction(editingTipoServicio.id_tipo_servicio, values)
       : addTipoServicioAction(values);
-    
+
     const result = await action;
 
     if (result.success) {
       toast({ title: "Éxito", description: result.message });
       setIsFormOpen(false);
       setEditingTipoServicio(null);
-      // Trigger re-fetch
       router.replace(`${pathname}?${searchParams.toString()}`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });
     }
     setIsSubmitting(false);
   };
-  
+
   const columns = useMemo(() => getTipoServicioColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
@@ -120,7 +118,7 @@ export default function TiposServicioDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Servicio"
         onNew={handleNew}
-        onEdit={handleEdit} 
+        onEdit={handleEdit}
         onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
@@ -142,6 +140,7 @@ export default function TiposServicioDataTable({
             onSubmit={handleFormSubmit}
             initialData={editingTipoServicio as TipoServicio | null}
             onCancel={() => { setIsFormOpen(false); setEditingTipoServicio(null); }}
+            isSubmitting={isSubmitting}
           />
         </DialogContent>
       </Dialog>
@@ -151,6 +150,7 @@ export default function TiposServicioDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el tipo de servicio "${tipoServicioToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

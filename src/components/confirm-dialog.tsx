@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -10,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button"; // Import Button
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -17,9 +19,17 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   title: string;
   description: string;
+  isSubmitting?: boolean; // Add isSubmitting prop
 }
 
-export function ConfirmDialog({ isOpen, onClose, onConfirm, title, description }: ConfirmDialogProps) {
+export function ConfirmDialog({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  title, 
+  description, 
+  isSubmitting = false // Default to false
+}: ConfirmDialogProps) {
   if (!isOpen) return null;
 
   return (
@@ -30,8 +40,14 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, description }
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={() => { onConfirm(); onClose(); }}>Confirmar</AlertDialogAction>
+          <AlertDialogCancel onClick={onClose} disabled={isSubmitting}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={() => { onConfirm(); /* onClose will be handled by parent on success/failure */ }} 
+            disabled={isSubmitting} // Disable action button if submitting
+            className={isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+          >
+            {isSubmitting ? "Eliminando..." : "Confirmar"}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

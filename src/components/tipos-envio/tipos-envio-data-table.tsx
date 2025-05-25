@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
 import { getTipoEnvioColumns } from "./columns";
-import { TipoEnvioForm } from "./tipo-envio-form"; 
+import { TipoEnvioForm } from "./tipo-envio-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoEnvio } from "@/types";
@@ -107,7 +107,7 @@ export default function TiposEnvioDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getTipoEnvioColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getTipoEnvioColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -140,6 +140,7 @@ export default function TiposEnvioDataTable({
             onSubmit={handleFormSubmit}
             initialData={editingTipoEnvio as TipoEnvio | null}
             onCancel={() => { setIsFormOpen(false); setEditingTipoEnvio(null); }}
+            isSubmitting={isSubmitting}
           />
         </DialogContent>
       </Dialog>
@@ -149,6 +150,7 @@ export default function TiposEnvioDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el tipo de envío "${tipoEnvioToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

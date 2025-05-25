@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
 import { getTipoClienteColumns } from "./columns";
-import { TipoClienteForm } from "./tipo-cliente-form"; 
+import { TipoClienteForm } from "./tipo-cliente-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoCliente } from "@/types";
@@ -106,8 +106,8 @@ export default function TiposClienteDataTable({
     }
     setIsSubmitting(false);
   };
-  
-  const columns = useMemo(() => getTipoClienteColumns(handleEdit, handleDelete), []);
+
+  const columns = useMemo(() => getTipoClienteColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -118,7 +118,7 @@ export default function TiposClienteDataTable({
         filterPlaceholder="Filtrar por nombre..."
         newButtonLabel="Nuevo Tipo de Cliente"
         onNew={handleNew}
-        onEdit={handleEdit} 
+        onEdit={handleEdit}
         onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
@@ -149,6 +149,7 @@ export default function TiposClienteDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el tipo de cliente "${tipoClienteToDelete?.nombre}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

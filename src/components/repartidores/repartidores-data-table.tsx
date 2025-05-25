@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { Repartidor } from "@/types";
 import { addRepartidorAction, updateRepartidorAction, deleteRepartidorAction, getRepartidorByIdAction } from "@/app/repartidores/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { repartidorSchema } from "@/lib/schemas";
+import type * as z from "zod";
 
 interface RepartidoresDataTableProps {
   initialData: Repartidor[];
@@ -77,7 +79,7 @@ export default function RepartidoresDataTable({
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: z.infer<typeof repartidorSchema>) => {
     setIsSubmitting(true);
     const action = editingRepartidor?.id ? updateRepartidorAction(editingRepartidor.id, values) : addRepartidorAction(values);
     const result = await action;
@@ -93,14 +95,14 @@ export default function RepartidoresDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getRepartidorColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getRepartidorColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
       <DataTable
         columns={columns}
         data={data}
-        filterColumnId="nombre" 
+        filterColumnId="nombre"
         filterPlaceholder="Buscar por nombre, DNI..."
         newButtonLabel="Nuevo Repartidor"
         onNew={handleNew}
@@ -136,6 +138,7 @@ export default function RepartidoresDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el repartidor "${repartidorToDelete?.nombre} ${repartidorToDelete?.apellido}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

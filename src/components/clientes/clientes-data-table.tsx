@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import type { Cliente, SelectOption } from "@/types";
 import { addClienteAction, updateClienteAction, deleteClienteAction, getClienteByIdAction, getTiposClienteForSelectAction, getEmpresasForSelectAction } from "@/app/clientes/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { clienteSchema } from "@/lib/schemas";
+import type * as z from "zod";
+
 
 interface ClientesDataTableProps {
   initialData: Cliente[];
@@ -46,7 +49,7 @@ export default function ClientesDataTable({
     setData(initialData);
     setTotalCount(initialCount);
   }, [initialData, initialCount]);
-  
+
   useEffect(() => {
     async function fetchOptions() {
       const [tiposCliente, empresas] = await Promise.all([
@@ -66,7 +69,6 @@ export default function ClientesDataTable({
   };
 
   const handleEdit = async (cliente: Cliente) => {
-    // Fetch full client data if not all fields are in the table row
     const fullCliente = await getClienteByIdAction(cliente.id);
     setEditingCliente(fullCliente);
     setIsFormOpen(true);
@@ -83,7 +85,6 @@ export default function ClientesDataTable({
       const result = await deleteClienteAction(clienteToDelete.id);
       if (result.success) {
         toast({ title: "Éxito", description: result.message });
-        // Trigger re-fetch by navigating
         router.replace(`${pathname}?${searchParams.toString()}`);
       } else {
         toast({ title: "Error", description: result.message, variant: "destructive" });
@@ -94,7 +95,7 @@ export default function ClientesDataTable({
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: z.infer<typeof clienteSchema>) => {
     setIsSubmitting(true);
     const action = editingCliente?.id ? updateClienteAction(editingCliente.id, values) : addClienteAction(values);
     const result = await action;
@@ -103,7 +104,6 @@ export default function ClientesDataTable({
       toast({ title: "Éxito", description: result.message });
       setIsFormOpen(false);
       setEditingCliente(null);
-      // Trigger re-fetch
       router.replace(`${pathname}?${searchParams.toString()}`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });
@@ -111,20 +111,19 @@ export default function ClientesDataTable({
     setIsSubmitting(false);
   };
 
-  const columns = useMemo(() => getClienteColumns(handleEdit, handleDelete), []);
-  
+  const columns = useMemo(() => getClienteColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+
   return (
     <>
       <DataTable
         columns={columns}
         data={data}
-        filterColumnId="nombre" 
+        filterColumnId="nombre"
         filterPlaceholder="Buscar por nombre, apellido, email..."
         newButtonLabel="Nuevo Cliente"
         onNew={handleNew}
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-        // Server-side pagination/filtering props
+        onEdit={handleEdit}
+        onDelete={handleDelete}
         pageCount={Math.ceil(totalCount / pageSize)}
         currentPage={currentPage}
         currentQuery={currentQuery}
@@ -157,6 +156,7 @@ export default function ClientesDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el cliente "${clienteToDelete?.nombre} ${clienteToDelete?.apellido || ''}"? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );

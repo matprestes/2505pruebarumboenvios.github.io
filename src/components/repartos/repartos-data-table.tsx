@@ -10,14 +10,12 @@ import { RepartoLoteForm } from "./reparto-lote-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { Reparto, SelectOption, RepartoLoteFormValues, Cliente } from "@/types";
-import { addRepartoAction, updateRepartoAction, deleteRepartoAction, getRepartoByIdAction, addRepartosLoteAction, getTiposRepartoForSelectAction, getRepartidoresForSelectAction, getEmpresasForSelectAction, getClientesByEmpresaAction } from "@/app/repartos/actions";
-import { getTiposEnvioForSelectAction } from "@/app/tipos-envio/actions";
-import { getTiposPaqueteForSelectAction } from "@/app/tipos-paquete/actions";
-import { getTiposServicioForSelectAction } from "@/app/tipos-servicio/actions";
-
+import { addRepartoAction, updateRepartoAction, deleteRepartoAction, getRepartoByIdAction, addRepartosLoteAction, getClientesByEmpresaAction } from "@/app/repartos/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { ListPlus } from "lucide-react";
+import { repartoSchema, repartoLoteSchema } from "@/lib/schemas";
+import type * as z from "zod";
 
 interface RepartosDataTableProps {
   initialData: Reparto[];
@@ -31,7 +29,7 @@ interface RepartosDataTableProps {
   tiposEnvioOptions: SelectOption[];
   tiposPaqueteOptions: SelectOption[];
   tiposServicioOptions: SelectOption[];
-  // getClientesByEmpresaAction is passed directly
+  getClientesByEmpresaAction: (empresaId: string) => Promise<Pick<Cliente, 'id' | 'nombre' | 'apellido' | 'direccion_completa'>[]>;
 }
 
 export default function RepartosDataTable({
@@ -46,14 +44,15 @@ export default function RepartosDataTable({
   tiposEnvioOptions,
   tiposPaqueteOptions,
   tiposServicioOptions,
+  getClientesByEmpresaAction,
 }: RepartosDataTableProps) {
   const [data, setData] = useState<Reparto[]>(initialData);
   const [totalCount, setTotalCount] = useState(initialCount);
-  
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingReparto, setEditingReparto] = useState<Partial<Reparto> | null>(null);
-  
-  const [isBatchFormOpen, setIsBatchFormOpen] = useState(false); 
+
+  const [isBatchFormOpen, setIsBatchFormOpen] = useState(false);
 
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false);
   const [repartoToDelete, setRepartoToDelete] = useState<Reparto | null>(null);
@@ -74,7 +73,7 @@ export default function RepartosDataTable({
     setIsFormOpen(true);
   };
 
-  const handleNewBatch = () => { 
+  const handleNewBatch = () => {
     setIsBatchFormOpen(true);
   };
 
@@ -105,7 +104,7 @@ export default function RepartosDataTable({
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: z.infer<typeof repartoSchema>) => {
     setIsSubmitting(true);
     const action = editingReparto?.id ? updateRepartoAction(editingReparto.id, values) : addRepartoAction(values);
     const result = await action;
@@ -135,7 +134,7 @@ export default function RepartosDataTable({
   };
 
 
-  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
   return (
     <>
@@ -211,6 +210,7 @@ export default function RepartosDataTable({
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
         description={`¿Estás seguro de que deseas eliminar el reparto ID ${repartoToDelete?.id?.substring(0,8)}...? Esta acción no se puede deshacer.`}
+        isSubmitting={isSubmitting}
       />
     </>
   );
