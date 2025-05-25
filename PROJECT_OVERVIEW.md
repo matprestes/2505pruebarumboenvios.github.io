@@ -13,7 +13,7 @@ Rumbos Envios es una aplicación de panel de control diseñada para gestionar la
     *   **Tipos de Reparto:** CRUD para modalidades de operaciones de reparto y su estado de activación.
     *   **Tipos de Envío:** CRUD para categorías generales para los envíos y su estado de activación.
     *   **Tipos de Empresa:** CRUD para tipos de empresas (ej., Minorista, Proveedor).
-*   **Gestión de Entidades Operativas:**
+*   **Gestión de Entidades Operativas (Implementación Futura/Parcial):**
     *   **Clientes:** CRUD para la información de los clientes.
     *   **Empresas:** CRUD para la información de las empresas.
     *   **Repartidores:** CRUD para la información de los repartidores.
@@ -39,7 +39,7 @@ La estructura del directorio `src` está organizada para seguir las convenciones
         *   `actions.ts`: Server Actions para CRUD de Tipos de Paquete.
     *   **`tipos-servicio/`**:
         *   `page.tsx`: Página Server Component para listar Tipos de Servicio.
-        *   `actions.ts`: Server Actions para CRUD de Tipos de Servicio.
+        *   `actions.ts`: Server Actions para CRUD de Tipos de Servicio y sus Tarifas.
     *   **`tipos-reparto/`**:
         *   `page.tsx`: Página Server Component para listar Tipos de Reparto.
         *   `actions.ts`: Server Actions para CRUD de Tipos de Reparto.
@@ -73,19 +73,19 @@ La estructura del directorio `src` está organizada para seguir las convenciones
         *   `tipos-cliente-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Cliente.
     *   **`tipos-paquete/`**:
         *   `columns.tsx`: Columnas para Tipos de Paquete.
-        *   `package-type-form.tsx` (será `tipo-paquete-form.tsx`): Formulario para Tipos de Paquete.
+        *   `tipo-paquete-form.tsx` (anteriormente `package-type-form.tsx`): Formulario para Tipos de Paquete.
         *   `tipos-paquete-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Paquete.
     *   **`tipos-servicio/`**:
         *   `columns.tsx`: Columnas para Tipos de Servicio.
-        *   `service-type-form.tsx` (será `tipo-servicio-form.tsx`): Formulario para Tipos de Servicio.
+        *   `tipo-servicio-form.tsx` (anteriormente `service-type-form.tsx`): Formulario para Tipos de Servicio.
         *   `tipos-servicio-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Servicio.
     *   **`tipos-reparto/`**:
         *   `columns.tsx`: Columnas para Tipos de Reparto.
-        *   `delivery-type-form.tsx` (será `tipo-reparto-form.tsx`): Formulario para Tipos de Reparto.
+        *   `tipo-reparto-form.tsx` (anteriormente `delivery-type-form.tsx`): Formulario para Tipos de Reparto.
         *   `tipos-reparto-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Reparto.
     *   **`tipos-envio/`**:
         *   `columns.tsx`: Columnas para Tipos de Envío.
-        *   `shipment-type-form.tsx` (será `tipo-envio-form.tsx`): Formulario para Tipos de Envío.
+        *   `tipo-envio-form.tsx` (anteriormente `shipment-type-form.tsx`): Formulario para Tipos de Envío.
         *   `tipos-envio-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Envío.
     *   **`tipos-empresa/`**:
         *   `columns.tsx`: Columnas para Tipos de Empresa.
