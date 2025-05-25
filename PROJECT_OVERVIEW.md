@@ -69,23 +69,23 @@ La estructura del directorio `src` está organizada para seguir las convenciones
     *   `ui/`: Componentes de la librería ShadCN UI.
     *   **`tipos-cliente/`**:
         *   `columns.tsx`: Definición de columnas para la tabla de Tipos de Cliente.
-        *   `tipo-cliente-form.tsx`: Formulario para crear/editar Tipos de Cliente.
+        *   `client-type-form.tsx`: Formulario para crear/editar Tipos de Cliente.
         *   `tipos-cliente-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Cliente.
     *   **`tipos-paquete/`**:
         *   `columns.tsx`: Columnas para Tipos de Paquete.
-        *   `tipo-paquete-form.tsx` (anteriormente `package-type-form.tsx`): Formulario para Tipos de Paquete.
+        *   `package-type-form.tsx`: Formulario para Tipos de Paquete.
         *   `tipos-paquete-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Paquete.
     *   **`tipos-servicio/`**:
         *   `columns.tsx`: Columnas para Tipos de Servicio.
-        *   `tipo-servicio-form.tsx` (anteriormente `service-type-form.tsx`): Formulario para Tipos de Servicio.
+        *   `service-type-form.tsx`: Formulario para Tipos de Servicio.
         *   `tipos-servicio-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Servicio.
     *   **`tipos-reparto/`**:
         *   `columns.tsx`: Columnas para Tipos de Reparto.
-        *   `tipo-reparto-form.tsx` (anteriormente `delivery-type-form.tsx`): Formulario para Tipos de Reparto.
+        *   `delivery-type-form.tsx`: Formulario para Tipos de Reparto.
         *   `tipos-reparto-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Reparto.
     *   **`tipos-envio/`**:
         *   `columns.tsx`: Columnas para Tipos de Envío.
-        *   `tipo-envio-form.tsx` (anteriormente `shipment-type-form.tsx`): Formulario para Tipos de Envío.
+        *   `shipment-type-form.tsx`: Formulario para Tipos de Envío.
         *   `tipos-envio-data-table.tsx`: Componente Client para la tabla y diálogos de Tipos de Envío.
     *   **`tipos-empresa/`**:
         *   `columns.tsx`: Columnas para Tipos de Empresa.
@@ -150,7 +150,7 @@ Cada sección de "Tipos de..." (ej., `/tipos-cliente`, `/tipos-paquete`) sigue u
     *   Maneja la confirmación para eliminar.
     *   Llama a las Server Actions.
     *   Actualiza los parámetros de la URL para paginación y búsqueda.
-*   **Formulario (`src/components/tipos-*/tipo-[entidad]-form.tsx`):** Formulario para crear/editar la entidad, con validación Zod.
+*   **Formulario (`src/components/tipos-*/[nombre-formulario].tsx`):** Formulario para crear/editar la entidad, con validación Zod.
 *   **Columnas (`src/components/tipos-*/columns.tsx`):** Definición de columnas para la tabla.
 
 **Entidades de Configuración:**
