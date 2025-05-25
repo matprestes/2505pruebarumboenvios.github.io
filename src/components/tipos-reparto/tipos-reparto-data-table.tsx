@@ -5,8 +5,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
-import { getTipoRepartoColumns } from "./columns"; // Updated path
-import { TipoRepartoForm } from "./delivery-type-form"; // Updated path
+import { getTipoRepartoColumns } from "./columns"; 
+import { TipoRepartoForm } from "./tipo-reparto-form"; 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoReparto } from "@/types";
@@ -107,7 +107,7 @@ export default function TiposRepartoDataTable({
     setIsSubmitting(false);
   };
   
-  const columns = useMemo(() => getTipoRepartoColumns(handleEdit, handleDelete), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const columns = useMemo(() => getTipoRepartoColumns(handleEdit, handleDelete), []); 
 
   return (
     <>
@@ -138,7 +138,7 @@ export default function TiposRepartoDataTable({
           </DialogHeader>
           <TipoRepartoForm
             onSubmit={handleFormSubmit}
-            initialData={editingTipoReparto as TipoReparto | null} // Cast to ensure full type or null
+            initialData={editingTipoReparto as TipoReparto | null} 
             onCancel={() => { setIsFormOpen(false); setEditingTipoReparto(null); }}
           />
         </DialogContent>

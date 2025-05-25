@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
 import { getTipoEnvioColumns } from "./columns";
-import { TipoEnvioForm } from "./shipment-type-form"; // Nombre de archivo existente
+import { TipoEnvioForm } from "./tipo-envio-form"; 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoEnvio } from "@/types";

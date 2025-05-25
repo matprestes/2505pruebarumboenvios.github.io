@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
 import { getTipoClienteColumns } from "./columns";
-import { TipoClienteForm } from "./client-type-form"; // Using existing client-type-form.tsx
+import { TipoClienteForm } from "./tipo-cliente-form"; 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoCliente } from "@/types";
@@ -78,7 +78,6 @@ export default function TiposClienteDataTable({
       const result = await deleteTipoClienteAction(tipoClienteToDelete.id_tipo_cliente);
       if (result.success) {
         toast({ title: "Éxito", description: result.message });
-        // Trigger re-fetch by navigating
         router.replace(`${pathname}?${searchParams.toString()}`);
       } else {
         toast({ title: "Error", description: result.message, variant: "destructive" });
@@ -101,7 +100,6 @@ export default function TiposClienteDataTable({
       toast({ title: "Éxito", description: result.message });
       setIsFormOpen(false);
       setEditingTipoCliente(null);
-      // Trigger re-fetch
       router.replace(`${pathname}?${searchParams.toString()}`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });

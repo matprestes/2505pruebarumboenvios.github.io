@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { TipoEmpresa } from "@/types";
 import { addTipoEmpresaAction, updateTipoEmpresaAction, deleteTipoEmpresaAction, getTipoEmpresaByIdAction } from "@/app/tipos-empresa/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import type { tipoEmpresaSchema } from "@/lib/schemas";
+import type * as z from "zod";
 
 interface TiposEmpresaDataTableProps {
   initialData: TipoEmpresa[];
@@ -77,7 +79,7 @@ export default function TiposEmpresaDataTable({
     setIsConfirmDeleteDialogOpen(false);
   };
 
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: z.infer<typeof tipoEmpresaSchema>) => {
     setIsSubmitting(true);
     const action = editingTipoEmpresa?.id ? updateTipoEmpresaAction(editingTipoEmpresa.id, values) : addTipoEmpresaAction(values);
     const result = await action;

@@ -10,7 +10,11 @@ import { RepartoLoteForm } from "./reparto-lote-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { Reparto, SelectOption, RepartoLoteFormValues, Cliente } from "@/types";
-import { addRepartoAction, updateRepartoAction, deleteRepartoAction, getRepartoByIdAction, addRepartosLoteAction } from "@/app/repartos/actions";
+import { addRepartoAction, updateRepartoAction, deleteRepartoAction, getRepartoByIdAction, addRepartosLoteAction, getTiposRepartoForSelectAction, getRepartidoresForSelectAction, getEmpresasForSelectAction, getClientesByEmpresaAction } from "@/app/repartos/actions";
+import { getTiposEnvioForSelectAction } from "@/app/tipos-envio/actions";
+import { getTiposPaqueteForSelectAction } from "@/app/tipos-paquete/actions";
+import { getTiposServicioForSelectAction } from "@/app/tipos-servicio/actions";
+
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { ListPlus } from "lucide-react";
@@ -27,7 +31,7 @@ interface RepartosDataTableProps {
   tiposEnvioOptions: SelectOption[];
   tiposPaqueteOptions: SelectOption[];
   tiposServicioOptions: SelectOption[];
-  getClientesByEmpresaAction: (empresaId: string) => Promise<Pick<Cliente, 'id' | 'nombre' | 'apellido' | 'direccion_completa'>[]>;
+  // getClientesByEmpresaAction is passed directly
 }
 
 export default function RepartosDataTable({
@@ -42,7 +46,6 @@ export default function RepartosDataTable({
   tiposEnvioOptions,
   tiposPaqueteOptions,
   tiposServicioOptions,
-  getClientesByEmpresaAction,
 }: RepartosDataTableProps) {
   const [data, setData] = useState<Reparto[]>(initialData);
   const [totalCount, setTotalCount] = useState(initialCount);
@@ -92,7 +95,7 @@ export default function RepartosDataTable({
       const result = await deleteRepartoAction(repartoToDelete.id);
       if (result.success) {
         toast({ title: "Éxito", description: result.message });
-        router.replace(\`\${pathname}?\${searchParams.toString()}\`);
+        router.replace(`${pathname}?${searchParams.toString()}`);
       } else {
         toast({ title: "Error", description: result.message, variant: "destructive" });
       }
@@ -111,7 +114,7 @@ export default function RepartosDataTable({
       toast({ title: "Éxito", description: result.message });
       setIsFormOpen(false);
       setEditingReparto(null);
-      router.replace(\`\${pathname}?\${searchParams.toString()}\`);
+      router.replace(`${pathname}?${searchParams.toString()}`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });
     }
@@ -124,7 +127,7 @@ export default function RepartosDataTable({
     if (result.success) {
       toast({ title: "Éxito", description: result.message });
       setIsBatchFormOpen(false);
-      router.replace(\`\${pathname}?\${searchParams.toString()}\`);
+      router.replace(`${pathname}?${searchParams.toString()}`);
     } else {
       toast({ title: "Error", description: result.message, variant: "destructive" });
     }
@@ -132,7 +135,7 @@ export default function RepartosDataTable({
   };
 
 
-  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = useMemo(() => getRepartoColumns(handleEdit, handleDelete), []);
 
   return (
     <>
@@ -207,10 +210,8 @@ export default function RepartosDataTable({
         onClose={() => setIsConfirmDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
         title="Confirmar Eliminación"
-        description={\`¿Estás seguro de que deseas eliminar el reparto ID \${repartoToDelete?.id?.substring(0,8)}...? Esta acción no se puede deshacer.\`}
+        description={`¿Estás seguro de que deseas eliminar el reparto ID ${repartoToDelete?.id?.substring(0,8)}...? Esta acción no se puede deshacer.`}
       />
     </>
   );
 }
-
-    

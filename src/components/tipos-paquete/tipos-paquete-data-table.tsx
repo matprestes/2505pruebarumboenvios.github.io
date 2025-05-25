@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type * as z from "zod";
 import { DataTable } from "@/components/data-table/data-table";
 import { getTipoPaqueteColumns } from "./columns";
-import { TipoPaqueteForm } from "./package-type-form";
+import { TipoPaqueteForm } from "./tipo-paquete-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { TipoPaquete } from "@/types";

@@ -9,155 +9,616 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      client_types: {
+      capacidad: {
         Row: {
+          carga_max_kg: number | null
           created_at: string
-          description: string | null
           id: string
-          name: string
+          id_repartidor: string
+          nombre_vehiculo: string | null
+          tipo_vehiculo: string
+          volumen_max_m3: number | null
         }
         Insert: {
+          carga_max_kg?: number | null
           created_at?: string
-          description?: string | null
-          id: string
-          name: string
+          id?: string
+          id_repartidor: string
+          nombre_vehiculo?: string | null
+          tipo_vehiculo: string
+          volumen_max_m3?: number | null
         }
         Update: {
+          carga_max_kg?: number | null
           created_at?: string
-          description?: string | null
           id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      delivery_types: {
-        Row: {
-          created_at: string
-          description: string | null
-          estado: string
-          id: string
-          name: string
-          tipo_reparto: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          estado: string
-          id: string
-          name: string
-          tipo_reparto: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          estado?: string
-          id?: string
-          name?: string
-          tipo_reparto?: string
-        }
-        Relationships: []
-      }
-      distance_rates: {
-        Row: {
-          created_at: string
-          distancia_hasta_km: number
-          fecha_vigencia_desde: string
-          id: string
-          precio: number
-          service_type_id: string
-        }
-        Insert: {
-          created_at?: string
-          distancia_hasta_km: number
-          fecha_vigencia_desde: string
-          id: string
-          precio: number
-          service_type_id: string
-        }
-        Update: {
-          created_at?: string
-          distancia_hasta_km?: number
-          fecha_vigencia_desde?: string
-          id?: string
-          precio?: number
-          service_type_id?: string
+          id_repartidor?: string
+          nombre_vehiculo?: string | null
+          tipo_vehiculo?: string
+          volumen_max_m3?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "distance_rates_service_type_id_fkey"
-            columns: ["service_type_id"]
+            foreignKeyName: "capacidad_id_repartidor_fkey"
+            columns: ["id_repartidor"]
             isOneToOne: false
-            referencedRelation: "service_types"
+            referencedRelation: "repartidores"
             referencedColumns: ["id"]
           },
         ]
       }
-      package_types: {
+      clientes: {
         Row: {
+          apellido: string | null
           created_at: string
-          description: string | null
-          dimensions: string | null
+          direccion_completa: string | null
+          email: string | null
+          estado: boolean | null
           id: string
-          name: string
+          id_empresa: string | null
+          id_tipo_cliente: string | null
+          latitud: number | null
+          longitud: number | null
+          nombre: string
+          notas: string | null
+          telefono: string | null
         }
         Insert: {
+          apellido?: string | null
           created_at?: string
-          description?: string | null
-          dimensions?: string | null
-          id: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          dimensions?: string | null
+          direccion_completa?: string | null
+          email?: string | null
+          estado?: boolean | null
           id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      service_types: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id: string
-          name: string
+          id_empresa?: string | null
+          id_tipo_cliente?: string | null
+          latitud?: number | null
+          longitud?: number | null
+          nombre: string
+          notas?: string | null
+          telefono?: string | null
         }
         Update: {
+          apellido?: string | null
           created_at?: string
-          description?: string | null
+          direccion_completa?: string | null
+          email?: string | null
+          estado?: boolean | null
           id?: string
-          name?: string
+          id_empresa?: string | null
+          id_tipo_cliente?: string | null
+          latitud?: number | null
+          longitud?: number | null
+          nombre?: string
+          notas?: string | null
+          telefono?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clientes_id_empresa_fkey"
+            columns: ["id_empresa"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_id_tipo_cliente_fkey"
+            columns: ["id_tipo_cliente"]
+            isOneToOne: false
+            referencedRelation: "tipos_cliente"
+            referencedColumns: ["id_tipo_cliente"]
+          },
+        ]
       }
-      shipment_types: {
+      empresas: {
         Row: {
           created_at: string
-          description: string | null
-          estado: string
+          cuit: string | null
+          direccion_fiscal: string | null
+          email_contacto: string | null
           id: string
-          name: string
+          id_tipo_empresa: string | null
+          latitud: number | null
+          longitud: number | null
+          notas: string | null
+          razon_social: string
+          telefono_contacto: string | null
         }
         Insert: {
           created_at?: string
-          description?: string | null
-          estado: string
-          id: string
-          name: string
+          cuit?: string | null
+          direccion_fiscal?: string | null
+          email_contacto?: string | null
+          id?: string
+          id_tipo_empresa?: string | null
+          latitud?: number | null
+          longitud?: number | null
+          notas?: string | null
+          razon_social: string
+          telefono_contacto?: string | null
         }
         Update: {
           created_at?: string
-          description?: string | null
+          cuit?: string | null
+          direccion_fiscal?: string | null
+          email_contacto?: string | null
+          id?: string
+          id_tipo_empresa?: string | null
+          latitud?: number | null
+          longitud?: number | null
+          notas?: string | null
+          razon_social?: string
+          telefono_contacto?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresas_id_tipo_empresa_fkey"
+            columns: ["id_tipo_empresa"]
+            isOneToOne: false
+            referencedRelation: "tipos_empresa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      envios: {
+        Row: {
+          client_location: string | null
+          created_at: string
+          dimensiones_cm: string | null
+          direccion_destino: string
+          direccion_origen: string | null
+          distancia_km: number | null
+          estado: string
+          fecha_solicitud: string
+          id: string
+          id_cliente: string
+          id_empresa_cliente: string | null
+          id_repartidor_preferido: string | null
+          id_reparto: string | null
+          id_tipo_envio: string
+          id_tipo_paquete: string
+          id_tipo_servicio: string
+          latitud_destino: number | null
+          latitud_origen: number | null
+          longitud_destino: number | null
+          longitud_origen: number | null
+          notas: string | null
+          peso: number | null
+          precio_calculado: number | null
+          precio_servicio_final: number | null
+          precio_total: number | null
+          reasoning: string | null
+          suggested_options: Json | null
+        }
+        Insert: {
+          client_location?: string | null
+          created_at?: string
+          dimensiones_cm?: string | null
+          direccion_destino: string
+          direccion_origen?: string | null
+          distancia_km?: number | null
           estado?: string
+          fecha_solicitud?: string
           id?: string
-          name?: string
+          id_cliente: string
+          id_empresa_cliente?: string | null
+          id_repartidor_preferido?: string | null
+          id_reparto?: string | null
+          id_tipo_envio: string
+          id_tipo_paquete: string
+          id_tipo_servicio: string
+          latitud_destino?: number | null
+          latitud_origen?: number | null
+          longitud_destino?: number | null
+          longitud_origen?: number | null
+          notas?: string | null
+          peso?: number | null
+          precio_calculado?: number | null
+          precio_servicio_final?: number | null
+          precio_total?: number | null
+          reasoning?: string | null
+          suggested_options?: Json | null
+        }
+        Update: {
+          client_location?: string | null
+          created_at?: string
+          dimensiones_cm?: string | null
+          direccion_destino?: string
+          direccion_origen?: string | null
+          distancia_km?: number | null
+          estado?: string
+          fecha_solicitud?: string
+          id?: string
+          id_cliente?: string
+          id_empresa_cliente?: string | null
+          id_repartidor_preferido?: string | null
+          id_reparto?: string | null
+          id_tipo_envio?: string
+          id_tipo_paquete?: string
+          id_tipo_servicio?: string
+          latitud_destino?: number | null
+          latitud_origen?: number | null
+          longitud_destino?: number | null
+          longitud_origen?: number | null
+          notas?: string | null
+          peso?: number | null
+          precio_calculado?: number | null
+          precio_servicio_final?: number | null
+          precio_total?: number | null
+          reasoning?: string | null
+          suggested_options?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "envios_id_cliente_fkey"
+            columns: ["id_cliente"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_id_empresa_cliente_fkey"
+            columns: ["id_empresa_cliente"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_id_repartidor_preferido_fkey"
+            columns: ["id_repartidor_preferido"]
+            isOneToOne: false
+            referencedRelation: "repartidores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_id_reparto_fkey"
+            columns: ["id_reparto"]
+            isOneToOne: false
+            referencedRelation: "repartos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_id_tipo_envio_fkey"
+            columns: ["id_tipo_envio"]
+            isOneToOne: false
+            referencedRelation: "tipos_envio"
+            referencedColumns: ["id_tipo_envio"]
+          },
+          {
+            foreignKeyName: "envios_id_tipo_paquete_fkey"
+            columns: ["id_tipo_paquete"]
+            isOneToOne: false
+            referencedRelation: "tipos_paquete"
+            referencedColumns: ["id_tipo_paquete"]
+          },
+          {
+            foreignKeyName: "envios_id_tipo_servicio_fkey"
+            columns: ["id_tipo_servicio"]
+            isOneToOne: false
+            referencedRelation: "tipos_servicio"
+            referencedColumns: ["id_tipo_servicio"]
+          },
+        ]
+      }
+      paradas_reparto: {
+        Row: {
+          created_at: string
+          direccion_parada: string
+          estado_parada: string
+          hora_estimada_llegada: string | null
+          hora_real_llegada: string | null
+          id: string
+          id_envio: string
+          id_reparto: string
+          orden: number
+          tipo_parada: Database["public"]["Enums"]["tipoparadaenum"]
+        }
+        Insert: {
+          created_at?: string
+          direccion_parada: string
+          estado_parada?: string
+          hora_estimada_llegada?: string | null
+          hora_real_llegada?: string | null
+          id?: string
+          id_envio: string
+          id_reparto: string
+          orden: number
+          tipo_parada: Database["public"]["Enums"]["tipoparadaenum"]
+        }
+        Update: {
+          created_at?: string
+          direccion_parada?: string
+          estado_parada?: string
+          hora_estimada_llegada?: string | null
+          hora_real_llegada?: string | null
+          id?: string
+          id_envio?: string
+          id_reparto?: string
+          orden?: number
+          tipo_parada?: Database["public"]["Enums"]["tipoparadaenum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paradas_reparto_id_envio_fkey"
+            columns: ["id_envio"]
+            isOneToOne: false
+            referencedRelation: "envios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paradas_reparto_id_reparto_fkey"
+            columns: ["id_reparto"]
+            isOneToOne: false
+            referencedRelation: "repartos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      repartidores: {
+        Row: {
+          activo: boolean
+          apellido: string
+          created_at: string
+          dni: string | null
+          email: string | null
+          id: string
+          nombre: string
+          telefono: string | null
+        }
+        Insert: {
+          activo?: boolean
+          apellido: string
+          created_at?: string
+          dni?: string | null
+          email?: string | null
+          id?: string
+          nombre: string
+          telefono?: string | null
+        }
+        Update: {
+          activo?: boolean
+          apellido?: string
+          created_at?: string
+          dni?: string | null
+          email?: string | null
+          id?: string
+          nombre?: string
+          telefono?: string | null
+        }
+        Relationships: []
+      }
+      repartos: {
+        Row: {
+          created_at: string
+          estado: string
+          fecha_programada: string
+          id: string
+          id_empresa: string | null
+          id_empresa_despachante: string | null
+          id_repartidor: string | null
+          id_tipo_reparto: string
+          tipo: string | null
+        }
+        Insert: {
+          created_at?: string
+          estado?: string
+          fecha_programada?: string
+          id?: string
+          id_empresa?: string | null
+          id_empresa_despachante?: string | null
+          id_repartidor?: string | null
+          id_tipo_reparto: string
+          tipo?: string | null
+        }
+        Update: {
+          created_at?: string
+          estado?: string
+          fecha_programada?: string
+          id?: string
+          id_empresa?: string | null
+          id_empresa_despachante?: string | null
+          id_repartidor?: string | null
+          id_tipo_reparto?: string
+          tipo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repartos_id_empresa_despachante_fkey"
+            columns: ["id_empresa_despachante"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repartos_id_empresa_fkey"
+            columns: ["id_empresa"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repartos_id_repartidor_fkey"
+            columns: ["id_repartidor"]
+            isOneToOne: false
+            referencedRelation: "repartidores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repartos_id_tipo_reparto_fkey"
+            columns: ["id_tipo_reparto"]
+            isOneToOne: false
+            referencedRelation: "tipos_reparto"
+            referencedColumns: ["id_tipo_reparto"]
+          },
+        ]
+      }
+      tarifas_servicio: {
+        Row: {
+          created_at: string
+          hasta_km: number
+          id_tarifa_servicio: string
+          id_tipo_servicio: string
+          precio: number
+        }
+        Insert: {
+          created_at?: string
+          hasta_km: number
+          id_tarifa_servicio?: string
+          id_tipo_servicio: string
+          precio: number
+        }
+        Update: {
+          created_at?: string
+          hasta_km?: number
+          id_tarifa_servicio?: string
+          id_tipo_servicio?: string
+          precio?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarifas_servicio_id_tipo_servicio_fkey"
+            columns: ["id_tipo_servicio"]
+            isOneToOne: false
+            referencedRelation: "tipos_servicio"
+            referencedColumns: ["id_tipo_servicio"]
+          },
+        ]
+      }
+      tipos_cliente: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          id_tipo_cliente: string
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_cliente?: string
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_cliente?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      tipos_empresa: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          id: string
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      tipos_envio: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string | null
+          id_tipo_envio: string
+          nombre: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_envio?: string
+          nombre: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_envio?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      tipos_paquete: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string | null
+          dimensiones: string | null
+          id_tipo_paquete: string
+          nombre: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          dimensiones?: string | null
+          id_tipo_paquete?: string
+          nombre: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          dimensiones?: string | null
+          id_tipo_paquete?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      tipos_reparto: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string | null
+          id_tipo_reparto: string
+          nombre: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_reparto?: string
+          nombre: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_reparto?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      tipos_servicio: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          id_tipo_servicio: string
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_servicio?: string
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          id_tipo_servicio?: string
+          nombre?: string
         }
         Relationships: []
       }
@@ -169,7 +630,24 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      capacidad_enum: "moto" | "auto" | "camioneta" | "bici"
+      estado_envio_enum:
+        | "pendiente"
+        | "asignado"
+        | "en curso"
+        | "entregado"
+        | "cancelado"
+      estado_repartidor_enum: "activo" | "inactivo"
+      tipo_cliente_enum: "Individual" | "Empresarial" | "Temporal"
+      tipo_empresa_enum:
+        | "Delivery Gastronómico"
+        | "Productos Personales"
+        | "Mensajería"
+        | "Varios"
+      tipo_envio_general_enum: "Empresarial" | "Individual"
+      tipo_parada_enum: "entrega" | "retiro"
+      tipo_reparto_enum: "individual" | "empresa"
+      tipoparadaenum: "RECOLECCION" | "ENTREGA"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -284,6 +762,27 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      capacidad_enum: ["moto", "auto", "camioneta", "bici"],
+      estado_envio_enum: [
+        "pendiente",
+        "asignado",
+        "en curso",
+        "entregado",
+        "cancelado",
+      ],
+      estado_repartidor_enum: ["activo", "inactivo"],
+      tipo_cliente_enum: ["Individual", "Empresarial", "Temporal"],
+      tipo_empresa_enum: [
+        "Delivery Gastronómico",
+        "Productos Personales",
+        "Mensajería",
+        "Varios",
+      ],
+      tipo_envio_general_enum: ["Empresarial", "Individual"],
+      tipo_parada_enum: ["entrega", "retiro"],
+      tipo_reparto_enum: ["individual", "empresa"],
+      tipoparadaenum: ["RECOLECCION", "ENTREGA"],
+    },
   },
 } as const
