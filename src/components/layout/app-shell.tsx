@@ -35,17 +35,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [currentPageTitle, setCurrentPageTitle] = useState('Rumbos Envios');
 
   useEffect(() => {
+    // This useEffect will run on the client after hydration
     setCurrentPageTitle(pageTitles[pathname] || 'Rumbos Envios');
   }, [pathname]);
 
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted) {
-    return null;
-  }
+  // Removed the hasMounted logic that returned null, as it caused hydration mismatch
+  // with server-rendered children.
 
   return (
     <SidebarProvider defaultOpen>
@@ -61,6 +56,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
+        {/* currentPageTitle will initially be 'Rumbos Envios' on both server and client,
+            then update on client after hydration. This is generally fine for text content. */}
         <AppHeader title={currentPageTitle} />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children}
@@ -69,5 +66,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
-    
