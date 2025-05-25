@@ -149,5 +149,3 @@ export async function deleteTipoEmpresaAction(id: string): Promise<{ success: bo
   revalidatePath("/tipos-empresa");
   return { success: true, message: "Tipo de empresa eliminado exitosamente." };
 }
-
-    

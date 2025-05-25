@@ -241,11 +241,10 @@ export async function addRepartosLoteAction(
     id_tipo_paquete_default,
   } = validatedFields.data;
 
-  // Paso 1: Crear el Reparto principal (el lote)
   const repartoInsertData: Database['public']['Tables']['repartos']['Insert'] = {
     id_tipo_reparto,
     id_repartidor: id_repartidor || null,
-    id_empresa, // Empresa de los clientes
+    id_empresa, 
     id_empresa_despachante: id_empresa_despachante || null,
     fecha_programada,
     estado: id_repartidor ? 'ASIGNADO' : 'PENDIENTE',
@@ -259,15 +258,14 @@ export async function addRepartosLoteAction(
     .single();
 
   if (repartoError || !newReparto) {
-    console.error("Error creating main batch reparto:", repartoError);
+    console.error("Error creating main batch reparto. Message:", repartoError?.message, "Full error:", JSON.stringify(repartoError, null, 2));
     return { success: false, message: `Error al crear el reparto principal del lote: ${repartoError?.message}` };
   }
 
   let enviosCreados = 0;
   let paradasCreadas = 0;
-
-  // Obtener dirección de la empresa despachante si existe
   let direccionDespachante: string | null = null;
+
   if (id_empresa_despachante) {
     const { data: empresaDespachanteData, error: empresaDespachanteError } = await supabase
       .from('empresas')
@@ -275,16 +273,14 @@ export async function addRepartosLoteAction(
       .eq('id', id_empresa_despachante)
       .single();
     if (empresaDespachanteError) {
-      console.warn("Could not fetch dispatching company address:", empresaDespachanteError);
+      console.warn("Could not fetch dispatching company address. Message:", empresaDespachanteError.message);
     } else {
       direccionDespachante = empresaDespachanteData?.direccion_fiscal || null;
     }
   }
 
-
   for (const config of clientes_config) {
     if (config.seleccionado && config.id_tipo_servicio && config.precio_servicio_final && config.direccion_completa) {
-      // Paso 2a: Crear el Envio
       const envioInsertData: Database['public']['Tables']['envios']['Insert'] = {
         id_cliente: config.cliente_id,
         id_reparto: newReparto.id,
@@ -292,10 +288,9 @@ export async function addRepartosLoteAction(
         id_tipo_paquete: id_tipo_paquete_default,
         id_tipo_servicio: config.id_tipo_servicio,
         direccion_destino: config.direccion_completa,
-        fecha_solicitud: fecha_programada, // Usar fecha del reparto
+        fecha_solicitud: fecha_programada, 
         estado: 'ASIGNADO_REPARTO',
         precio_servicio_final: config.precio_servicio_final,
-        // Otros campos opcionales de envio pueden ser null o valores por defecto de la DB
       };
 
       const { data: newEnvio, error: envioError } = await supabase
@@ -305,38 +300,36 @@ export async function addRepartosLoteAction(
         .single();
 
       if (envioError || !newEnvio) {
-        console.error(`Error creating envio for client ${config.cliente_id}:`, envioError);
-        // Continuar con los demás, pero registrar el error
+        console.error(`Error creating envio for client ${config.cliente_id}. Message:`, envioError?.message, "Full error:", JSON.stringify(envioError, null, 2));
         continue;
       }
       enviosCreados++;
 
-      // Paso 2b: Crear ParadaReparto para RECOLECCION (si aplica)
+      let ordenParada = 1;
       if (direccionDespachante) {
         const paradaRecoleccionData: Database['public']['Tables']['paradas_reparto']['Insert'] = {
           id_reparto: newReparto.id,
           id_envio: newEnvio.id,
-          orden: 1, // Asumir orden 1 para recolección
+          orden: ordenParada++,
           direccion_parada: direccionDespachante,
           tipo_parada: 'RECOLECCION',
           estado_parada: 'PENDIENTE',
         };
         const { error: paradaRecError } = await supabase.from("paradas_reparto").insert(paradaRecoleccionData);
-        if (paradaRecError) console.error(`Error creating RECOLECCION parada for envio ${newEnvio.id}:`, paradaRecError);
+        if (paradaRecError) console.error(`Error creating RECOLECCION parada for envio ${newEnvio.id}. Message:`, paradaRecError.message, "Full error:", JSON.stringify(paradaRecError, null, 2));
         else paradasCreadas++;
       }
       
-      // Paso 2c: Crear ParadaReparto para ENTREGA
       const paradaEntregaData: Database['public']['Tables']['paradas_reparto']['Insert'] = {
         id_reparto: newReparto.id,
         id_envio: newEnvio.id,
-        orden: direccionDespachante ? 2 : 1, // Orden 2 si hay recolección, sino 1
+        orden: ordenParada,
         direccion_parada: config.direccion_completa,
         tipo_parada: 'ENTREGA',
         estado_parada: 'PENDIENTE',
       };
       const { error: paradaEntError } = await supabase.from("paradas_reparto").insert(paradaEntregaData);
-      if (paradaEntError) console.error(`Error creating ENTREGA parada for envio ${newEnvio.id}:`, paradaEntError);
+      if (paradaEntError) console.error(`Error creating ENTREGA parada for envio ${newEnvio.id}. Message:`, paradaEntError.message, "Full error:", JSON.stringify(paradaEntError, null, 2));
       else paradasCreadas++;
     }
   }
@@ -345,14 +338,12 @@ export async function addRepartosLoteAction(
   return { 
     success: true, 
     message: `Reparto por lote creado. ${enviosCreados} envíos y ${paradasCreadas} paradas generadas.`,
-    repartosCreados: 1, // Se crea 1 reparto principal
+    repartosCreados: 1,
     enviosCreados,
     paradasCreadas,
   };
 }
 
-// Estas funciones podrían importarse desde sus respectivos módulos actions.ts
-// pero las incluimos aquí para que este archivo sea autocontenido para el formulario de lotes.
 export async function getRepartidoresForSelectAction(): Promise<SelectOption[]> {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -363,7 +354,13 @@ export async function getRepartidoresForSelectAction(): Promise<SelectOption[]> 
     .order("nombre");
 
   if (error) {
-    console.error("Error fetching repartidores for select:", error);
+    console.error(
+        "Error fetching repartidores for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return [];
   }
   return data.map((r) => ({ value: r.id, label: `${r.apellido}, ${r.nombre}` }));
@@ -389,5 +386,3 @@ export async function getEmpresasForSelectAction(): Promise<SelectOption[]> {
   }
   return data.map((e) => ({ value: e.id, label: e.razon_social }));
 }
-
-    

@@ -170,5 +170,3 @@ export async function getTiposRepartoForSelectAction(): Promise<SelectOption[]> 
   }
   return data.map((tr) => ({ value: tr.id_tipo_reparto, label: tr.nombre }));
 }
-
-    

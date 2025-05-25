@@ -91,7 +91,7 @@ export async function addTipoEnvioAction(
       "Hint:", error.hint,
       "Full error:", JSON.stringify(error, null, 2)
     );
-    return { success: false, message: \`Error al crear tipo de envío: \${error.message}\` };
+    return { success: false, message: `Error al crear tipo de envío: ${error.message}` };
   }
   revalidatePath("/tipos-envio");
   return { success: true, message: "Tipo de envío creado exitosamente.", tipoEnvio: data as TipoEnvio };
@@ -125,7 +125,7 @@ export async function updateTipoEnvioAction(
       "Hint:", error.hint,
       "Full error:", JSON.stringify(error, null, 2)
     );
-    return { success: false, message: \`Error al actualizar tipo de envío: \${error.message}\` };
+    return { success: false, message: `Error al actualizar tipo de envío: ${error.message}` };
   }
   revalidatePath("/tipos-envio");
   return { success: true, message: "Tipo de envío actualizado exitosamente.", tipoEnvio: data as TipoEnvio };
@@ -143,7 +143,7 @@ export async function deleteTipoEnvioAction(id_tipo_envio: string): Promise<{ su
       "Hint:", error.hint,
       "Full error:", JSON.stringify(error, null, 2)
     );
-    return { success: false, message: \`Error al eliminar tipo de envío: \${error.message}\` };
+    return { success: false, message: `Error al eliminar tipo de envío: ${error.message}` };
   }
   revalidatePath("/tipos-envio");
   return { success: true, message: "Tipo de envío eliminado exitosamente." };
@@ -169,5 +169,3 @@ export async function getTiposEnvioForSelectAction(): Promise<SelectOption[]> {
   }
   return data.map((te) => ({ value: te.id_tipo_envio, label: te.nombre }));
 }
-
-    

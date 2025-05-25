@@ -26,7 +26,7 @@ export async function getTiposPaqueteAction({
     .order("created_at", { ascending: false });
 
   if (query) {
-    supabaseQuery = supabaseQuery.or(\`nombre.ilike.%\${query}%,descripcion.ilike.%\${query}%,dimensiones.ilike.%\${query}%\`);
+    supabaseQuery = supabaseQuery.or(`nombre.ilike.%${query}%,descripcion.ilike.%${query}%,dimensiones.ilike.%${query}%`);
   }
 
   const { data, error, count } = await supabaseQuery;
@@ -91,7 +91,7 @@ export async function addTipoPaqueteAction(
       "Hint:", error.hint,
       "Full error:", JSON.stringify(error, null, 2)
     );
-    return { success: false, message: \`Error al crear tipo de paquete: \${error.message}\` };
+    return { success: false, message: `Error al crear tipo de paquete: ${error.message}` };
   }
   revalidatePath("/tipos-paquete");
   return { success: true, message: "Tipo de paquete creado exitosamente.", tipoPaquete: data as TipoPaquete };
@@ -125,7 +125,7 @@ export async function updateTipoPaqueteAction(
       "Hint:", error.hint,
       "Full error:", JSON.stringify(error, null, 2)
     );
-    return { success: false, message: \`Error al actualizar tipo de paquete: \${error.message}\` };
+    return { success: false, message: `Error al actualizar tipo de paquete: ${error.message}` };
   }
   revalidatePath("/tipos-paquete");
   return { success: true, message: "Tipo de paquete actualizado exitosamente.", tipoPaquete: data as TipoPaquete };
@@ -143,7 +143,7 @@ export async function deleteTipoPaqueteAction(id_tipo_paquete: string): Promise<
       "Hint:", error.hint,
       "Full error:", JSON.stringify(error, null, 2)
     );
-    return { success: false, message: \`Error al eliminar tipo de paquete: \${error.message}\` };
+    return { success: false, message: `Error al eliminar tipo de paquete: ${error.message}` };
   }
   revalidatePath("/tipos-paquete");
   return { success: true, message: "Tipo de paquete eliminado exitosamente." };
@@ -170,5 +170,3 @@ export async function getTiposPaqueteForSelectAction(): Promise<SelectOption[]> 
   }
   return data.map((tp) => ({ value: tp.id_tipo_paquete, label: tp.nombre }));
 }
-
-    

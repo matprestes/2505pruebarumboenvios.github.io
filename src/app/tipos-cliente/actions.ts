@@ -150,5 +150,3 @@ export async function deleteTipoClienteAction(id_tipo_cliente: string): Promise<
   revalidatePath("/tipos-cliente");
   return { success: true, message: "Tipo de cliente eliminado exitosamente." };
 }
-
-    

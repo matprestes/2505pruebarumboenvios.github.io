@@ -3,7 +3,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { repartidorSchema } from "@/lib/schemas";
-import type { Repartidor } from "@/types";
+import type { Repartidor, SelectOption } from "@/types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -34,7 +34,13 @@ export async function getRepartidoresAction({
   const { data, error, count } = await supabaseQuery;
 
   if (error) {
-    console.error("Error fetching repartidores:", error);
+    console.error(
+        "Error fetching repartidores. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { data: [], count: 0 };
   }
   return { data: data as Repartidor[], count: count ?? 0 };
@@ -48,7 +54,13 @@ export async function getRepartidorByIdAction(id: string): Promise<Repartidor | 
     .eq("id", id)
     .single();
   if (error) {
-    console.error("Error fetching repartidor by ID:", error);
+    console.error(
+        "Error fetching repartidor by ID. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return null;
   }
   return data as Repartidor;
@@ -71,7 +83,13 @@ export async function addRepartidorAction(
     .single();
 
   if (error) {
-    console.error("Error adding repartidor:", error);
+    console.error(
+        "Error adding repartidor. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al crear repartidor: ${error.message}` };
   }
   revalidatePath("/repartidores");
@@ -97,7 +115,13 @@ export async function updateRepartidorAction(
     .single();
 
   if (error) {
-    console.error("Error updating repartidor:", error);
+    console.error(
+        "Error updating repartidor. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al actualizar repartidor: ${error.message}` };
   }
   revalidatePath("/repartidores");
@@ -110,7 +134,13 @@ export async function deleteRepartidorAction(id: string): Promise<{ success: boo
   const { error } = await supabase.from("repartidores").delete().eq("id", id);
 
   if (error) {
-    console.error("Error deleting repartidor:", error);
+    console.error(
+        "Error deleting repartidor. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al eliminar repartidor: ${error.message}` };
   }
   revalidatePath("/repartidores");
@@ -127,10 +157,14 @@ export async function getRepartidoresForSelectAction(): Promise<SelectOption[]> 
     .order("nombre");
 
   if (error) {
-    console.error("Error fetching repartidores for select:", error);
+    console.error(
+        "Error fetching repartidores for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return [];
   }
   return data.map((r) => ({ value: r.id, label: `${r.apellido}, ${r.nombre}` }));
 }
-
-    

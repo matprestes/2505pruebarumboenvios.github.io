@@ -15,7 +15,16 @@ export async function getClientesForSelectAction(): Promise<SelectOption[]> {
     .select("id, nombre, apellido")
     .order("apellido")
     .order("nombre");
-  if (error) { console.error(error); return []; }
+  if (error) { 
+    console.error(
+        "Error fetching clientes for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    ); 
+    return []; 
+  }
   return data.map(c => ({ value: c.id, label: `${c.apellido || ''}, ${c.nombre}`.trimStart().replace(/^, /, '') }));
 }
 
@@ -26,7 +35,16 @@ export async function getTiposEnvioForSelectAction(): Promise<SelectOption[]> {
     .select("id_tipo_envio, nombre")
     .eq("activo", true)
     .order("nombre");
-  if (error) { console.error(error); return []; }
+  if (error) { 
+    console.error(
+        "Error fetching tipos_envio for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    ); 
+    return []; 
+  }
   return data.map(te => ({ value: te.id_tipo_envio, label: te.nombre }));
 }
 
@@ -37,7 +55,16 @@ export async function getTiposPaqueteForSelectAction(): Promise<SelectOption[]> 
     .select("id_tipo_paquete, nombre")
     .eq("activo", true)
     .order("nombre");
-  if (error) { console.error(error); return []; }
+  if (error) { 
+    console.error(
+        "Error fetching tipos_paquete for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    ); 
+    return []; 
+  }
   return data.map(tp => ({ value: tp.id_tipo_paquete, label: tp.nombre }));
 }
 
@@ -47,7 +74,16 @@ export async function getTiposServicioForSelectAction(): Promise<SelectOption[]>
     .from("tipos_servicio")
     .select("id_tipo_servicio, nombre")
     .order("nombre");
-  if (error) { console.error(error); return []; }
+  if (error) { 
+    console.error(
+        "Error fetching tipos_servicio for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    ); 
+    return []; 
+  }
   return data.map(ts => ({ value: ts.id_tipo_servicio, label: ts.nombre }));
 }
 
@@ -58,7 +94,16 @@ export async function getRepartosForSelectAction(): Promise<SelectOption[]> {
     .from("repartos")
     .select("id, fecha_programada, estado")
     .order("fecha_programada", { ascending: false });
-  if (error) { console.error(error); return []; }
+  if (error) { 
+    console.error(
+        "Error fetching repartos for select. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    ); 
+    return []; 
+  }
   return data.map(r => ({ value: r.id, label: `ID: ${r.id.substring(0,8)} (${r.fecha_programada}) - ${r.estado}` }));
 }
 
@@ -68,7 +113,16 @@ export async function getEmpresasClienteForSelectAction(): Promise<SelectOption[
     .from("empresas")
     .select("id, razon_social")
     .order("razon_social");
-  if (error) { console.error(error); return []; }
+  if (error) { 
+    console.error(
+        "Error fetching empresas for select (cliente context). Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    ); 
+    return []; 
+  }
   return data.map(e => ({ value: e.id, label: e.razon_social }));
 }
 
@@ -108,7 +162,13 @@ export async function getEnviosAction({
   const { data, error, count } = await supabaseQuery;
 
   if (error) {
-    console.error("Error fetching envios:", error);
+    console.error(
+        "Error fetching envios. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { data: [], count: 0 };
   }
   return { data: data as Envio[], count: count ?? 0 };
@@ -131,7 +191,13 @@ export async function getEnvioByIdAction(id: string): Promise<Envio | null> {
     .eq("id", id)
     .single();
   if (error) {
-    console.error("Error fetching envio by ID:", error);
+    console.error(
+        "Error fetching envio by ID. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return null;
   }
   return data as Envio;
@@ -155,7 +221,13 @@ export async function addEnvioAction(
     .single();
 
   if (error) {
-    console.error("Error adding envio:", error);
+    console.error(
+        "Error adding envio. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al crear envío: ${error.message}` };
   }
   revalidatePath("/envios");
@@ -182,7 +254,13 @@ export async function updateEnvioAction(
     .single();
 
   if (error) {
-    console.error("Error updating envio:", error);
+    console.error(
+        "Error updating envio. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al actualizar envío: ${error.message}` };
   }
   revalidatePath("/envios");
@@ -195,11 +273,15 @@ export async function deleteEnvioAction(id: string): Promise<{ success: boolean;
   const { error } = await supabase.from("envios").delete().eq("id", id);
 
   if (error) {
-    console.error("Error deleting envio:", error);
+    console.error(
+        "Error deleting envio. Message:", error.message,
+        "Code:", error.code,
+        "Details:", error.details,
+        "Hint:", error.hint,
+        "Full error:", JSON.stringify(error, null, 2)
+    );
     return { success: false, message: `Error al eliminar envío: ${error.message}` };
   }
   revalidatePath("/envios");
   return { success: true, message: "Envío eliminado exitosamente." };
 }
-
-    
